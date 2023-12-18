@@ -1,0 +1,84 @@
+.admin-header{
+    background:rgb(238,238,238) !important;
+    height:90px !important;
+    padding:6px 10px;
+    position: fixed; 
+}
+.Elite-logo{
+    padding-left:0px !important;
+    margin-left: 0px;
+    height:65px !important;
+    width:280px !important;
+}
+.Admin-profile{
+    position: fixed !important; 
+   height:50px !important;
+    width:50px !important;
+}
+.AdminMenu-Item{
+    margin-top:30px;
+    margin-left: 0px
+}
+
+@media (max-width: 768px) {
+    .admin-header{
+        height:80px !important;
+
+    }
+   
+    .Elite-logo{
+        padding-left:0px !important;
+        margin-left: 0px !important;
+        height:100% !important;
+        width:230px !important;
+    }
+    .Admin-profile{
+        height:35px !important;
+         width:35px !important;
+     }
+    
+
+     .AdminMenu-Item{
+        margin-top:30px;
+        margin-left: 10px;
+    }
+    
+}
+
+/* Side nav css */
+
+.SideNav-list{
+    margin-top: 25px !important;
+    font-size:6px !important;
+    font-weight: 900 !important;
+}
+.SideNav-button{
+    margin:0px;
+    padding:5px 8px;
+    background: white;
+}
+.SideNav-icon{
+    background: white !important; 
+    opacity: 0.7;
+    height:30px !important;
+    width:30px !important;
+}
+.SideNav-button-active{
+    margin:0px;
+    padding:5px 8px;
+    background: linear-gradient(to right,#FF5733, rgb(255, 202, 55)) !important;
+}
+
+.SideNav-text-active{
+    color:white !important;
+   font-size:12px !important;
+   font-weight:bold !important;
+}
+.SideNav-text{
+    color:#00008B !important;
+    font-size:12px !important;
+    font-weight:bold !important;
+ }
+
+
+

@@ -1,0 +1,60 @@
+/* Dashboard.css */
+
+.Dashboard-container {
+    margin-top: 20px;
+    width: 100%;
+    padding: 0px;
+    background: "";
+  }
+  .Dashboard-container-title{
+    font-size: 18px;
+    color:#00008B;
+    font-weight: 600;
+    text-align: left;
+    margin-left: 80px !important;
+    margin-bottom: 10px;
+  }
+  
+  .Dashboard-row {
+    margin: 0 -10px; /* Adjust margin to match padding */
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center ;
+  }
+  
+  .Dashboard-item {
+    margin: 10px;
+    height: 180px !important;
+    width: 180px !important; /* 100% / 6 - (2 * margin) */
+    display: flex;
+    flex-direction: column;
+    justify-content: left;
+    align-items: center !important;
+    padding: 16px;
+    border-radius: 8px;
+    margin-bottom: 50px !important;
+  }
+  
+  .Dashboard-avator {
+    height: 130px !important;
+    width: 160px !important;
+    padding: 14px 14px 0px 14px !important;
+    background: #faf9f5;
+  }
+  
+  /* Additional styles to ensure consistency in spacing */
+  @media (min-width: 1200px) {
+    .Dashboard-item {
+      width: calc(16.666% - 20px);
+    }
+  }
+  @media (max-width: 768px) {
+    .Dashboard-container-title{
+      margin-left: 40px !important;
+    }
+    .Dashboard-container {
+     margin-top: 10px;
+     margin-bottom: 0px;
+    }
+  }
+  
