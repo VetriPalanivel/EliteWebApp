@@ -1,4 +1,4 @@
-import React,{useEffect} from "react";
+import React,{useEffect, useState} from "react";
 import { Input, Grid, Row, Col } from "rsuite";
 import { SelectPicker } from "rsuite";
 import Card from "@mui/material/Card";
@@ -20,13 +20,18 @@ import { resetClub, updateClub } from "../../../redux/userReducer";
 export default function Clubs() {
   const club = useSelector ((state) => state.Elite.club)
   const dispatch = useDispatch();
+  const [clubList,setClubList] = useState([])
 
   useEffect(()=>{
     if (typeof window !== 'undefined') {
       window.scrollTo(0, 0);
+      getClubs()
+    }},[])
+  
+    const getClubs = async()=>{
+      const response =await axios.get("http://localhost:4000/get_clubs_societies");
+      setClubList(response.data)
     }
-  },[])
-
   const SelectOption = [
     {
       label: "Completed",
@@ -55,7 +60,7 @@ export default function Clubs() {
   const validateForm = club.image && club.title && club.description &&  club.link
   const cancelForm = club.image || club.title || club.description ||  club.link
  
-  const handleAddProject = () =>{
+  const handleAddProject = async() =>{
     const formData = new FormData();
     formData.append('image', club.image);
     formData.append('title', club.title);
@@ -63,16 +68,25 @@ export default function Clubs() {
     formData.append('link', club.link);
     
     if(validateForm){
-      axios.post("http://localhost:4000/Club",formData)
+      await axios.post("http://localhost:4000/post_clubs_societies",formData)
       .then(res=>{console.log(res)})
       .catch(e=>{console.log(e)})
-      dispatch(resetClub())
+      // dispatch(resetClub())
+      getClubs()
     }  
   }
 
   const handleCancelProject = async() =>{
     dispatch(resetClub())
   }
+
+  const truncateText = (text, limit) => {
+    const words = text.split(' ');
+    if (words.length > limit) {
+      return words.slice(0, limit).join(' ') + '...';
+    }
+    return text;
+  };
 
   return (
     <div className="researchProjects-container">
@@ -172,7 +186,7 @@ export default function Clubs() {
           ADDED PROJECT DETAILS
         </h5>
         <div className="Form-DisplayContainer">
-          {[1, 2, 3, 4, 5, 6].map((item) => (
+          {clubList.map((item) => (
             <Card
               className="Form-DisplayCard"
             >
@@ -187,7 +201,7 @@ export default function Clubs() {
                         style={{
                          
                         }}
-                        src={course}
+                        src={`http://localhost:4000/${item.image}`}
                       />
                     </Col>
                     <Col
@@ -196,18 +210,10 @@ export default function Clubs() {
                     >
                       <div>
                         <h6 className="Display-content-heading" >
-                          Adoption of IIOT in manufacturing and Production SME's
-                          Research Grant by Saudi Electronic University
+                        {item.title}
                         </h6>
                         <p className="Display-content-text">
-                          We use cookies on our website. Cookies are used to
-                          improve the functionality and use of our internet
-                          site, as well as for analytic and advertising
-                          purposes. To learn more about cookies, how we use
-                          them, and how to change your cookie settings, find out
-                          more here. By continuing to use this site without
-                          changing your settings, you consent to our use of
-                          cookies.
+                        {truncateText(item.description, 60)}
                         </p>
                         <CardActions
                           style={{ display: "flex", justifyContent: "end" }}

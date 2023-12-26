@@ -1,4 +1,4 @@
-import React,{useEffect} from "react";
+import React,{useEffect, useState} from "react";
 import { Input, Grid, Row, Col } from "rsuite";
 import { SelectPicker } from "rsuite";
 import Card from "@mui/material/Card";
@@ -20,11 +20,18 @@ import { resetCourse, updateCourse } from "../../../redux/userReducer";
 export default function Courses() {
   const course = useSelector ((state) => state.Elite.course)
   const dispatch = useDispatch();
+  const[courseList,setCourseList] = useState([])
   useEffect(()=>{
     if (typeof window !== 'undefined') {
       window.scrollTo(0, 0);
+      getCourses()
+    }},[])
+  
+    const getCourses= async()=>{
+      const response =await axios.get("http://localhost:4000/get_course");
+      setCourseList(response.data)
     }
-  },[])
+
   const SelectOption = [
     {
       label: "Online",
@@ -70,7 +77,7 @@ export default function Courses() {
   const validateForm = course.domain && course.image && course.title && course.description && course.mode && course.objective && course.benefit && course.duration && course.structure && course.link
   const cancelForm = course.domain || course.image || course.title || course.description || course.mode || course.objective || course.benefit || course.duration || course.structure || course.link
  
-  const handleAddProject = () =>{
+  const handleAddProject = async() =>{
     const formData = new FormData();
     formData.append('image', course.image);
     formData.append('title', course.title);
@@ -84,16 +91,26 @@ export default function Courses() {
     formData.append('link', course.link);
     
     if(validateForm){
-      axios.post("http://localhost:4000/Training",formData)
+      await axios.post("http://localhost:4000/post_course",formData)
       .then(res=>{console.log(res)})
       .catch(e=>{console.log(e)})
-      dispatch(resetCourse())
+      // dispatch(resetCourse())
+      getCourses()
     }  
   }
 
   const handleCancelProject = async() =>{
     dispatch(resetCourse())
   }
+
+  const truncateText = (text, limit) => {
+    const words = text.split(' ');
+    if (words.length > limit) {
+      return words.slice(0, limit).join(' ') + '...';
+    }
+    return text;
+  };
+
   return (
     <div className="researchProjects-container">
       <div className="Form-div">
@@ -294,7 +311,7 @@ export default function Courses() {
           ADDED PROJECT DETAILS
         </h5>
         <div className="Form-DisplayContainer">
-          {[1, 2, 3, 4, 5, 6].map((item) => (
+          {courseList.map((item) => (
             <Card
               className="Form-DisplayCard"
             >
@@ -309,7 +326,7 @@ export default function Courses() {
                         style={{
                          
                         }}
-                        src={course}
+                        src={`http://localhost:4000/${item.image}`}
                       />
                     </Col>
                     <Col
@@ -318,18 +335,10 @@ export default function Courses() {
                     >
                       <div>
                         <h6 className="Display-content-heading" >
-                          Adoption of IIOT in manufacturing and Production SME's
-                          Research Grant by Saudi Electronic University
+                        {item.title}
                         </h6>
                         <p className="Display-content-text">
-                          We use cookies on our website. Cookies are used to
-                          improve the functionality and use of our internet
-                          site, as well as for analytic and advertising
-                          purposes. To learn more about cookies, how we use
-                          them, and how to change your cookie settings, find out
-                          more here. By continuing to use this site without
-                          changing your settings, you consent to our use of
-                          cookies.
+                        {truncateText(item.description, 60)}
                         </p>
                         <CardActions
                           style={{ display: "flex", justifyContent: "end" }}

@@ -1,4 +1,4 @@
-import React,{useEffect} from "react";
+import React,{useEffect, useState} from "react";
 import { Input, Grid, Row, Col } from "rsuite";
 import { SelectPicker } from "rsuite";
 import Card from "@mui/material/Card";
@@ -20,11 +20,17 @@ import { resetNews, updateNews } from "../../../redux/userReducer";
 export default function News() {
   const news = useSelector ((state) => state.Elite.news)
   const dispatch = useDispatch();
+  const[newsList,setNewsList] = useState([])
   useEffect(()=>{
     if (typeof window !== 'undefined') {
       window.scrollTo(0, 0);
+      getNews()
+    }},[])
+  
+    const getNews = async()=>{
+      const response =await axios.get("http://localhost:4000/get_news");
+      setNewsList(response.data)
     }
-  },[])
 
   const handleFormTitle = (event) =>{
     dispatch(updateNews({...news,"title" : event}));
@@ -43,7 +49,7 @@ export default function News() {
   const validateForm = news.image && news.title && news.description && news.date
   const cancelForm = news.image || news.title || news.description || news.date
  
-  const handleAddProject = () =>{
+  const handleAddProject = async() =>{
   const formData = new FormData();
     formData.append('image', news.image);
     formData.append('title', news.title);
@@ -51,10 +57,11 @@ export default function News() {
     formData.append('date', news.date);
     
     if(validateForm){
-      axios.post("http://localhost:4000/News",formData)
+      await axios.post("http://localhost:4000/post_news",formData)
       .then(res=>{console.log(res)})
       .catch(e=>{console.log(e)})
-      dispatch(resetNews())
+      // dispatch(resetNews())
+      getNews()
     }  
   }
 
@@ -62,6 +69,13 @@ export default function News() {
     dispatch(resetNews())
   }
 
+  const truncateText = (text, limit) => {
+    const words = text.split(' ');
+    if (words.length > limit) {
+      return words.slice(0, limit).join(' ') + '...';
+    }
+    return text;
+  };
 
   return (
     <div className="researchProjects-container">
@@ -161,7 +175,7 @@ export default function News() {
           ADDED PROJECT DETAILS
         </h5>
         <div className="Form-DisplayContainer">
-          {[1, 2, 3, 4, 5, 6].map((item) => (
+          {newsList.map((item) => (
             <Card
               className="Form-DisplayCard"
             >
@@ -176,7 +190,7 @@ export default function News() {
                         style={{
                          
                         }}
-                        src={course}
+                        src={`http://localhost:4000/${item.image}`}
                       />
                     </Col>
                     <Col
@@ -185,18 +199,10 @@ export default function News() {
                     >
                       <div>
                         <h6 className="Display-content-heading" >
-                          Adoption of IIOT in manufacturing and Production SME's
-                          Research Grant by Saudi Electronic University
+                        {item.title}
                         </h6>
                         <p className="Display-content-text">
-                          We use cookies on our website. Cookies are used to
-                          improve the functionality and use of our internet
-                          site, as well as for analytic and advertising
-                          purposes. To learn more about cookies, how we use
-                          them, and how to change your cookie settings, find out
-                          more here. By continuing to use this site without
-                          changing your settings, you consent to our use of
-                          cookies.
+                        {truncateText(item.description, 60)}
                         </p>
                         <CardActions
                           style={{ display: "flex", justifyContent: "end" }}

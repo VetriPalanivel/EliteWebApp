@@ -6,10 +6,12 @@ import axios from "axios";
 import CardContent from "@mui/material/CardContent";
 import { Uploader } from "rsuite";
 import { Button, ButtonToolbar } from "rsuite";
+import { Tooltip, Whisper } from 'rsuite';
 import DeleteIcon from "@mui/icons-material/Delete";
 import CloudUploadIcon from "@mui/icons-material/Upload";
 import CardActions from "@mui/material/CardActions";
 import EditIcon from "@mui/icons-material/Edit";
+import BorderColorIcon from '@mui/icons-material/BorderColor';
 import { Avatar } from "@mui/material";
 import course from "../../../asserts/course.png";
 import "rsuite/dist/rsuite.min.css";
@@ -20,14 +22,21 @@ import { resetOnGoingProject, updateOnGoingProject } from "../../../redux/userRe
 export default function OnGoingProjects() {
 
   const onGoingProject = useSelector ((state) => state.Elite.onGoingProject)
+  const [projectList,setProjectList] = useState([])
   const dispatch = useDispatch();
+  const [edit,setEdit] = useState(false)
+  const [editImage,setEditImage] = useState("");
   useEffect(()=>{
     if (typeof window !== 'undefined') {
       window.scrollTo(0, 0);
     }
+    getOnGoingProjects();
   },[])
 
-  const [projectList,setProjectList] = useState([])
+  const getOnGoingProjects = async() =>{
+    const response =await axios.get("http://localhost:4000/ongoing_project/get");
+    setProjectList(response.data)
+  }
 
   const SelectOption = [
     {
@@ -56,7 +65,14 @@ export default function OnGoingProjects() {
   }
 const validateForm = onGoingProject.image && onGoingProject.title && onGoingProject.status && onGoingProject.description;
 const cancelForm = onGoingProject.image || onGoingProject.title || onGoingProject.status || onGoingProject.description;
-  const handleAddProject = () =>{
+
+const handleUpdateValidation = () =>{
+  const tempOnGoingProject = projectList.filter((item)=>item.id === onGoingProject?.id)
+  return (tempOnGoingProject[0]?.title !==onGoingProject?.title || tempOnGoingProject[0]?.image !==onGoingProject?.image || tempOnGoingProject[0]?.status !==onGoingProject?.status || tempOnGoingProject[0]?.description !==onGoingProject?.description)
+}
+const updateValidation = handleUpdateValidation();
+
+const handleAddProject = async() =>{
     const formData = new FormData();
     formData.append('image', onGoingProject.image);
     formData.append('title', onGoingProject.title);
@@ -64,16 +80,46 @@ const cancelForm = onGoingProject.image || onGoingProject.title || onGoingProjec
     formData.append('status', onGoingProject.status);
     
     if(validateForm){
-      axios.post("http://localhost:4000/post_ongoing_project",formData)
+      if(!edit){
+        await axios.post("http://localhost:4000/ongoing_project/create",formData)
       .then(res=>{console.log(res)})
       .catch(e=>{console.log(e)})
-      dispatch(resetOnGoingProject())
+      }else{
+        await axios.put("http://localhost:4000/ongoing_project/update/"+ onGoingProject.id,formData)
+        .then(res=>{console.log(res)})
+        .catch(e=>{console.log(e)})
+      }
     }  
+    // dispatch(resetOnGoingProject())
+    getOnGoingProjects();
   }
 
+  const handleEditProject = (item) => ()  =>{
+    setEdit(true)
+    dispatch(updateOnGoingProject({...onGoingProject,
+      "description":item.description,
+      "image":item.image,
+      "title":item.title,
+      "status":item.status,
+      "id":item.id,
+    }))
+    setEditImage(item.image);
+  }
+  
+  
   const handleCancelProject = async() =>{
     dispatch(resetOnGoingProject())
+    setEdit(false)
   }
+
+
+  const truncateText = (text, limit) => {
+    const words = text.split(' ');
+    if (words.length > limit) {
+      return words.slice(0, limit).join(' ') + '...';
+    }
+    return text;
+  };
 
   return (
     <div className="researchProjects-container">
@@ -103,14 +149,18 @@ const cancelForm = onGoingProject.image || onGoingProject.title || onGoingProjec
                 <label class="Form-label">Image:</label>
               </Col>
               <Col xs={24} sm={24} md={15} lg={15} xl={15} >
+                <div>
                 <input
                   className="Form-imageUpload"
                   name="image"
                   type="file"
                   style={{background:"white",height:"35px",borderRadius:"6px",padding:"5px",color:"rgb(133, 133, 133)"}}
                   required
+                  display="none"
                   onChange={handleFormImage}
                 />
+                 {(edit && editImage === onGoingProject.image) ? <p className="Form-textArea" style={{padding:"5px",color:"rgb(133, 133, 133)"}}>{onGoingProject.image}</p>:""}
+                  </div>
               </Col>
             </Row>
 
@@ -157,9 +207,14 @@ const cancelForm = onGoingProject.image || onGoingProject.title || onGoingProjec
                   <Button disabled={!cancelForm} color="red" id="cancel" appearance="primary" onClick={handleCancelProject}>
                     Cancel
                   </Button>
+                  { !edit ? 
                   <Button disabled={!validateForm} color="green" id="addnew" appearance="primary" onClick={handleAddProject}>
                     Add New
+                  </Button> :
+                  <Button disabled={!(validateForm && updateValidation)} color="green" id="addnew" appearance="primary" onClick={handleAddProject}>
+                    Update
                   </Button>
+                   }
                 </ButtonToolbar>
               </Col>
             </Row>
@@ -174,7 +229,7 @@ const cancelForm = onGoingProject.image || onGoingProject.title || onGoingProjec
           ADDED PROJECT DETAILS
         </h5>
         <div className="Form-DisplayContainer">
-          {[1, 2, 3, 4, 5, 6].map((item) => (
+          {projectList.map((item,index) => (
             <Card
               className="Form-DisplayCard"
             >
@@ -189,7 +244,7 @@ const cancelForm = onGoingProject.image || onGoingProject.title || onGoingProjec
                         style={{
                          
                         }}
-                        src={course}
+                        src={`http://localhost:4000/${item.image}`}
                       />
                     </Col>
                     <Col
@@ -198,18 +253,10 @@ const cancelForm = onGoingProject.image || onGoingProject.title || onGoingProjec
                     >
                       <div>
                         <h6 className="Display-content-heading" >
-                          Adoption of IIOT in manufacturing and Production SME's
-                          Research Grant by Saudi Electronic University
+                          {item.title}
                         </h6>
                         <p className="Display-content-text">
-                          We use cookies on our website. Cookies are used to
-                          improve the functionality and use of our internet
-                          site, as well as for analytic and advertising
-                          purposes. To learn more about cookies, how we use
-                          them, and how to change your cookie settings, find out
-                          more here. By continuing to use this site without
-                          changing your settings, you consent to our use of
-                          cookies.
+                        {truncateText(item.description, 69)}
                         </p>
                         <CardActions
                           style={{ display: "flex", justifyContent: "end" }}
@@ -226,16 +273,24 @@ const cancelForm = onGoingProject.image || onGoingProject.title || onGoingProjec
                     </Col>
                     <Col xs={24} sm={24} md={2} lg={2} xl={2}>
                       <div className="Display-content-edit">
+                      <Whisper  placement="top" speaker={<Tooltip> Delete!</Tooltip>}>
                         <Button
                           variant="outlined"
                           id="delete"
+                          style={{color:"red"}}
                           startIcon={<DeleteIcon />}
                         />
+                        </Whisper>
+                        <Whisper  placement="top" speaker={<Tooltip> Edit!</Tooltip>}>
                         <Button
                          id="edit"
+                         color="blue"
                           variant="outlined"
-                          startIcon={<EditIcon />}
+                          style={{color:"green"}}
+                          startIcon={<BorderColorIcon />}
+                          onClick={handleEditProject(item)}
                         />
+                        </Whisper>
                       </div>
                     </Col>
                   </Row>

@@ -1,4 +1,4 @@
-import React,{useEffect} from "react";
+import React,{useEffect, useState} from "react";
 import { Input, Grid, Row, Col } from "rsuite";
 import { SelectPicker } from "rsuite";
 import Card from "@mui/material/Card";
@@ -20,11 +20,17 @@ import { resetTraining, updateTraining } from "../../../redux/userReducer";
 export default function Trainings() {
   const training = useSelector ((state) => state.Elite.training)
   const dispatch = useDispatch();
+  const [trainingList,setTrainingList] = useState([])
   useEffect(()=>{
     if (typeof window !== 'undefined') {
       window.scrollTo(0, 0);
+      getTrainings()
+    }},[])
+  
+    const getTrainings = async()=>{
+      const response =await axios.get("http://localhost:4000/get_training");
+      setTrainingList(response.data)
     }
-  },[])
 
   const SelectOption = [
     {
@@ -66,7 +72,7 @@ export default function Trainings() {
   const validateForm = training.image && training.title && training.description && training.mode && training.objective && training.venue && training.fee && training.link
   const cancelForm = training.image || training.title || training.description || training.mode || training.objective || training.venue || training.fee || training.link
   
-  const handleAddProject = () =>{
+  const handleAddProject = async() =>{
     const formData = new FormData();
     formData.append('image', training.image);
     formData.append('title', training.title);
@@ -78,16 +84,25 @@ export default function Trainings() {
     formData.append('link', training.link);
     
     if(validateForm){
-      axios.post("http://localhost:4000/Training",formData)
+      await axios.post("http://localhost:4000/post_training",formData)
       .then(res=>{console.log(res)})
       .catch(e=>{console.log(e)})
-      dispatch(resetTraining())
+      getTrainings();
+      // dispatch(resetTraining())
     }  
   }
 
   const handleCancelProject = async() =>{
     dispatch(resetTraining())
   }
+
+  const truncateText = (text, limit) => {
+    const words = text.split(' ');
+    if (words.length > limit) {
+      return words.slice(0, limit).join(' ') + '...';
+    }
+    return text;
+  };
 
   return (
     <div className="researchProjects-container">
@@ -256,7 +271,7 @@ export default function Trainings() {
           ADDED PROJECT DETAILS
         </h5>
         <div className="Form-DisplayContainer">
-          {[1, 2, 3, 4, 5, 6].map((item) => (
+          {trainingList.map((item) => (
             <Card
               className="Form-DisplayCard"
             >
@@ -271,7 +286,7 @@ export default function Trainings() {
                         style={{
                          
                         }}
-                        src={course}
+                        src={`http://localhost:4000/${item.image}`}
                       />
                     </Col>
                     <Col
@@ -280,18 +295,10 @@ export default function Trainings() {
                     >
                       <div>
                         <h6 className="Display-content-heading" >
-                          Adoption of IIOT in manufacturing and Production SME's
-                          Research Grant by Saudi Electronic University
+                          {item.title}
                         </h6>
                         <p className="Display-content-text">
-                          We use cookies on our website. Cookies are used to
-                          improve the functionality and use of our internet
-                          site, as well as for analytic and advertising
-                          purposes. To learn more about cookies, how we use
-                          them, and how to change your cookie settings, find out
-                          more here. By continuing to use this site without
-                          changing your settings, you consent to our use of
-                          cookies.
+                        {truncateText(item.description, 60)}
                         </p>
                         <CardActions
                           style={{ display: "flex", justifyContent: "end" }}

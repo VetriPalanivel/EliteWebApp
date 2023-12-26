@@ -1,4 +1,4 @@
-import React,{useEffect} from "react";
+import React,{useEffect, useState} from "react";
 import { Input, Grid, Row, Col } from "rsuite";
 import { SelectPicker } from "rsuite";
 import Card from "@mui/material/Card";
@@ -20,11 +20,17 @@ import { resetRole, updateRole } from "../../../redux/userReducer";
 export default function Roles() {
   const role = useSelector ((state) => state.Elite.role)
   const dispatch = useDispatch();
+  const [roleList,setRoleList] = useState([])
   useEffect(()=>{
     if (typeof window !== 'undefined') {
       window.scrollTo(0, 0);
+      getRoles()
+    }},[])
+  
+    const getRoles = async()=>{
+      const response =await axios.get("http://localhost:4000/get_roles");
+      setRoleList(response.data)
     }
-  },[])
 
   const handleFormTitle = (event) =>{
     dispatch(updateRole({...role,"title" : event}));
@@ -51,7 +57,7 @@ export default function Roles() {
   const validateForm = role.image && role.title && role.description && role.type && role.location && role.benefit && role.responsibility
   const cancelForm = role.image || role.title || role.description || role.type || role.location || role.benefit || role.responsibility
  
-  const handleAddProject = () =>{
+  const handleAddProject = async() =>{
     const formData = new FormData();
     formData.append('image', role.image);
     formData.append('title', role.title);
@@ -62,10 +68,11 @@ export default function Roles() {
     formData.append('responsibility', role.responsibility);
     
     if(validateForm){
-      axios.post("http://localhost:4000/Role",formData)
+      await axios.post("http://localhost:4000/post_roles",formData)
       .then(res=>{console.log(res)})
       .catch(e=>{console.log(e)})
-      dispatch(resetRole())
+      // dispatch(resetRole())
+      getRoles()
     }  
   }
 
@@ -73,6 +80,13 @@ export default function Roles() {
     dispatch(resetRole())
   }
   
+  const truncateText = (text, limit) => {
+    const words = text.split(' ');
+    if (words.length > limit) {
+      return words.slice(0, limit).join(' ') + '...';
+    }
+    return text;
+  };
 
   return (
     <div className="researchProjects-container">
@@ -225,7 +239,7 @@ export default function Roles() {
           ADDED PROJECT DETAILS
         </h5>
         <div className="Form-DisplayContainer">
-          {[1, 2, 3, 4, 5, 6].map((item) => (
+          {roleList.map((item) => (
             <Card
               className="Form-DisplayCard"
             >
@@ -240,7 +254,7 @@ export default function Roles() {
                         style={{
                          
                         }}
-                        src={course}
+                        src={`http://localhost:4000/${item.image}`}
                       />
                     </Col>
                     <Col
@@ -249,18 +263,10 @@ export default function Roles() {
                     >
                       <div>
                         <h6 className="Display-content-heading" >
-                          Adoption of IIOT in manufacturing and Production SME's
-                          Research Grant by Saudi Electronic University
+                        {item.title}
                         </h6>
                         <p className="Display-content-text">
-                          We use cookies on our website. Cookies are used to
-                          improve the functionality and use of our internet
-                          site, as well as for analytic and advertising
-                          purposes. To learn more about cookies, how we use
-                          them, and how to change your cookie settings, find out
-                          more here. By continuing to use this site without
-                          changing your settings, you consent to our use of
-                          cookies.
+                        {truncateText(item.description, 60)}
                         </p>
                         <CardActions
                           style={{ display: "flex", justifyContent: "end" }}

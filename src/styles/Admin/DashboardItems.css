@@ -82,8 +82,11 @@
    font-size: 15px;
    color: rgb(133, 133, 133);
    font-weight: 100;
+   min-height: 100px !important;
 }
 .Display-content-view{
+   /* padding-top: 95px !important; */
+   position: sticky;
    border:none;
    color: blue;
    background: none;
@@ -95,6 +98,7 @@
    background: none;
 }
 .Display-content-edit{
+   margin-top: 40px !important;
    display: block !important;
 }
 #delete,#edit{
@@ -124,8 +128,10 @@
       font-size: 15px;
       color: rgb(133, 133, 133);
       font-weight: 100;
+      min-height: 100px !important;
    }
    .Display-content-edit{
+      margin-top: 0px !important;
       display: flex !important;
    }
    .Form-DisplayContainer{

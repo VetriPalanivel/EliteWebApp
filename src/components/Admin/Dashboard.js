@@ -43,7 +43,7 @@ const Dashboard = () => {
       <Row gutter={5} className="Dashboard-row">
         {AdminDashboard.map((item, index) => (
           <Col key={index} xs={24} sm={24} md={12} lg={6} xl={6} className="Dashboard-item" >
-            <div key={index} onClick={handleDashboard(item)}>
+            <div key={index} onClick={handleDashboard(item)} className="Dashboard-List">
                 <Card sx={{ width: 160 }} className="Dashboard-card">
                   <Avatar
                     alt={item.alt}

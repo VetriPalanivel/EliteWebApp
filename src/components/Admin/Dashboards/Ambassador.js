@@ -1,4 +1,4 @@
-import React,{useEffect} from "react";
+import React,{useEffect, useState} from "react";
 import { Input, Grid, Row, Col } from "rsuite";
 import { SelectPicker } from "rsuite";
 import Card from "@mui/material/Card";
@@ -20,11 +20,18 @@ import { resetAmbassador, updateAmbassador } from "../../../redux/userReducer";
 export default function Ambassador() {
   const ambassador = useSelector ((state) => state.Elite.ambassador)
   const dispatch = useDispatch();
+  const [ambassadorList,setAmbassadorList] = useState([])
   useEffect(()=>{
     if (typeof window !== 'undefined') {
       window.scrollTo(0, 0);
+      getAmbassadors()
+    }},[])
+  
+    const getAmbassadors = async()=>{
+      const response =await axios.get("http://localhost:4000/get_ambassador");
+     setAmbassadorList(response.data)
     }
-  },[])
+  
   
   const handleFormName = (event) =>{
     dispatch(updateAmbassador({...ambassador,"name" : event}));
@@ -45,25 +52,34 @@ export default function Ambassador() {
   const validateForm = ambassador.image && ambassador.name && ambassador.description && ambassador.country && ambassador.flag
   const cancelForm = ambassador.image || ambassador.name || ambassador.description || ambassador.country || ambassador.flag
   
-  const handleAddProject = () =>{
+  const handleAddProject = async() =>{
     const formData = new FormData();
-    formData.append('image', ambassador.image);
+    formData.append('images', ambassador.image);
     formData.append('name', ambassador.name);
     formData.append('description', ambassador.description);
     formData.append('country', ambassador.country);
-    formData.append('flag', ambassador.flag);
+    formData.append('images', ambassador.flag);
     
     if(validateForm){
-      axios.post("http://localhost:4000/Ambassador",formData)
+     await axios.post("http://localhost:4000/post_ambassador",formData)
       .then(res=>{console.log(res)})
       .catch(e=>{console.log(e)})
-      dispatch(resetAmbassador())
+    //   dispatch(resetAmbassador())
+    getAmbassadors()
     }  
   }
 
   const handleCancelProject = async() =>{
     dispatch(resetAmbassador())
   }
+
+  const truncateText = (text, limit) => {
+    const words = text.split(' ');
+    if (words.length > limit) {
+      return words.slice(0, limit).join(' ') + '...';
+    }
+    return text;
+  };
 
   return (
     <div className="researchProjects-container">
@@ -178,7 +194,7 @@ export default function Ambassador() {
           ADDED PROJECT DETAILS
         </h5>
         <div className="Form-DisplayContainer">
-          {[1, 2, 3, 4, 5, 6].map((item) => (
+          {ambassadorList.map((item) => (
             <Card
               className="Form-DisplayCard"
             >
@@ -193,7 +209,18 @@ export default function Ambassador() {
                         style={{
                          
                         }}
-                        src={course}
+                        src={`http://localhost:4000/${item.image}`}
+                      />
+                    </Col>
+                    <Col xs={24} sm={24} md={4} lg={4} xl={4}>
+                      <Avatar
+                        alt=""
+                        variant="square"
+                        className="Form-DisplayCard-img"
+                        style={{
+                         
+                        }}
+                        src={`http://localhost:4000/${item.flag}`}
                       />
                     </Col>
                     <Col
@@ -202,18 +229,10 @@ export default function Ambassador() {
                     >
                       <div>
                         <h6 className="Display-content-heading" >
-                          Adoption of IIOT in manufacturing and Production SME's
-                          Research Grant by Saudi Electronic University
+                         {item.name}
                         </h6>
                         <p className="Display-content-text">
-                          We use cookies on our website. Cookies are used to
-                          improve the functionality and use of our internet
-                          site, as well as for analytic and advertising
-                          purposes. To learn more about cookies, how we use
-                          them, and how to change your cookie settings, find out
-                          more here. By continuing to use this site without
-                          changing your settings, you consent to our use of
-                          cookies.
+                        {truncateText(item.description, 60)}
                         </p>
                         <CardActions
                           style={{ display: "flex", justifyContent: "end" }}

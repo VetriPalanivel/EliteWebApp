@@ -6,6 +6,7 @@
     padding: 0px;
     background: "";
   }
+  
   .Dashboard-container-title{
     font-size: 18px;
     color:#00008B;
@@ -14,13 +15,20 @@
     margin-left: 80px !important;
     margin-bottom: 10px;
   }
-  
+  .Dashboard-List{
+    display: flex !important;
+    flex-wrap: wrap !important;
+    justify-content: center !important;
+    margin : 0 auto !important;
+  }
+
   .Dashboard-row {
     margin: 0 -10px; /* Adjust margin to match padding */
     display: flex;
     flex-wrap: wrap;
-    justify-content: center ;
+    justify-content: center !important;
   }
+  
   
   .Dashboard-item {
     margin: 10px;
@@ -28,7 +36,7 @@
     width: 180px !important; /* 100% / 6 - (2 * margin) */
     display: flex;
     flex-direction: column;
-    justify-content: left;
+    justify-content: left !important;
     align-items: center !important;
     padding: 16px;
     border-radius: 8px;

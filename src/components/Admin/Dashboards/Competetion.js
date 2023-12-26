@@ -1,4 +1,4 @@
-import React,{useEffect} from "react";
+import React,{useEffect, useState} from "react";
 import { Input, Grid, Row, Col } from "rsuite";
 import { SelectPicker } from "rsuite";
 import Card from "@mui/material/Card";
@@ -20,12 +20,18 @@ import { resetCompetetion, updateCompetetion } from "../../../redux/userReducer"
 export default function Competetion() {
   const competetion = useSelector ((state) => state.Elite.competetion)
   const dispatch = useDispatch();
+  const [competetionList,setCompetetionList] = useState([])
 
   useEffect(()=>{
     if (typeof window !== 'undefined') {
       window.scrollTo(0, 0);
+      getCompetetion()
+    }},[])
+  
+    const getCompetetion = async()=>{
+      const response =await axios.get("http://localhost:4000/get_competetion");
+      setCompetetionList(response.data)
     }
-  },[])
   const SelectOption = [
     {
       label: "Online",
@@ -66,7 +72,7 @@ export default function Competetion() {
   const validateForm = competetion.image && competetion.title && competetion.description && competetion.mode && competetion.objective && competetion.venue && competetion.fee && competetion.link
   const cancelForm = competetion.image || competetion.title || competetion.description || competetion.mode || competetion.objective || competetion.venue || competetion.fee || competetion.link
   
-  const handleAddProject = () =>{
+  const handleAddProject = async() =>{
     const formData = new FormData();
     formData.append('image', competetion.image);
     formData.append('title', competetion.title);
@@ -78,16 +84,25 @@ export default function Competetion() {
     formData.append('link', competetion.link);
     
     if(validateForm){
-      axios.post("http://localhost:4000/Competetion",formData)
+      await axios.post("http://localhost:4000/post_competetion",formData)
       .then(res=>{console.log(res)})
       .catch(e=>{console.log(e)})
-      dispatch(resetCompetetion())
+      getCompetetion()
+      // dispatch(resetCompetetion())
     }  
   }
 
   const handleCancelProject = async() =>{
     dispatch(resetCompetetion())
   }
+
+  const truncateText = (text, limit) => {
+    const words = text.split(' ');
+    if (words.length > limit) {
+      return words.slice(0, limit).join(' ') + '...';
+    }
+    return text;
+  };
 
   return (
     <div className="researchProjects-container">
@@ -255,7 +270,7 @@ export default function Competetion() {
           ADDED PROJECT DETAILS
         </h5>
         <div className="Form-DisplayContainer">
-          {[1, 2, 3, 4, 5, 6].map((item) => (
+          {competetionList.map((item) => (
             <Card
               className="Form-DisplayCard"
             >
@@ -270,7 +285,7 @@ export default function Competetion() {
                         style={{
                          
                         }}
-                        src={course}
+                        src={`http://localhost:4000/${item.image}`}
                       />
                     </Col>
                     <Col
@@ -279,18 +294,10 @@ export default function Competetion() {
                     >
                       <div>
                         <h6 className="Display-content-heading" >
-                          Adoption of IIOT in manufacturing and Production SME's
-                          Research Grant by Saudi Electronic University
+                        {item.title}
                         </h6>
                         <p className="Display-content-text">
-                          We use cookies on our website. Cookies are used to
-                          improve the functionality and use of our internet
-                          site, as well as for analytic and advertising
-                          purposes. To learn more about cookies, how we use
-                          them, and how to change your cookie settings, find out
-                          more here. By continuing to use this site without
-                          changing your settings, you consent to our use of
-                          cookies.
+                        {truncateText(item.description, 60)}
                         </p>
                         <CardActions
                           style={{ display: "flex", justifyContent: "end" }}
