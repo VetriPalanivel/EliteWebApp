@@ -5,7 +5,9 @@ import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
 import { Uploader } from "rsuite";
 import { Button, ButtonToolbar } from "rsuite";
+import { Tooltip, Whisper } from "rsuite";
 import DeleteIcon from "@mui/icons-material/Delete";
+import BorderColorIcon from "@mui/icons-material/BorderColor";
 import CloudUploadIcon from "@mui/icons-material/Upload";
 import CardActions from "@mui/material/CardActions";
 import EditIcon from "@mui/icons-material/Edit";
@@ -21,6 +23,8 @@ export default function Competetion() {
   const competetion = useSelector ((state) => state.Elite.competetion)
   const dispatch = useDispatch();
   const [competetionList,setCompetetionList] = useState([])
+  const [edit, setEdit] = useState(false);
+  const [editImage, setEditImage] = useState("");
 
   useEffect(()=>{
     if (typeof window !== 'undefined') {
@@ -29,7 +33,7 @@ export default function Competetion() {
     }},[])
   
     const getCompetetion = async()=>{
-      const response =await axios.get("http://localhost:4000/get_competetion");
+      const response =await axios.get("http://localhost:4000/competetion/get");
       setCompetetionList(response.data)
     }
   const SelectOption = [
@@ -72,6 +76,22 @@ export default function Competetion() {
   const validateForm = competetion.image && competetion.title && competetion.description && competetion.mode && competetion.objective && competetion.venue && competetion.fee && competetion.link
   const cancelForm = competetion.image || competetion.title || competetion.description || competetion.mode || competetion.objective || competetion.venue || competetion.fee || competetion.link
   
+  const handleUpdateValidation = () => {
+    const tempCompetetion = competetionList.filter(
+      (item) => item.id === competetion?.id
+    );
+    return (
+      tempCompetetion[0]?.title !== competetion?.title ||
+      tempCompetetion[0]?.image !== competetion?.image ||
+      tempCompetetion[0]?.mode !== competetion?.mode ||
+      tempCompetetion[0]?.description !== competetion?.description ||
+      tempCompetetion[0]?.objective !== competetion?.objective ||
+      tempCompetetion[0]?.venue !== competetion?.venue ||
+      tempCompetetion[0]?.fee !== competetion?.fee ||
+      tempCompetetion[0]?.link !== competetion?.link
+    );
+  };
+  const updateValidation = handleUpdateValidation();
   const handleAddProject = async() =>{
     const formData = new FormData();
     formData.append('image', competetion.image);
@@ -84,16 +104,39 @@ export default function Competetion() {
     formData.append('link', competetion.link);
     
     if(validateForm){
-      await axios.post("http://localhost:4000/post_competetion",formData)
+      if(!edit){
+        await axios.post("http://localhost:4000/competetion/create",formData)
       .then(res=>{console.log(res)})
       .catch(e=>{console.log(e)})
+      }else{
+        await axios.put("http://localhost:4000/competetion/update/"+ competetion.id,formData)
+        .then(res=>{console.log(res)})
+        .catch(e=>{console.log(e)})
+      }
+      
       getCompetetion()
       // dispatch(resetCompetetion())
     }  
   }
+  const handleEditProject = (item) => ()  =>{
+    setEdit(true)
+    dispatch(updateCompetetion({...competetion,
+      "description":item.description,
+      "image":item.image,
+      "title":item.title,
+      "mode":item.mode,
+  "objective":item.objective,
+  "venue":item.venue,
+  "fee":item.fee,
+  "link":item.link,
+      "id":item.id,
+    }))
+    setEditImage(item.image);
+  }
 
   const handleCancelProject = async() =>{
     dispatch(resetCompetetion())
+    setEdit(false)
   }
 
   const truncateText = (text, limit) => {
@@ -132,6 +175,7 @@ export default function Competetion() {
                 <label class="Form-label">Image:</label>
               </Col>
               <Col xs={24} sm={24} md={15} lg={15} xl={15} >
+              <div>
                 <input
                   className="Form-imageUpload"
                   name="image"
@@ -140,6 +184,8 @@ export default function Competetion() {
                   required
                   onChange={handleFormImage}
                 />
+                 {(edit && editImage === competetion.image) ? <p className="Form-textArea" style={{padding:"5px",color:"rgb(133, 133, 133)"}}>{competetion.image}</p>:""}
+                </div>
               </Col>
             </Row>
 
@@ -253,9 +299,26 @@ export default function Competetion() {
                   <Button disabled={!cancelForm} color="red" id="cancel" appearance="primary" onClick={handleCancelProject}>
                     Cancel
                   </Button>
-                  <Button disabled={!validateForm} color="green" id="addnew" appearance="primary" onClick={handleAddProject}>
+                  { !edit ? 
+                  <Button
+                    disabled={!validateForm}
+                    color="green"
+                    id="addnew"
+                    appearance="primary"
+                    onClick={handleAddProject}
+                  >
                     Add New
-                  </Button>
+                  </Button> :
+                  <Button
+                  disabled={!(validateForm && updateValidation)}
+                  color="green"
+                  id="addnew"
+                  appearance="primary"
+                  onClick={handleAddProject}
+                >
+                  Update
+                </Button>
+}
                 </ButtonToolbar>
               </Col>
             </Row>
@@ -313,17 +376,25 @@ export default function Competetion() {
                       </div>
                     </Col>
                     <Col xs={24} sm={24} md={2} lg={2} xl={2}>
-                      <div className="Display-content-edit">
+                    <div className="Display-content-edit">
+                      <Whisper  placement="top" speaker={<Tooltip> Delete!</Tooltip>}>
                         <Button
                           variant="outlined"
                           id="delete"
+                          style={{color:"red"}}
                           startIcon={<DeleteIcon />}
                         />
+                        </Whisper>
+                        <Whisper  placement="top" speaker={<Tooltip> Edit!</Tooltip>}>
                         <Button
                          id="edit"
+                         color="blue"
                           variant="outlined"
-                          startIcon={<EditIcon />}
+                          style={{color:"green"}}
+                          startIcon={<BorderColorIcon />}
+                          onClick={handleEditProject(item)}
                         />
+                        </Whisper>
                       </div>
                     </Col>
                   </Row>

@@ -5,7 +5,9 @@ import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
 import { Uploader } from "rsuite";
 import { Button, ButtonToolbar } from "rsuite";
+import { Tooltip, Whisper } from 'rsuite';
 import DeleteIcon from "@mui/icons-material/Delete";
+import BorderColorIcon from '@mui/icons-material/BorderColor';
 import CloudUploadIcon from "@mui/icons-material/Upload";
 import CardActions from "@mui/material/CardActions";
 import EditIcon from "@mui/icons-material/Edit";
@@ -21,6 +23,8 @@ export default function News() {
   const news = useSelector ((state) => state.Elite.news)
   const dispatch = useDispatch();
   const[newsList,setNewsList] = useState([])
+  const [edit,setEdit] = useState(false)
+  const [editImage,setEditImage] = useState("");
   useEffect(()=>{
     if (typeof window !== 'undefined') {
       window.scrollTo(0, 0);
@@ -28,7 +32,7 @@ export default function News() {
     }},[])
   
     const getNews = async()=>{
-      const response =await axios.get("http://localhost:4000/get_news");
+      const response =await axios.get("http://localhost:4000/news/get");
       setNewsList(response.data)
     }
 
@@ -48,7 +52,12 @@ export default function News() {
 
   const validateForm = news.image && news.title && news.description && news.date
   const cancelForm = news.image || news.title || news.description || news.date
- 
+  const handleUpdateValidation = () =>{
+    const tempNews = newsList.filter((item)=>item.id === news?.id)
+    return (tempNews[0]?.title !==news?.title || tempNews[0]?.image !==news?.image || tempNews[0]?.date !==news?.date || tempNews[0]?.description !==news?.description)
+  }
+  const updateValidation = handleUpdateValidation();
+
   const handleAddProject = async() =>{
   const formData = new FormData();
     formData.append('image', news.image);
@@ -57,16 +66,36 @@ export default function News() {
     formData.append('date', news.date);
     
     if(validateForm){
-      await axios.post("http://localhost:4000/post_news",formData)
-      .then(res=>{console.log(res)})
-      .catch(e=>{console.log(e)})
+      if(!edit){
+        await axios.post("http://localhost:4000/news/create",formData)
+        .then(res=>{console.log(res)})
+        .catch(e=>{console.log(e)})
+      }else{
+        await axios.put("http://localhost:4000/news/update/"+news.id,formData)
+        .then(res=>{console.log(res)})
+        .catch(e=>{console.log(e)})
+      }
+      
       // dispatch(resetNews())
       getNews()
     }  
   }
 
+  const handleEditProject = (item) => ()  =>{
+    setEdit(true)
+    dispatch(updateNews({...news,
+      "description":item.description,
+      "image":item.image,
+      "title":item.title,
+      "date":item.date,
+      "id":item.id,
+    }))
+    setEditImage(item.image);
+  }
+
   const handleCancelProject = async() =>{
     dispatch(resetNews())
+    setEdit(false)
   }
 
   const truncateText = (text, limit) => {
@@ -105,6 +134,7 @@ export default function News() {
                 <label class="Form-label">Image:</label>
               </Col>
               <Col xs={24} sm={24} md={15} lg={15} xl={15} >
+                <div>
                 <input
                   className="Form-imageUpload"
                   name="image"
@@ -113,6 +143,8 @@ export default function News() {
                   required
                   onChange={handleFormImage}
                 />
+                 {(edit && editImage === news.image) ? <p className="Form-textArea" style={{padding:"5px",color:"rgb(133, 133, 133)"}}>{news.image}</p>:""}
+                </div>
               </Col>
             </Row>
 
@@ -158,9 +190,14 @@ export default function News() {
                   <Button disabled={!cancelForm} color="red" id="cancel" appearance="primary" onClick={handleCancelProject}>
                     Cancel
                   </Button>
+                  { !edit ? 
                   <Button disabled={!validateForm} color="green" id="addnew" appearance="primary" onClick={handleAddProject}>
                     Add New
+                  </Button> :
+                  <Button disabled={!(validateForm && updateValidation)} color="green" id="addnew" appearance="primary" onClick={handleAddProject}>
+                    Update
                   </Button>
+                   }
                 </ButtonToolbar>
               </Col>
             </Row>
@@ -218,17 +255,25 @@ export default function News() {
                       </div>
                     </Col>
                     <Col xs={24} sm={24} md={2} lg={2} xl={2}>
-                      <div className="Display-content-edit">
+                    <div className="Display-content-edit">
+                      <Whisper  placement="top" speaker={<Tooltip> Delete!</Tooltip>}>
                         <Button
                           variant="outlined"
                           id="delete"
+                          style={{color:"red"}}
                           startIcon={<DeleteIcon />}
                         />
+                        </Whisper>
+                        <Whisper  placement="top" speaker={<Tooltip> Edit!</Tooltip>}>
                         <Button
                          id="edit"
+                         color="blue"
                           variant="outlined"
-                          startIcon={<EditIcon />}
+                          style={{color:"green"}}
+                          startIcon={<BorderColorIcon />}
+                          onClick={handleEditProject(item)}
                         />
+                        </Whisper>
                       </div>
                     </Col>
                   </Row>

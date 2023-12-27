@@ -5,13 +5,17 @@ import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
 import { Uploader } from "rsuite";
 import { Button, ButtonToolbar } from "rsuite";
+import { Tooltip, Whisper } from 'rsuite';
 import DeleteIcon from "@mui/icons-material/Delete";
 import CloudUploadIcon from "@mui/icons-material/Upload";
+import BorderColorIcon from '@mui/icons-material/BorderColor';
 import CardActions from "@mui/material/CardActions";
 import EditIcon from "@mui/icons-material/Edit";
 import { Avatar } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
+import { Country}  from 'country-state-city';
+
 import course from "../../../asserts/course.png";
 import "rsuite/dist/rsuite.min.css";
 import "../../../styles/Admin/DashboardItems.css";
@@ -20,18 +24,25 @@ import { resetAmbassador, updateAmbassador } from "../../../redux/userReducer";
 export default function Ambassador() {
   const ambassador = useSelector ((state) => state.Elite.ambassador)
   const dispatch = useDispatch();
+  let Country = require('country-state-city').Country;
   const [ambassadorList,setAmbassadorList] = useState([])
+  const [edit,setEdit] = useState(false)
+  const [editImage,setEditImage] = useState("");
+  const [countryList,setCountryList] = useState([])
   useEffect(()=>{
     if (typeof window !== 'undefined') {
       window.scrollTo(0, 0);
+      const tempCountry = Country.getAllCountries().map((item)=> {
+        return {label:item.name,value:item.name};
+      })
+      setCountryList(tempCountry)
       getAmbassadors()
     }},[])
   
     const getAmbassadors = async()=>{
-      const response =await axios.get("http://localhost:4000/get_ambassador");
+      const response =await axios.get("http://localhost:4000/ambassador/get");
      setAmbassadorList(response.data)
     }
-  
   
   const handleFormName = (event) =>{
     dispatch(updateAmbassador({...ambassador,"name" : event}));
@@ -42,35 +53,60 @@ export default function Ambassador() {
   const handleFormImage = async(e) =>{
     dispatch(updateAmbassador({...ambassador, "image" : e.target.files[0]}));
   }
-  const handleFormFlag = async(e) =>{
-    dispatch(updateAmbassador({...ambassador, "flag" : e.target.files[0]}));
-  }
-  const handleFormCountry= (event) =>{
-    dispatch(updateAmbassador({...ambassador,"country" : event}));
-  }
+  const handleFormSelect = (event) => {
+    if(event != undefined || event != null){
+      const flag = Country.getAllCountries().find((country) => country.name === event) ?.isoCode;
+      dispatch(updateAmbassador({ ...ambassador, "country": event,"flag":flag}));
+    } 
+  };
 
-  const validateForm = ambassador.image && ambassador.name && ambassador.description && ambassador.country && ambassador.flag
-  const cancelForm = ambassador.image || ambassador.name || ambassador.description || ambassador.country || ambassador.flag
-  
+  const validateForm = ambassador.image && ambassador.name && ambassador.flag && ambassador.description && ambassador.country ;
+  const cancelForm = ambassador.image || ambassador.flag || ambassador.name || ambassador.description || ambassador.country ;
+  const handleUpdateValidation = () =>{
+    const tempAmbassador = ambassadorList.filter((item)=>item.id === ambassador?.id)
+    return (tempAmbassador[0]?.name !==ambassador?.name || tempAmbassador[0]?.image !==ambassador?.image ||tempAmbassador[0]?.flag !==ambassador?.flag || tempAmbassador[0]?.country !==ambassador?.country || tempAmbassador[0]?.description !==ambassador?.description)
+  }
+  const updateValidation = handleUpdateValidation();
   const handleAddProject = async() =>{
     const formData = new FormData();
-    formData.append('images', ambassador.image);
+    formData.append('image', ambassador.image);
     formData.append('name', ambassador.name);
     formData.append('description', ambassador.description);
     formData.append('country', ambassador.country);
-    formData.append('images', ambassador.flag);
+    formData.append('flag', ambassador.flag);
     
     if(validateForm){
-     await axios.post("http://localhost:4000/post_ambassador",formData)
-      .then(res=>{console.log(res)})
-      .catch(e=>{console.log(e)})
+      if(!edit){
+        await axios.post("http://localhost:4000/ambassador/create",formData)
+        .then(res=>{console.log(res)})
+        .catch(e=>{console.log(e)})
+      }else{
+        await axios.put("http://localhost:4000/ambassador/update/"+ambassador.id,formData)
+        .then(res=>{console.log(res)})
+        .catch(e=>{console.log(e)})
+      }
+     
     //   dispatch(resetAmbassador())
     getAmbassadors()
     }  
   }
 
+  const handleEditProject = (item) => ()  =>{
+    setEdit(true)
+    dispatch(updateAmbassador({...ambassador,
+      "description":item.description,
+      "image":item.image,
+      "name":item.name,
+      "country":item.country,
+      "flag":item.flag,
+      "id":item.id,
+    }))
+    setEditImage(item.image);
+  }
+
   const handleCancelProject = async() =>{
     dispatch(resetAmbassador())
+    setEdit(false)
   }
 
   const truncateText = (text, limit) => {
@@ -110,6 +146,7 @@ export default function Ambassador() {
                 <label class="Form-label">Image:</label>
               </Col>
               <Col xs={24} sm={24} md={15} lg={15} xl={15} >
+                <div>
                 <input
                   className="Form-imageUpload"
                   name="image"
@@ -118,6 +155,8 @@ export default function Ambassador() {
                   required
                   onChange={handleFormImage}
                 />
+                 {(edit && editImage === ambassador.image) ? <p className="Form-textArea" style={{padding:"5px",color:"rgb(133, 133, 133)"}}>{ambassador.image}</p>:""}
+                </div>
               </Col>
             </Row>
 
@@ -138,34 +177,20 @@ export default function Ambassador() {
               </Col>
             </Row>
 
-            <Row style={{ marginBottom: "10px" }}>
+            <Row style={{ marginBottom: "20px" }}>
               <Col xs={24} sm={24} md={5} lg={5} xl={5}>
                 <label class="Form-label">Country:</label>
               </Col>
               <Col xs={24} sm={24} md={15} lg={15} xl={15}>
-                <Input
-                  className="Form-input"
+                <SelectPicker
+                  className="Form-select"
                   size="md"
-                  placeholder="Enter country"
-                  name="country"
+                  placeholder="Select the country"
+                  data={countryList}
+                  name="mode"
                   value={ambassador.country}
-                  onChange={handleFormCountry}
+                  onChange={handleFormSelect}
                   required
-                />
-              </Col>
-            </Row>
-            <Row style={{ marginBottom: "20px" }}>
-              <Col xs={24} sm={24} md={5} lg={5} xl={5}>
-                <label class="Form-label">Flag:</label>
-              </Col>
-              <Col xs={24} sm={24} md={15} lg={15} xl={15} >
-                <input
-                  className="Form-imageUpload"
-                  name="flag"
-                  type="file"
-                  style={{background:"white",height:"35px",borderRadius:"6px",padding:"5px",color:"rgb(133, 133, 133)"}}
-                  required
-                  onChange={handleFormFlag}
                 />
               </Col>
             </Row>
@@ -177,9 +202,14 @@ export default function Ambassador() {
                   <Button disabled={!cancelForm} color="red" id="cancel" appearance="primary" onClick={handleCancelProject}>
                     Cancel
                   </Button>
+                  { !edit ? 
                   <Button disabled={!validateForm} color="green" id="addnew" appearance="primary" onClick={handleAddProject}>
                     Add New
+                  </Button> :
+                  <Button disabled={!(validateForm && updateValidation)} color="green" id="addnew" appearance="primary" onClick={handleAddProject}>
+                    Update
                   </Button>
+                   }
                 </ButtonToolbar>
               </Col>
             </Row>
@@ -220,7 +250,7 @@ export default function Ambassador() {
                         style={{
                          
                         }}
-                        src={`http://localhost:4000/${item.flag}`}
+                         src={`http://purecatamphetamine.github.io/country-flag-icons/3x2/${item.flag}.svg`}
                       />
                     </Col>
                     <Col
@@ -248,17 +278,25 @@ export default function Ambassador() {
                       </div>
                     </Col>
                     <Col xs={24} sm={24} md={2} lg={2} xl={2}>
-                      <div className="Display-content-edit">
+                    <div className="Display-content-edit">
+                      <Whisper  placement="top" speaker={<Tooltip> Delete!</Tooltip>}>
                         <Button
                           variant="outlined"
                           id="delete"
+                          style={{color:"red"}}
                           startIcon={<DeleteIcon />}
                         />
+                        </Whisper>
+                        <Whisper  placement="top" speaker={<Tooltip> Edit!</Tooltip>}>
                         <Button
                          id="edit"
+                         color="blue"
                           variant="outlined"
-                          startIcon={<EditIcon />}
+                          style={{color:"green"}}
+                          startIcon={<BorderColorIcon />}
+                          onClick={handleEditProject(item)}
                         />
+                        </Whisper>
                       </div>
                     </Col>
                   </Row>

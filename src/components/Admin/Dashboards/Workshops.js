@@ -6,7 +6,9 @@ import CardContent from "@mui/material/CardContent";
 import { Uploader } from "rsuite";
 import axios from "axios";
 import { Button, ButtonToolbar } from "rsuite";
+import { Tooltip, Whisper } from "rsuite";
 import DeleteIcon from "@mui/icons-material/Delete";
+import BorderColorIcon from "@mui/icons-material/BorderColor";
 import CloudUploadIcon from "@mui/icons-material/Upload";
 import CardActions from "@mui/material/CardActions";
 import EditIcon from "@mui/icons-material/Edit";
@@ -21,6 +23,8 @@ export default function Workshops() {
   const workshop = useSelector ((state) => state.Elite.workshop)
   const dispatch = useDispatch();
   const [workShopList,setWorkShopList] = useState([])
+  const [edit, setEdit] = useState(false);
+  const [editImage, setEditImage] = useState("");
   useEffect(()=>{
     if (typeof window !== 'undefined') {
       window.scrollTo(0, 0);
@@ -28,7 +32,7 @@ export default function Workshops() {
     }},[])
   
     const getWorkshops = async()=>{
-      const response =await axios.get("http://localhost:4000/get_workshop");
+      const response =await axios.get("http://localhost:4000/workshop/get");
       setWorkShopList(response.data)
     }
   const SelectOption = [
@@ -71,6 +75,23 @@ export default function Workshops() {
   const validateForm = workshop.image && workshop.title && workshop.description && workshop.mode && workshop.objective && workshop.venue && workshop.fee && workshop.link
   const cancelForm = workshop.image || workshop.title || workshop.description || workshop.mode || workshop.objective || workshop.venue || workshop.fee || workshop.link
   
+  const handleUpdateValidation = () => {
+    const tempWorkshop = workShopList.filter(
+      (item) => item.id === workshop?.id
+    );
+    return (
+      tempWorkshop[0]?.title !== workshop?.title ||
+      tempWorkshop[0]?.image !== workshop?.image ||
+      tempWorkshop[0]?.mode !== workshop?.mode ||
+      tempWorkshop[0]?.description !== workshop?.description ||
+      tempWorkshop[0]?.objective !== workshop?.objective ||
+      tempWorkshop[0]?.venue !== workshop?.venue ||
+      tempWorkshop[0]?.fee !== workshop?.fee ||
+      tempWorkshop[0]?.link !== workshop?.link
+    );
+  };
+  const updateValidation = handleUpdateValidation();
+
   const handleAddProject = async() =>{
     const formData = new FormData();
     formData.append('image', workshop.image);
@@ -83,16 +104,41 @@ export default function Workshops() {
     formData.append('link', workshop.link);
     
     if(validateForm){
-      await axios.post("http://localhost:4000/post_workshop",formData)
-      .then(res=>{console.log(res)})
-      .catch(e=>{console.log(e)})
+      if(!edit){
+        await axios.post("http://localhost:4000/workshop/create",formData)
+        .then(res=>{console.log(res)})
+        .catch(e=>{console.log(e)})
+      }
+      else{
+        await axios.put("http://localhost:4000/workshop/update/"+ workshop.id,formData)
+        .then(res=>{console.log(res)})
+        .catch(e=>{console.log(e)})
+      }
+     
       getWorkshops();
       // dispatch(resetWorkshop())
     }  
   }
+  const handleEditProject = (item) => ()  =>{
+    setEdit(true)
+    dispatch(updateWorkshop({...workshop,
+      "description":item.description,
+      "image":item.image,
+      "title":item.title,
+      "mode":item.mode,
+  "objective":item.objective,
+  "venue":item.venue,
+  "fee":item.fee,
+  "link":item.link,
+      "id":item.id,
+    }))
+    setEditImage(item.image);
+  }
+
 
   const handleCancelProject = async() =>{
     dispatch(resetWorkshop())
+    setEdit(false)
   }
 
   const truncateText = (text, limit) => {
@@ -131,6 +177,7 @@ export default function Workshops() {
                 <label class="Form-label">Image:</label>
               </Col>
               <Col xs={24} sm={24} md={15} lg={15} xl={15} >
+                <div>
                 <input
                   className="Form-imageUpload"
                   name="image"
@@ -139,6 +186,8 @@ export default function Workshops() {
                   required
                   onChange={handleFormImage}
                 />
+                 {(edit && editImage === workshop.image) ? <p className="Form-textArea" style={{padding:"5px",color:"rgb(133, 133, 133)"}}>{workshop.image}</p>:""}
+                </div>
               </Col>
             </Row>
 
@@ -253,9 +302,26 @@ export default function Workshops() {
                   <Button disabled={!cancelForm} color="red" id="cancel" appearance="primary" onClick={handleCancelProject}>
                     Cancel
                   </Button>
-                  <Button disabled={!validateForm} color="green" id="addnew" appearance="primary" onClick={handleAddProject}>
+                  { !edit ? 
+                  <Button
+                    disabled={!validateForm}
+                    color="green"
+                    id="addnew"
+                    appearance="primary"
+                    onClick={handleAddProject}
+                  >
                     Add New
-                  </Button>
+                  </Button> :
+                  <Button
+                  disabled={!(validateForm && updateValidation)}
+                  color="green"
+                  id="addnew"
+                  appearance="primary"
+                  onClick={handleAddProject}
+                >
+                  Update
+                </Button>
+}
                 </ButtonToolbar>
               </Col>
             </Row>
@@ -313,17 +379,25 @@ export default function Workshops() {
                       </div>
                     </Col>
                     <Col xs={24} sm={24} md={2} lg={2} xl={2}>
-                      <div className="Display-content-edit">
+                    <div className="Display-content-edit">
+                      <Whisper  placement="top" speaker={<Tooltip> Delete!</Tooltip>}>
                         <Button
                           variant="outlined"
                           id="delete"
+                          style={{color:"red"}}
                           startIcon={<DeleteIcon />}
                         />
+                        </Whisper>
+                        <Whisper  placement="top" speaker={<Tooltip> Edit!</Tooltip>}>
                         <Button
                          id="edit"
+                         color="blue"
                           variant="outlined"
-                          startIcon={<EditIcon />}
+                          style={{color:"green"}}
+                          startIcon={<BorderColorIcon />}
+                          onClick={handleEditProject(item)}
                         />
+                        </Whisper>
                       </div>
                     </Col>
                   </Row>

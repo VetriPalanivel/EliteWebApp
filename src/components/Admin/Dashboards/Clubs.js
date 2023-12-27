@@ -5,11 +5,13 @@ import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
 import { Uploader } from "rsuite";
 import { Button, ButtonToolbar } from "rsuite";
+import { Tooltip, Whisper } from 'rsuite';
 import DeleteIcon from "@mui/icons-material/Delete";
 import CloudUploadIcon from "@mui/icons-material/Upload";
 import CardActions from "@mui/material/CardActions";
 import EditIcon from "@mui/icons-material/Edit";
 import { Avatar } from "@mui/material";
+import BorderColorIcon from '@mui/icons-material/BorderColor';
 import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
 import course from "../../../asserts/course.png";
@@ -21,7 +23,8 @@ export default function Clubs() {
   const club = useSelector ((state) => state.Elite.club)
   const dispatch = useDispatch();
   const [clubList,setClubList] = useState([])
-
+  const [edit,setEdit] = useState(false)
+  const [editImage,setEditImage] = useState("");
   useEffect(()=>{
     if (typeof window !== 'undefined') {
       window.scrollTo(0, 0);
@@ -29,19 +32,9 @@ export default function Clubs() {
     }},[])
   
     const getClubs = async()=>{
-      const response =await axios.get("http://localhost:4000/get_clubs_societies");
+      const response =await axios.get("http://localhost:4000/clubs_societies/get");
       setClubList(response.data)
     }
-  const SelectOption = [
-    {
-      label: "Completed",
-      value: "Completed",
-    },
-    {
-      label: "On-Going",
-      value: "On-Going",
-    },
-  ];
 
   const handleFormTitle = (event) =>{
     dispatch(updateClub({...club,"title" : event}));
@@ -60,6 +53,12 @@ export default function Clubs() {
   const validateForm = club.image && club.title && club.description &&  club.link
   const cancelForm = club.image || club.title || club.description ||  club.link
  
+  const handleUpdateValidation = () =>{
+    const tempClub = clubList.filter((item)=>item.id === club?.id)
+    return (tempClub[0]?.title !==club?.title || tempClub[0]?.image !==club?.image || tempClub[0]?.link !==club?.link || tempClub[0]?.description !==club?.description)
+  }
+  const updateValidation = handleUpdateValidation();
+
   const handleAddProject = async() =>{
     const formData = new FormData();
     formData.append('image', club.image);
@@ -68,16 +67,35 @@ export default function Clubs() {
     formData.append('link', club.link);
     
     if(validateForm){
-      await axios.post("http://localhost:4000/post_clubs_societies",formData)
-      .then(res=>{console.log(res)})
-      .catch(e=>{console.log(e)})
+      if(!edit){
+        await axios.post("http://localhost:4000/clubs_societies/create",formData)
+        .then(res=>{console.log(res)})
+        .catch(e=>{console.log(e)})
+      }else{
+        await axios.put("http://localhost:4000/clubs_societies/update/"+ club.id,formData)
+        .then(res=>{console.log(res)})
+        .catch(e=>{console.log(e)})
+      }
+      
       // dispatch(resetClub())
       getClubs()
     }  
   }
+  const handleEditProject = (item) => ()  =>{
+    setEdit(true)
+    dispatch(updateClub({...club,
+      "description":item.description,
+      "image":item.image,
+      "title":item.title,
+      "link":item.link,
+      "id":item.id,
+    }))
+    setEditImage(item.image);
+  }
 
   const handleCancelProject = async() =>{
     dispatch(resetClub())
+    setEdit(false)
   }
 
   const truncateText = (text, limit) => {
@@ -116,6 +134,7 @@ export default function Clubs() {
                 <label class="Form-label">Organization chart:</label>
               </Col>
               <Col xs={24} sm={24} md={15} lg={15} xl={15} >
+                <div>
                 <input
                   className="Form-imageUpload"
                   name="image"
@@ -124,6 +143,8 @@ export default function Clubs() {
                   required
                   onChange={handleFormImage}
                 />
+                {(edit && editImage === club.image) ? <p className="Form-textArea" style={{padding:"5px",color:"rgb(133, 133, 133)"}}>{club.image}</p>:""}
+                </div>
               </Col>
             </Row>
 
@@ -169,9 +190,14 @@ export default function Clubs() {
                   <Button  disabled={!cancelForm} color="red" id="cancel" appearance="primary" onClick={handleCancelProject}>
                     Cancel
                   </Button>
+                  { !edit ? 
                   <Button disabled={!validateForm} color="green" id="addnew" appearance="primary" onClick={handleAddProject}>
                     Add New
+                  </Button> :
+                  <Button disabled={!(validateForm && updateValidation)} color="green" id="addnew" appearance="primary" onClick={handleAddProject}>
+                    Update
                   </Button>
+                   }
                 </ButtonToolbar>
               </Col>
             </Row>
@@ -229,17 +255,25 @@ export default function Clubs() {
                       </div>
                     </Col>
                     <Col xs={24} sm={24} md={2} lg={2} xl={2}>
-                      <div className="Display-content-edit">
+                    <div className="Display-content-edit">
+                      <Whisper  placement="top" speaker={<Tooltip> Delete!</Tooltip>}>
                         <Button
                           variant="outlined"
                           id="delete"
+                          style={{color:"red"}}
                           startIcon={<DeleteIcon />}
                         />
+                        </Whisper>
+                        <Whisper  placement="top" speaker={<Tooltip> Edit!</Tooltip>}>
                         <Button
                          id="edit"
+                         color="blue"
                           variant="outlined"
-                          startIcon={<EditIcon />}
+                          style={{color:"green"}}
+                          startIcon={<BorderColorIcon />}
+                          onClick={handleEditProject(item)}
                         />
+                        </Whisper>
                       </div>
                     </Col>
                   </Row>

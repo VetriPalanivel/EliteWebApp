@@ -6,7 +6,9 @@ import CardContent from "@mui/material/CardContent";
 import { Uploader } from "rsuite";
 import { Button, ButtonToolbar } from "rsuite";
 import DeleteIcon from "@mui/icons-material/Delete";
+import { Tooltip, Whisper } from 'rsuite';
 import CloudUploadIcon from "@mui/icons-material/Upload";
+import BorderColorIcon from '@mui/icons-material/BorderColor';
 import CardActions from "@mui/material/CardActions";
 import EditIcon from "@mui/icons-material/Edit";
 import { Avatar } from "@mui/material";
@@ -21,6 +23,8 @@ export default function Sponsors() {
   const sponsors = useSelector ((state) => state.Elite.sponsors)
   const dispatch = useDispatch();
   const [sponsorsList,setSponsorsList] = useState([])
+  const [edit,setEdit] = useState(false)
+  const [editImage,setEditImage] = useState("");
   useEffect(()=>{
     if (typeof window !== 'undefined') {
       window.scrollTo(0, 0);
@@ -28,7 +32,7 @@ export default function Sponsors() {
     }},[])
   
     const getSponsors = async()=>{
-      const response =await axios.get("http://localhost:4000/get_sponsors");
+      const response =await axios.get("http://localhost:4000/sponsors/get");
       setSponsorsList(response.data)
     }
 
@@ -61,7 +65,11 @@ export default function Sponsors() {
 
   const validateForm = sponsors.image && sponsors.name && sponsors.description && sponsors.type && sponsors.country
   const cancelForm = sponsors.image || sponsors.name || sponsors.description || sponsors.type || sponsors.country
- 
+  const handleUpdateValidation = () =>{
+    const tempSponsors = sponsorsList.filter((item)=>item.id === sponsors?.id)
+    return (tempSponsors[0]?.name !==sponsors?.name || tempSponsors[0]?.image !==sponsors?.image || tempSponsors[0]?.type !==sponsors?.type || tempSponsors[0]?.description !==sponsors?.description ||tempSponsors[0]?.country !==sponsors?.country)
+  }
+  const updateValidation = handleUpdateValidation();
   const handleAddProject = async() =>{
     const formData = new FormData();
     formData.append('image', sponsors.image);
@@ -71,16 +79,37 @@ export default function Sponsors() {
     formData.append('country', sponsors.country);
     
     if(validateForm){
-      await axios.post("http://localhost:4000/post_sponsors",formData)
-      .then(res=>{console.log(res)})
-      .catch(e=>{console.log(e)})
+      if(!edit){
+        await axios.post("http://localhost:4000/sponsors/create",formData)
+        .then(res=>{console.log(res)})
+        .catch(e=>{console.log(e)})
+      }else{
+        await axios.put("http://localhost:4000/sponsors/update/"+sponsors.id,formData)
+        .then(res=>{console.log(res)})
+        .catch(e=>{console.log(e)})
+      }
+     
       // dispatch(resetSponsors())
       getSponsors()
     }  
   }
 
+  const handleEditProject = (item) => ()  =>{
+    setEdit(true)
+    dispatch(updateSponsors({...sponsors,
+      "description":item.description,
+      "image":item.image,
+      "name":item.name,
+      "type":item.type,
+      "country":item.country,
+      "id":item.id,
+    }))
+    setEditImage(item.image);
+  }
+
   const handleCancelProject = async() =>{
     dispatch(resetSponsors())
+    setEdit(false)
   }
 
   const truncateText = (text, limit) => {
@@ -120,6 +149,7 @@ export default function Sponsors() {
                 <label class="Form-label">Image:</label>
               </Col>
               <Col xs={24} sm={24} md={15} lg={15} xl={15} >
+                <div>
                 <input
                   className="Form-imageUpload"
                   name="image"
@@ -128,6 +158,8 @@ export default function Sponsors() {
                   required
                   onChange={handleFormImage}
                 />
+                 {(edit && editImage === sponsors.image) ? <p className="Form-textArea" style={{padding:"5px",color:"rgb(133, 133, 133)"}}>{sponsors.image}</p>:""}
+                </div>
               </Col>
             </Row>
 
@@ -189,9 +221,14 @@ export default function Sponsors() {
                   <Button disabled={!cancelForm} color="red" id="cancel" appearance="primary" onClick={handleCancelProject}>
                     Cancel
                   </Button>
+                  { !edit ? 
                   <Button disabled={!validateForm} color="green" id="addnew" appearance="primary" onClick={handleAddProject}>
                     Add New
+                  </Button> :
+                  <Button disabled={!(validateForm && updateValidation)} color="green" id="addnew" appearance="primary" onClick={handleAddProject}>
+                    Update
                   </Button>
+                   }
                 </ButtonToolbar>
               </Col>
             </Row>
@@ -249,17 +286,25 @@ export default function Sponsors() {
                       </div>
                     </Col>
                     <Col xs={24} sm={24} md={2} lg={2} xl={2}>
-                      <div className="Display-content-edit">
+                    <div className="Display-content-edit">
+                      <Whisper  placement="top" speaker={<Tooltip> Delete!</Tooltip>}>
                         <Button
                           variant="outlined"
                           id="delete"
+                          style={{color:"red"}}
                           startIcon={<DeleteIcon />}
                         />
+                        </Whisper>
+                        <Whisper  placement="top" speaker={<Tooltip> Edit!</Tooltip>}>
                         <Button
                          id="edit"
+                         color="blue"
                           variant="outlined"
-                          startIcon={<EditIcon />}
+                          style={{color:"green"}}
+                          startIcon={<BorderColorIcon />}
+                          onClick={handleEditProject(item)}
                         />
+                        </Whisper>
                       </div>
                     </Col>
                   </Row>
