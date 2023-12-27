@@ -79,6 +79,17 @@ export default function Committe() {
       getCommitte()
     }  
   }
+  const handleRemoveProject = (item) => async() =>{
+    await axios
+        .post("http://localhost:4000/committe/delete/"+item.id)
+        .then((res) => {
+          console.log(res);
+          getCommitte()
+        })
+        .catch((e) => {
+          console.log(e);
+        });
+  }
 
   const handleEditProject = (item) => ()  =>{
     setEdit(true)
@@ -262,6 +273,7 @@ export default function Committe() {
                           id="delete"
                           style={{color:"red"}}
                           startIcon={<DeleteIcon />}
+                          onClick={handleRemoveProject(item)}
                         />
                         </Whisper>
                         <Whisper  placement="top" speaker={<Tooltip> Edit!</Tooltip>}>

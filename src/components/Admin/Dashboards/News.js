@@ -80,6 +80,17 @@ export default function News() {
       getNews()
     }  
   }
+  const handleRemoveProject = (item) => async() =>{
+    await axios
+        .post("http://localhost:4000/news/delete/"+item.id)
+        .then((res) => {
+          console.log(res);
+          getNews()
+        })
+        .catch((e) => {
+          console.log(e);
+        });
+  }
 
   const handleEditProject = (item) => ()  =>{
     setEdit(true)
@@ -262,6 +273,7 @@ export default function News() {
                           id="delete"
                           style={{color:"red"}}
                           startIcon={<DeleteIcon />}
+                          onClick={handleRemoveProject(item)}
                         />
                         </Whisper>
                         <Whisper  placement="top" speaker={<Tooltip> Edit!</Tooltip>}>

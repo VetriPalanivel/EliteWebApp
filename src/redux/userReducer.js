@@ -155,7 +155,9 @@ const initialState = {
   committe:Committe,
   ambassador:Ambassador,
   teamMember:TeamMember,
-  sponsors:Sponsors
+  sponsors:Sponsors,
+  openPopup: false,
+  popupData:"",
 };
 
 export const EliteWebsite = createSlice({
@@ -293,13 +295,20 @@ export const EliteWebsite = createSlice({
     resetSponsors:(state)=>{
       state.sponsors = Sponsors;
       return state;
-    }
-   
+    },
+    updatePopupData:(state,action)=>{
+      state.popupData = action.payload;
+      return state;
+    },
+    updateOpenPopup:(state,action)=>{
+      state.openPopup = action.payload;
+      return state;
+    } 
   },
 });
 
 // Action creators are generated for each case reducer function
-export const {updateSponsors,resetSponsors,updateTeamMember,resetTeamMember,updateAmbassador,resetAmbassador,updateCommitte,resetCommitte,updateNews,resetNews,updateRole,resetRole,updateCourse,resetCourse,updateClub,resetClub,resetCompetetion,resetExhibition,resetWorkshop,updateCompetetion,updateExhibition,updateWorkshop,updateTraining,resetTraining,updateInovationProject,resetInovationProject,updateAssistantJob,resetAssistantJob, addUser,updateDasboardStatus,updateSelectedTitle,resetOnGoingProject,updateOnGoingProject } =
+export const {updateOpenPopup,updatePopupData,updateSponsors,resetSponsors,updateTeamMember,resetTeamMember,updateAmbassador,resetAmbassador,updateCommitte,resetCommitte,updateNews,resetNews,updateRole,resetRole,updateCourse,resetCourse,updateClub,resetClub,resetCompetetion,resetExhibition,resetWorkshop,updateCompetetion,updateExhibition,updateWorkshop,updateTraining,resetTraining,updateInovationProject,resetInovationProject,updateAssistantJob,resetAssistantJob, addUser,updateDasboardStatus,updateSelectedTitle,resetOnGoingProject,updateOnGoingProject } =
 EliteWebsite.actions;
 
 export default EliteWebsite.reducer;

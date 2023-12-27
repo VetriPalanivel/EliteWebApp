@@ -97,6 +97,17 @@ const handleAddProject = async() =>{
     // dispatch(resetInovationProject())
   }  
 }
+const handleRemoveProject = (item) => async() =>{
+  await axios
+      .post("http://localhost:4000/inovation_project/delete/"+item.id)
+      .then((res) => {
+        console.log(res);
+        getInovationProjects();
+      })
+      .catch((e) => {
+        console.log(e);
+      });
+}
 
 const handleEditProject = (item) => ()  =>{
   setEdit(true)
@@ -281,6 +292,7 @@ const truncateText = (text, limit) => {
                           id="delete"
                           style={{color:"red"}}
                           startIcon={<DeleteIcon />}
+                          onClick={handleRemoveProject(item)}
                         />
                         </Whisper>
                         <Whisper  placement="top" speaker={<Tooltip> Edit!</Tooltip>}>

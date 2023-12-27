@@ -118,6 +118,17 @@ export default function Competetion() {
       // dispatch(resetCompetetion())
     }  
   }
+  const handleRemoveProject = (item) => async() =>{
+    await axios
+        .post("http://localhost:4000/competetion/delete/"+item.id)
+        .then((res) => {
+          console.log(res);
+          getCompetetion()
+        })
+        .catch((e) => {
+          console.log(e);
+        });
+  }
   const handleEditProject = (item) => ()  =>{
     setEdit(true)
     dispatch(updateCompetetion({...competetion,
@@ -383,6 +394,7 @@ export default function Competetion() {
                           id="delete"
                           style={{color:"red"}}
                           startIcon={<DeleteIcon />}
+                          onClick={handleRemoveProject(item)}
                         />
                         </Whisper>
                         <Whisper  placement="top" speaker={<Tooltip> Edit!</Tooltip>}>

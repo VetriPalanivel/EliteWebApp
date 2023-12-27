@@ -173,6 +173,18 @@ export default function Courses() {
     setEditImage(item.image);
   }
 
+  const handleRemoveProject = (item) => async() =>{
+    await axios
+        .post("http://localhost:4000/course/delete/"+item.id)
+        .then((res) => {
+          console.log(res);
+          getCourses();
+        })
+        .catch((e) => {
+          console.log(e);
+        });
+  }
+
   const handleCancelProject = async () => {
     dispatch(resetCourse());
     setEdit(false)
@@ -463,6 +475,7 @@ export default function Courses() {
                           id="delete"
                           style={{color:"red"}}
                           startIcon={<DeleteIcon />}
+                          onClick={handleRemoveProject(item)}
                         />
                         </Whisper>
                         <Whisper  placement="top" speaker={<Tooltip> Edit!</Tooltip>}>

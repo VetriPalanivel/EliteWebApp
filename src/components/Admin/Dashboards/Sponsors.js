@@ -94,6 +94,18 @@ export default function Sponsors() {
     }  
   }
 
+  const handleRemoveProject = (item) => async() =>{
+    await axios
+        .post("http://localhost:4000/sponsors/delete/"+item.id)
+        .then((res) => {
+          console.log(res);
+          getSponsors()
+        })
+        .catch((e) => {
+          console.log(e);
+        });
+  }
+
   const handleEditProject = (item) => ()  =>{
     setEdit(true)
     dispatch(updateSponsors({...sponsors,
@@ -293,6 +305,7 @@ export default function Sponsors() {
                           id="delete"
                           style={{color:"red"}}
                           startIcon={<DeleteIcon />}
+                          onClick={handleRemoveProject(item)}
                         />
                         </Whisper>
                         <Whisper  placement="top" speaker={<Tooltip> Edit!</Tooltip>}>

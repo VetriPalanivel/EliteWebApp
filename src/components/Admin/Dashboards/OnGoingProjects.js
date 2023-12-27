@@ -105,6 +105,18 @@ const handleAddProject = async() =>{
     }))
     setEditImage(item.image);
   }
+
+  const handleRemoveProject = (item) => async() =>{
+    await axios
+        .post("http://localhost:4000/ongoing_project/delete/"+item.id)
+        .then((res) => {
+          console.log(res);
+          getOnGoingProjects();
+        })
+        .catch((e) => {
+          console.log(e);
+        });
+  }
   
   
   const handleCancelProject = async() =>{
@@ -279,6 +291,7 @@ const handleAddProject = async() =>{
                           id="delete"
                           style={{color:"red"}}
                           startIcon={<DeleteIcon />}
+                          onClick={handleRemoveProject(item)}
                         />
                         </Whisper>
                         <Whisper  placement="top" speaker={<Tooltip> Edit!</Tooltip>}>

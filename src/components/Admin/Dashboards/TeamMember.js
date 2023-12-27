@@ -80,6 +80,18 @@ export default function TeamMember() {
     }  
   }
 
+  const handleRemoveProject = (item) => async() =>{
+    await axios
+        .post("http://localhost:4000/team_member/delete/"+item.id)
+        .then((res) => {
+          console.log(res);
+          getTeamMembers()
+        })
+        .catch((e) => {
+          console.log(e);
+        });
+  }
+
   const handleEditProject = (item) => ()  =>{
     setEdit(true)
     dispatch(updateTeamMember({...teamMember,
@@ -261,6 +273,7 @@ export default function TeamMember() {
                           id="delete"
                           style={{color:"red"}}
                           startIcon={<DeleteIcon />}
+                          onClick={handleRemoveProject(item)}
                         />
                         </Whisper>
                         <Whisper  placement="top" speaker={<Tooltip> Edit!</Tooltip>}>

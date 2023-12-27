@@ -81,6 +81,17 @@ export default function Clubs() {
       getClubs()
     }  
   }
+  const handleRemoveProject = (item) => async() =>{
+    await axios
+        .post("http://localhost:4000/clubs_societies/delete/"+item.id)
+        .then((res) => {
+          console.log(res);
+          getClubs()
+        })
+        .catch((e) => {
+          console.log(e);
+        });
+  }
   const handleEditProject = (item) => ()  =>{
     setEdit(true)
     dispatch(updateClub({...club,
@@ -262,6 +273,7 @@ export default function Clubs() {
                           id="delete"
                           style={{color:"red"}}
                           startIcon={<DeleteIcon />}
+                          onClick={handleRemoveProject(item)}
                         />
                         </Whisper>
                         <Whisper  placement="top" speaker={<Tooltip> Edit!</Tooltip>}>

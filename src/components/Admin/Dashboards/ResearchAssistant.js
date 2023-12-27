@@ -107,6 +107,19 @@ export default function ResearchAssistant() {
     setEditImage(item.image);
   }
 
+  const handleRemoveProject = (item) => async() =>{
+    await axios
+        .post("http://localhost:4000/research_assistantjob/delete/"+item.id)
+        .then((res) => {
+          console.log(res);
+         getResearchAssistantJobs();
+        })
+        .catch((e) => {
+          console.log(e);
+        });
+  }
+  
+
   const truncateText = (text, limit) => {
     const words = text.split(' ');
     if (words.length > limit) {
@@ -325,6 +338,7 @@ export default function ResearchAssistant() {
                           id="delete"
                           style={{color:"red"}}
                           startIcon={<DeleteIcon />}
+                          onClick={handleRemoveProject(item)}
                         />
                         </Whisper>
                         <Whisper  placement="top" speaker={<Tooltip> Edit!</Tooltip>}>

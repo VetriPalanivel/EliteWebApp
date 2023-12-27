@@ -118,6 +118,17 @@ export default function Exhibition() {
       // dispatch(resetExhibition())
     }  
   }
+  const handleRemoveProject = (item) => async() =>{
+    await axios
+        .post("http://localhost:4000/exhibition/delete/"+item.id)
+        .then((res) => {
+          console.log(res);
+          getExhibition();
+        })
+        .catch((e) => {
+          console.log(e);
+        });
+  }
   const handleEditProject = (item) => ()  =>{
     setEdit(true)
     dispatch(updateExhibition({...exhibition,
@@ -385,6 +396,7 @@ export default function Exhibition() {
                           id="delete"
                           style={{color:"red"}}
                           startIcon={<DeleteIcon />}
+                          onClick={handleRemoveProject(item)}
                         />
                         </Whisper>
                         <Whisper  placement="top" speaker={<Tooltip> Edit!</Tooltip>}>

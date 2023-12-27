@@ -123,6 +123,17 @@ export default function Roles() {
       getRoles();
     }
   };
+  const handleRemoveProject = (item) => async() =>{
+    await axios
+        .post("http://localhost:4000/roles/delete/"+item.id)
+        .then((res) => {
+          console.log(res);
+          getRoles();
+        })
+        .catch((e) => {
+          console.log(e);
+        });
+  }
 
   const handleEditProject = (item) => ()  =>{
     setEdit(true)
@@ -369,6 +380,7 @@ export default function Roles() {
                           id="delete"
                           style={{color:"red"}}
                           startIcon={<DeleteIcon />}
+                          onClick={handleRemoveProject(item)}
                         />
                         </Whisper>
                         <Whisper  placement="top" speaker={<Tooltip> Edit!</Tooltip>}>
