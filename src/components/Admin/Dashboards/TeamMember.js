@@ -12,12 +12,14 @@ import CardActions from "@mui/material/CardActions";
 import EditIcon from "@mui/icons-material/Edit";
 import BorderColorIcon from '@mui/icons-material/BorderColor';
 import { Avatar } from "@mui/material";
+import ArrowRightIcon from '@mui/icons-material/ArrowRight';
 import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
 import course from "../../../asserts/course.png";
 import "rsuite/dist/rsuite.min.css";
 import "../../../styles/Admin/DashboardItems.css";
-import { resetTeamMember, updateTeamMember } from "../../../redux/userReducer";
+import { resetTeamMember, updateTeamMember , updateOpenPopup, updatePopupData} from "../../../redux/userReducer";
+import { baseUrl, getApi, postApi, putApi } from "../../../Services/service";
 
 export default function TeamMember() {
   const teamMember = useSelector ((state) => state.Elite.teamMember)
@@ -32,9 +34,28 @@ export default function TeamMember() {
     }},[])
   
     const getTeamMembers = async()=>{
-      const response =await axios.get("http://localhost:4000/team_member/get");
-      setTeamMemberList(response.data)
+      const response =await getApi('team_member/get');
+      if(response?.status === "Failed"){
+        openPopup('error','Network Error! Try again later.')
+      }else{
+        setTeamMemberList(response?.data);
+      }
+      closePopup()
     }
+
+    const openPopup = (type,message) =>{
+      dispatch(updateOpenPopup(true));
+      dispatch(updatePopupData({
+        type:type,
+        message:message,
+      }))
+    }
+  
+    const closePopup = () =>{
+      setTimeout(()=>{
+        dispatch(updateOpenPopup(false));
+        dispatch(updatePopupData(""));
+      },3500)}
   
   const handleFormName = (event) =>{
     dispatch(updateTeamMember({...teamMember,"name" : event}));
@@ -66,33 +87,53 @@ export default function TeamMember() {
     
     if(validateForm){
       if(!edit){
-        await axios.post("http://localhost:4000/team_member/create",formData)
-        .then(res=>{console.log(res)})
-        .catch(e=>{console.log(e)})
+        const response = await postApi('team_member/create',formData);
+        if(response?.status === "Failed"){
+          openPopup('error','Network Error! Try again later.')
+        }else if(response?.status_code === 200)
+         {
+          openPopup('success','New data successfully created.')
+        }else if(response?.status_code === 400)
+        {
+          openPopup('error','New data creation Failed.')
+        }
       }else{
-        await axios.put("http://localhost:4000/team_member/update/"+teamMember.id,formData)
-        .then(res=>{console.log(res)})
-        .catch(e=>{console.log(e)})
+        const response = await putApi('team_member/update/'+ teamMember.id,formData)
+        if(response?.status === "Failed"){
+          openPopup('error','Network Error! Try again later.')
+        }else if(response?.status_code === 200)
+         {
+          openPopup('info','Data successfully updated.')
+        }else if(response?.status_code === 400)
+        {
+          openPopup('error','Data updation Failed.')
+        }
       }
-      
-    //   dispatch(resetTeamMember())
+      handleCancelProject();
+      closePopup();
        getTeamMembers()
     }  
   }
 
   const handleRemoveProject = (item) => async() =>{
-    await axios
-        .post("http://localhost:4000/team_member/delete/"+item.id)
-        .then((res) => {
-          console.log(res);
-          getTeamMembers()
-        })
-        .catch((e) => {
-          console.log(e);
-        });
+        const response = await postApi('team_member/delete/'+ item.id)
+        if(response?.status === "Failed"){
+          openPopup('error','Network Error! Try again later.')
+        }else if(response?.status_code === 200)
+         {
+          openPopup('info','Data successfully deleted.')
+        }else if(response?.status_code === 400)
+        {
+          openPopup('error','Data deletion Failed.')
+        }
+        getTeamMembers()
+        closePopup()
   }
 
   const handleEditProject = (item) => ()  =>{
+    if (typeof window !== 'undefined') {
+      window.scrollTo(0, 0);
+    }
     setEdit(true)
     dispatch(updateTeamMember({...teamMember,
       "description":item.description,
@@ -220,53 +261,48 @@ export default function TeamMember() {
         <h5
           className="Display-heading"
         >
-          ADDED PROJECT DETAILS
+          ADDED EGE TEAM MEMBER DETAILS
         </h5>
+        <Grid>
         <div className="Form-DisplayContainer">
           {teamMemberList.map((item) => (
+             <Col xs={24} sm={24} md={8} lg={8} xl={8} key={item} >
             <Card
-              className="Form-DisplayCard"
+              className="Form-DisplayCard-Teammember"
             >
               <CardContent>
-                <Grid>
-                  <Row >
-                    <Col xs={24} sm={24} md={4} lg={4} xl={4}>
                       <Avatar
                         alt=""
-                        variant="square"
-                        className="Form-DisplayCard-img"
-                        style={{
-                         
+                        className="Form-DisplayCard-Tmember-img"
+                          style={{
+                            margin:"0 auto",
+                            borderRadius:"10px",
+                            marginBottom:"20px"
                         }}
-                        src={`http://localhost:4000/${item.image}`}
+                        src={`${baseUrl}${item.image}`}
                       />
-                    </Col>
-                    <Col
-                      xs={24} sm={24} md={18} lg={18} xl={18}
-                      className="Display-content"
-                    >
                       <div>
-                        <h6 className="Display-content-heading" >
-                         {item.name}
+                        <h6 className="Display-content-heading-member" >
+                        {item.name}
                         </h6>
-                        <p className="Display-content-text">
-                        {truncateText(item.description, 60)}
+                        <p className="Display-content-text-member">
+                        {item.role}
                         </p>
                         <CardActions
-                          style={{ display: "flex", justifyContent: "end" }}
+                          style={{ display: "flex", justifyContent: "center" }}
                         >
                           <Button
-                          className="Display-content-view"
                             variant="text"
-                            href="#text-buttons"
+                            // href="#text-buttons"
+                            color="blue"
+                            appearance="primary"
+                            endIcon={<ArrowRightIcon />}
                           >
-                            Click here to view more
+                            Read More
                           </Button>
                         </CardActions>
                       </div>
-                    </Col>
-                    <Col xs={24} sm={24} md={2} lg={2} xl={2}>
-                    <div className="Display-content-edit">
+                    <div className="Display-content-edit-member">
                       <Whisper  placement="top" speaker={<Tooltip> Delete!</Tooltip>}>
                         <Button
                           variant="outlined"
@@ -287,13 +323,12 @@ export default function TeamMember() {
                         />
                         </Whisper>
                       </div>
-                    </Col>
-                  </Row>
-                </Grid>
               </CardContent>
             </Card>
-          ))}
+            </Col>
+          ))}  
         </div>
+        </Grid>
       </div>
       </div>   
   );

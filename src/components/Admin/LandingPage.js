@@ -27,7 +27,7 @@ import Tooltip from "@mui/material/Tooltip";
 import MenuItem from "@mui/material/MenuItem";
 import Menu from "@mui/material/Menu";
 import {useDispatch,useSelector} from 'react-redux'
-import {updateDasboardStatus, updateSelectedTitle} from "./../../redux/userReducer";
+import {updateAuthenticate, updateDasboardStatus, updateSelectedTitle, updateUser} from "./../../redux/userReducer";
 import { AdminDashboard } from "./../../constants/Admin";
 import '../.././styles/Admin/AdminHeader.css'
 import Dashboard from './Dashboard'
@@ -46,6 +46,8 @@ import Committe from './Dashboards/Committe';
 import Ambassador from './Dashboards/Ambassador';
 import TeamMember from './Dashboards/TeamMember';
 import Sponsors from './Dashboards/Sponsors';
+import { baseUrl } from '../../Services/service';
+import ViewProfile from './Dashboards/ViewProfile';
 const drawerWidth = 280;
 
 function LandingPage(props) {
@@ -54,6 +56,7 @@ function LandingPage(props) {
   const navigate = useNavigate();
   const SelectedTitle = useSelector((state)=> state.Elite.selectedTitle)
   const DashboardStatus = useSelector ((state) => state.Elite.dashboardStatus)
+  const User = useSelector ((state) => state.Elite.user)
   const [mobileOpen, setMobileOpen] = React.useState(false);
   const [anchorElUser, setAnchorElUser] = React.useState(null);
   const [activeItem,setActiveItem] = useState("Dashboard");
@@ -64,14 +67,28 @@ function LandingPage(props) {
     setActiveItem(SelectedTitle.title)
   },[SelectedTitle])
 
-  console.log(activeItem)
+  useEffect(()=>{
+    dispatch(updateDasboardStatus(true))
+  },[])
+
   const container =
     window !== undefined ? () => window().document.body : undefined;
 
   const handleOpenUserMenu = (event) => {
     setAnchorElUser(event.currentTarget);
   };
-  const handleCloseUserMenu = () => {
+  const handleCloseUserMenu = (event) => {
+    if(event.target.innerHTML === "Logout"){
+      dispatch(updateUser(""))
+      dispatch(updateAuthenticate(false))
+      navigate("login")
+    }else{
+      const sampleSeletedTitle={
+        title:"ViewProfile"
+    }
+    dispatch(updateDasboardStatus(false))
+    dispatch(updateSelectedTitle(sampleSeletedTitle))
+    }
     setAnchorElUser(null);
   };
   const handleHomePage = () => {
@@ -153,7 +170,7 @@ function LandingPage(props) {
                   <Avatar
                     alt="Profile"
                     className="Admin-profile"
-                    src={Profile}
+                    src={(User.image !=null) ? `${baseUrl}${User.image}`: Profile}
                   />
                 </IconButton>
               </Tooltip>
@@ -228,6 +245,7 @@ function LandingPage(props) {
     p: 3,
     width: { sm: `calc(100% - ${drawerWidth}px)` },
   }}
+  style={{padding: activeItem === "ViewProfile" ? "0px":"24px"}}
 >
      
         <Toolbar />
@@ -247,6 +265,7 @@ function LandingPage(props) {
         {(!DashboardStatus && activeItem === "EGE Ambassador") && <Ambassador/>}
         {(!DashboardStatus && activeItem === "EGE Team Member") && <TeamMember/>}
         {(!DashboardStatus && activeItem === "EGE Sponsors/Collaborators") && <Sponsors/>}
+        {(!DashboardStatus && activeItem === "ViewProfile") && <ViewProfile/>}
       
       </Box>
     </Box>

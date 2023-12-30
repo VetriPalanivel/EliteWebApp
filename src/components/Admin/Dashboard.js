@@ -14,16 +14,49 @@ import {
   updateSelectedTitle,
 } from "../../redux/userReducer";
 import './../../styles/Admin/Dashboard.css'
+import { getApi } from "../../Services/service";
 
 
 const Dashboard = () => {
+  const [dashboardList,setDashboardList] = useState(AdminDashboard)
   const dispatch = useDispatch();
   const navigate = useNavigate();
   useEffect(()=>{
     if (typeof window !== 'undefined') {
       window.scrollTo(0, 0);
     }
+    getDashBoardItem();
   },[])
+
+  const getDashBoardItem = async () => {
+    try {
+      const response = await getApi('dashboard/get');
+      if (response.status_code === 200) {
+        const updatedDashboard = AdminDashboard.map((dashboardItem) => {
+          if (Array.isArray(response.data.data)) {
+            const matchingResponseItem = response.data.data.find(
+              (responseItem) => responseItem.table_name === dashboardItem.table
+            );
+            if (matchingResponseItem) {
+              return {
+                ...dashboardItem,
+                badgeCount: matchingResponseItem.row_count,
+              };
+            }
+          } 
+          return dashboardItem;
+        });
+  
+        setDashboardList(updatedDashboard);
+      }
+    } catch (error) {
+      console.error('Error fetching dashboard data:', error);
+    }
+  };
+  
+  console.log(dashboardList)
+ 
+  
 
   const handleDashboard = (item) => () => {
     const DashboardStatus = {
@@ -38,10 +71,11 @@ const Dashboard = () => {
     <Grid
       fluid
       className="Dashboard-container"
+      style={{paddingTop:"30px"}}
     >
       <p className="Dashboard-container-title">Dashboard</p>
       <Row gutter={5} className="Dashboard-row">
-        {AdminDashboard.map((item, index) => (
+        {dashboardList.map((item, index) => (
           <Col key={index} xs={24} sm={24} md={12} lg={6} xl={6} className="Dashboard-item" >
             <div key={index} onClick={handleDashboard(item)} className="Dashboard-List">
                 <Card sx={{ width: 160 }} className="Dashboard-card">

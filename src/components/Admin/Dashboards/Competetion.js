@@ -17,7 +17,9 @@ import axios from "axios";
 import { useDispatch, useSelector } from "react-redux";
 import "rsuite/dist/rsuite.min.css";
 import "../../../styles/Admin/DashboardItems.css";
-import { resetCompetetion, updateCompetetion } from "../../../redux/userReducer";
+import { resetCompetetion, updateCompetetion, updateOpenPopup, updatePopupData} from "../../../redux/userReducer";
+import { baseUrl, getApi, postApi, putApi } from "../../../Services/service";
+
 
 export default function Competetion() {
   const competetion = useSelector ((state) => state.Elite.competetion)
@@ -33,9 +35,15 @@ export default function Competetion() {
     }},[])
   
     const getCompetetion = async()=>{
-      const response =await axios.get("http://localhost:4000/competetion/get");
-      setCompetetionList(response.data)
+      const response =await getApi('competetion/get');
+    if(response?.status === "Failed"){
+      openPopup('error','Network Error! Try again later.')
+    }else{
+      setCompetetionList(response?.data);
     }
+    closePopup()
+    }
+
   const SelectOption = [
     {
       label: "Online",
@@ -46,6 +54,19 @@ export default function Competetion() {
       value: "Physical",
     }
   ];
+  const openPopup = (type,message) =>{
+    dispatch(updateOpenPopup(true));
+    dispatch(updatePopupData({
+      type:type,
+      message:message,
+    }))
+  }
+
+  const closePopup = () =>{
+    setTimeout(()=>{
+      dispatch(updateOpenPopup(false));
+      dispatch(updatePopupData(""));
+    },3500)}
 
   const handleFormTitle = (event) =>{
     dispatch(updateCompetetion({...competetion,"title" : event}));
@@ -105,31 +126,52 @@ export default function Competetion() {
     
     if(validateForm){
       if(!edit){
-        await axios.post("http://localhost:4000/competetion/create",formData)
-      .then(res=>{console.log(res)})
-      .catch(e=>{console.log(e)})
-      }else{
-        await axios.put("http://localhost:4000/competetion/update/"+ competetion.id,formData)
-        .then(res=>{console.log(res)})
-        .catch(e=>{console.log(e)})
+      const response = await postApi('competetion/create',formData);
+      if(response?.status === "Failed"){
+        openPopup('error','Network Error! Try again later.')
+      }else if(response?.status_code === 200)
+       {
+        openPopup('success','New data successfully created.')
+      }else if(response?.status_code === 400)
+      {
+        openPopup('error','New data creation Failed.')
       }
-      
+      }else{
+        const response = await putApi('competetion/update/'+ competetion.id,formData)
+        if(response?.status === "Failed"){
+          openPopup('error','Network Error! Try again later.')
+        }else if(response?.status_code === 200)
+         {
+          openPopup('info','Data successfully updated.')
+        }else if(response?.status_code === 400)
+        {
+          openPopup('error','Data updation Failed.')
+        }
+      } 
       getCompetetion()
-      // dispatch(resetCompetetion())
+      handleCancelProject();
+      closePopup();
     }  
   }
   const handleRemoveProject = (item) => async() =>{
-    await axios
-        .post("http://localhost:4000/competetion/delete/"+item.id)
-        .then((res) => {
-          console.log(res);
-          getCompetetion()
-        })
-        .catch((e) => {
-          console.log(e);
-        });
+        const response = await postApi('competetion/delete/'+ item.id)
+        if(response?.status === "Failed"){
+          openPopup('error','Network Error! Try again later.')
+        }else if(response?.status_code === 200)
+         {
+          openPopup('info','Data successfully deleted.')
+        }else if(response?.status_code === 400)
+        {
+          openPopup('error','Data deletion Failed.')
+        }
+        getCompetetion()
+        closePopup()
   }
+
   const handleEditProject = (item) => ()  =>{
+    if (typeof window !== 'undefined') {
+      window.scrollTo(0, 0);
+    }
     setEdit(true)
     dispatch(updateCompetetion({...competetion,
       "description":item.description,
@@ -341,7 +383,7 @@ export default function Competetion() {
         <h5
           className="Display-heading"
         >
-          ADDED PROJECT DETAILS
+          ADDED COMPETETIONS DETAILS
         </h5>
         <div className="Form-DisplayContainer">
           {competetionList.map((item) => (
@@ -359,7 +401,7 @@ export default function Competetion() {
                         style={{
                          
                         }}
-                        src={`http://localhost:4000/${item.image}`}
+                        src={`${baseUrl}${item.image}`}
                       />
                     </Col>
                     <Col

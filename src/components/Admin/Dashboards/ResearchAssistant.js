@@ -16,7 +16,8 @@ import course from "../../../asserts/course.png";
 import "rsuite/dist/rsuite.min.css";
 import "../../../styles/Admin/DashboardItems.css";
 import { useDispatch, useSelector } from "react-redux";
-import { resetAssistantJob, updateAssistantJob } from "../../../redux/userReducer";
+import { resetAssistantJob, updateAssistantJob , updateOpenPopup, updatePopupData} from "../../../redux/userReducer";
+import { baseUrl, getApi, postApi, putApi } from "../../../Services/service";
 
 export default function ResearchAssistant() {
   const assistantJob = useSelector((state) => state.Elite.assitantJob)
@@ -32,9 +33,27 @@ export default function ResearchAssistant() {
   },[])
 
   const getResearchAssistantJobs = async()=>{
-    const response = await axios.get("http://localhost:4000/research_assistantjob/get");
-    setAssistantJobList(response.data)
+    const response =await getApi('research_assistantjob/get');
+    if(response?.status === "Failed"){
+      openPopup('error','Network Error! Try again later.')
+    }else{
+      setAssistantJobList(response?.data);
+    }
+    closePopup()
   }
+  const openPopup = (type,message) =>{
+    dispatch(updateOpenPopup(true));
+    dispatch(updatePopupData({
+      type:type,
+      message:message,
+    }))
+  }
+
+  const closePopup = () =>{
+    setTimeout(()=>{
+      dispatch(updateOpenPopup(false));
+      dispatch(updatePopupData(""));
+    },3500)}
 
   const handleFormTitle = (event) =>{
     dispatch(updateAssistantJob({...assistantJob,"title" : event}));
@@ -78,21 +97,39 @@ export default function ResearchAssistant() {
     
     if(validateForm){
       if(!edit){
-      await axios.post("http://localhost:4000/research_assistantjob/create",formData)
-      .then(res=>{console.log(res)})
-      .catch(e=>{console.log(e)})
+      const response = await postApi('research_assistantjob/create',formData);
+      if(response?.status === "Failed"){
+        openPopup('error','Network Error! Try again later.')
+      }else if(response?.status_code === 200)
+       {
+        openPopup('success','New data successfully created.')
+      }else if(response?.status_code === 400)
+      {
+        openPopup('error','New data creation Failed.')
+      }
       }
       else{
-        await axios.put("http://localhost:4000/research_assistantjob/update/"+ assistantJob.id,formData)
-      .then(res=>{console.log(res)})
-      .catch(e=>{console.log(e)})
+      const response = await putApi('research_assistantjob/update/'+ assistantJob.id,formData)
+      if(response?.status === "Failed"){
+        openPopup('error','Network Error! Try again later.')
+      }else if(response?.status_code === 200)
+       {
+        openPopup('info','Data successfully updated.')
+      }else if(response?.status_code === 400)
+      {
+        openPopup('error','Data updation Failed.')
       }
-      getResearchAssistantJobs()
-      // dispatch(resetAssistantJob())
+      }
+      getResearchAssistantJobs();
+      handleCancelAssistantJob();
+      closePopup();
     }  
   }
 
   const handleEditAssistantJob = (item) => ()  =>{
+    if (typeof window !== 'undefined') {
+      window.scrollTo(0, 0);
+    }
     setEdit(true)
     dispatch(updateAssistantJob({...assistantJob,
       "title":item.title,
@@ -108,15 +145,18 @@ export default function ResearchAssistant() {
   }
 
   const handleRemoveProject = (item) => async() =>{
-    await axios
-        .post("http://localhost:4000/research_assistantjob/delete/"+item.id)
-        .then((res) => {
-          console.log(res);
-         getResearchAssistantJobs();
-        })
-        .catch((e) => {
-          console.log(e);
-        });
+        const response = await postApi('research_assistantjob/delete/'+ item.id)
+        if(response?.status === "Failed"){
+          openPopup('error','Network Error! Try again later.')
+        }else if(response?.status_code === 200)
+         {
+          openPopup('info','Data successfully deleted.')
+        }else if(response?.status_code === 400)
+        {
+          openPopup('error','Data deletion Failed.')
+        }
+        getResearchAssistantJobs()
+        closePopup()
   }
   
 
@@ -285,7 +325,7 @@ export default function ResearchAssistant() {
         <h5
           className="Display-heading"
         >
-          ADDED PROJECT DETAILS
+          ADDED EGE RESEARCH ASSISTANT JOBS DETAILS
         </h5>
         <div className="Form-DisplayContainer">
           {assistantJobList.map((item) => (
@@ -303,7 +343,7 @@ export default function ResearchAssistant() {
                         style={{
                          
                         }}
-                        src={`http://localhost:4000/${item.image}`}
+                        src={`${baseUrl}${item.image}`}
                       />
                     </Col>
                     <Col

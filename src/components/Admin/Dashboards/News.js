@@ -17,7 +17,8 @@ import axios from "axios";
 import course from "../../../asserts/course.png";
 import "rsuite/dist/rsuite.min.css";
 import "../../../styles/Admin/DashboardItems.css";
-import { resetNews, updateNews } from "../../../redux/userReducer";
+import { resetNews, updateNews , updateOpenPopup, updatePopupData} from "../../../redux/userReducer";
+import { baseUrl, getApi, postApi, putApi } from "../../../Services/service";
 
 export default function News() {
   const news = useSelector ((state) => state.Elite.news)
@@ -32,9 +33,28 @@ export default function News() {
     }},[])
   
     const getNews = async()=>{
-      const response =await axios.get("http://localhost:4000/news/get");
-      setNewsList(response.data)
+      const response =await getApi('news/get');
+      if(response?.status === "Failed"){
+        openPopup('error','Network Error! Try again later.')
+      }else{
+        setNewsList(response?.data);
+      }
+      closePopup()
     }
+
+    const openPopup = (type,message) =>{
+      dispatch(updateOpenPopup(true));
+      dispatch(updatePopupData({
+        type:type,
+        message:message,
+      }))
+    }
+  
+    const closePopup = () =>{
+      setTimeout(()=>{
+        dispatch(updateOpenPopup(false));
+        dispatch(updatePopupData(""));
+      },3500)}
 
   const handleFormTitle = (event) =>{
     dispatch(updateNews({...news,"title" : event}));
@@ -67,32 +87,52 @@ export default function News() {
     
     if(validateForm){
       if(!edit){
-        await axios.post("http://localhost:4000/news/create",formData)
-        .then(res=>{console.log(res)})
-        .catch(e=>{console.log(e)})
+        const response = await postApi('news/create',formData);
+        if(response?.status === "Failed"){
+          openPopup('error','Network Error! Try again later.')
+        }else if(response?.status_code === 200)
+         {
+          openPopup('success','New data successfully created.')
+        }else if(response?.status_code === 400)
+        {
+          openPopup('error','New data creation Failed.')
+        }
       }else{
-        await axios.put("http://localhost:4000/news/update/"+news.id,formData)
-        .then(res=>{console.log(res)})
-        .catch(e=>{console.log(e)})
+        const response = await putApi('news/update/'+ news.id,formData)
+        if(response?.status === "Failed"){
+          openPopup('error','Network Error! Try again later.')
+        }else if(response?.status_code === 200)
+         {
+          openPopup('info','Data successfully updated.')
+        }else if(response?.status_code === 400)
+        {
+          openPopup('error','Data updation Failed.')
+        }
       }
-      
-      // dispatch(resetNews())
+      handleCancelProject();
+      closePopup();
       getNews()
     }  
   }
   const handleRemoveProject = (item) => async() =>{
-    await axios
-        .post("http://localhost:4000/news/delete/"+item.id)
-        .then((res) => {
-          console.log(res);
-          getNews()
-        })
-        .catch((e) => {
-          console.log(e);
-        });
+        const response = await postApi('news/delete/'+ item.id)
+        if(response?.status === "Failed"){
+          openPopup('error','Network Error! Try again later.')
+        }else if(response?.status_code === 200)
+         {
+          openPopup('info','Data successfully deleted.')
+        }else if(response?.status_code === 400)
+        {
+          openPopup('error','Data deletion Failed.')
+        }
+        getNews()
+        closePopup()
   }
 
   const handleEditProject = (item) => ()  =>{
+    if (typeof window !== 'undefined') {
+      window.scrollTo(0, 0);
+    }
     setEdit(true)
     dispatch(updateNews({...news,
       "description":item.description,
@@ -220,7 +260,7 @@ export default function News() {
         <h5
           className="Display-heading"
         >
-          ADDED PROJECT DETAILS
+          ADDED EGE NEWS DETAILS
         </h5>
         <div className="Form-DisplayContainer">
           {newsList.map((item) => (
@@ -238,7 +278,7 @@ export default function News() {
                         style={{
                          
                         }}
-                        src={`http://localhost:4000/${item.image}`}
+                        src={`${baseUrl}${item.image}`}
                       />
                     </Col>
                     <Col

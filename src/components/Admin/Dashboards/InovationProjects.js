@@ -17,7 +17,8 @@ import course from "../../../asserts/course.png";
 import { useDispatch, useSelector } from "react-redux";
 import "rsuite/dist/rsuite.min.css";
 import "../../../styles/Admin/DashboardItems.css";
-import { resetInovationProject, updateInovationProject } from "../../../redux/userReducer";
+import { resetInovationProject, updateInovationProject, updateOpenPopup, updatePopupData} from "../../../redux/userReducer";
+import { baseUrl, getApi, postApi, putApi } from "../../../Services/service";
 
 export default function InovationProjects() {
   const inovationProject = useSelector ((state) => state.Elite.inovationProject)
@@ -33,8 +34,13 @@ export default function InovationProjects() {
   },[])
 
   const getInovationProjects = async()=>{
-    const response =await axios.get("http://localhost:4000/inovation_project/get");
-    setInovationProjectList(response.data)
+    const response =await getApi('inovation_project/get');
+    if(response?.status === "Failed"){
+      openPopup('error','Network Error! Try again later.')
+    }else{
+      setInovationProjectList(response?.data);
+    }
+    closePopup()
    
   }
   const SelectOption = [
@@ -51,6 +57,20 @@ export default function InovationProjects() {
       value: "Investment",
     },
   ];
+
+  const openPopup = (type,message) =>{
+    dispatch(updateOpenPopup(true));
+    dispatch(updatePopupData({
+      type:type,
+      message:message,
+    }))
+  }
+
+  const closePopup = () =>{
+    setTimeout(()=>{
+      dispatch(updateOpenPopup(false));
+      dispatch(updatePopupData(""));
+    },3500)}
 
   const handleFormTitle = (event) =>{
     dispatch(updateInovationProject({...inovationProject,"title" : event}));
@@ -84,32 +104,53 @@ const handleAddProject = async() =>{
   
   if(validateForm){
     if(!edit){
-      await axios.post("http://localhost:4000/inovation_project/create",formData)
-      .then(res=>{console.log(res)})
-      .catch(e=>{console.log(e)})
+      const response = await postApi('inovation_project/create',formData);
+      if(response?.status === "Failed"){
+        openPopup('error','Network Error! Try again later.')
+      }else if(response?.status_code === 200)
+       {
+        openPopup('success','New data successfully created.')
+      }else if(response?.status_code === 400)
+      {
+        openPopup('error','New data creation Failed.')
+      }
     }else{
-      await axios.put("http://localhost:4000/inovation_project/update/"+ inovationProject.id, formData)
-      .then(res=>{console.log(res)})
-      .catch(e=>{console.log(e)})
+      const response = await putApi('inovation_project/update/'+ inovationProject.id,formData)
+        if(response?.status === "Failed"){
+          openPopup('error','Network Error! Try again later.')
+        }else if(response?.status_code === 200)
+         {
+          openPopup('info','Data successfully updated.')
+        }else if(response?.status_code === 400)
+        {
+          openPopup('error','Data updation Failed.')
+        }
     }
     
     getInovationProjects();
-    // dispatch(resetInovationProject())
+    handleCancelProject();
+    closePopup();
   }  
 }
 const handleRemoveProject = (item) => async() =>{
-  await axios
-      .post("http://localhost:4000/inovation_project/delete/"+item.id)
-      .then((res) => {
-        console.log(res);
-        getInovationProjects();
-      })
-      .catch((e) => {
-        console.log(e);
-      });
+      const response = await postApi('inovation_project/delete/'+ item.id)
+      if(response?.status === "Failed"){
+        openPopup('error','Network Error! Try again later.')
+      }else if(response?.status_code === 200)
+       {
+        openPopup('info','Data successfully deleted.')
+      }else if(response?.status_code === 400)
+      {
+        openPopup('error','Data deletion Failed.')
+      }
+      getInovationProjects();
+      closePopup()
 }
 
 const handleEditProject = (item) => ()  =>{
+  if (typeof window !== 'undefined') {
+    window.scrollTo(0, 0);
+  }
   setEdit(true)
   dispatch(updateInovationProject({...inovationProject,
     "description":item.description,
@@ -239,7 +280,7 @@ const truncateText = (text, limit) => {
         <h5
           className="Display-heading"
         >
-          ADDED PROJECT DETAILS
+          ADDED EGE ON-GOING AND COMPLETED PROJECTS DETAILS
         </h5>
         <div className="Form-DisplayContainer">
           {inovationProjectList.map((item,index) => (
@@ -257,7 +298,7 @@ const truncateText = (text, limit) => {
                         style={{
                          
                         }}
-                        src={`http://localhost:4000/${item.image}`}
+                        src={`${baseUrl}${item.image}`}
                       />
                     </Col>
                     <Col

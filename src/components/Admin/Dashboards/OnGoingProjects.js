@@ -17,7 +17,8 @@ import course from "../../../asserts/course.png";
 import "rsuite/dist/rsuite.min.css";
 import "../../../styles/Admin/DashboardItems.css";
 import { useDispatch, useSelector } from "react-redux";
-import { resetOnGoingProject, updateOnGoingProject } from "../../../redux/userReducer";
+import { resetOnGoingProject, updateOnGoingProject, updateOpenPopup, updatePopupData } from "../../../redux/userReducer";
+import { baseUrl, getApi, postApi, putApi } from "../../../Services/service";
 
 export default function OnGoingProjects() {
 
@@ -34,9 +35,28 @@ export default function OnGoingProjects() {
   },[])
 
   const getOnGoingProjects = async() =>{
-    const response =await axios.get("http://localhost:4000/ongoing_project/get");
-    setProjectList(response.data)
+    const response =await getApi('ongoing_project/get');
+    if(response?.status === "Failed"){
+      openPopup('error','Network Error! Try again later.')
+    }else{
+      setProjectList(response?.data);
+    }
+    closePopup();
   }
+
+  const openPopup = (type,message) =>{
+    dispatch(updateOpenPopup(true));
+    dispatch(updatePopupData({
+      type:type,
+      message:message,
+    }))
+  }
+
+  const closePopup = () =>{
+    setTimeout(()=>{
+      dispatch(updateOpenPopup(false));
+      dispatch(updatePopupData(""));
+    },3500)}
 
   const SelectOption = [
     {
@@ -81,20 +101,37 @@ const handleAddProject = async() =>{
     
     if(validateForm){
       if(!edit){
-        await axios.post("http://localhost:4000/ongoing_project/create",formData)
-      .then(res=>{console.log(res)})
-      .catch(e=>{console.log(e)})
+        const response = await postApi('ongoing_project/create',formData);
+        if(response?.status === "Failed"){
+          openPopup('error','Network Error! Try again later.')
+        }else if(response?.status_code === 200)
+         {
+          openPopup('success','New data successfully created.')
+        }else if(response?.status_code === 400)
+        {
+          openPopup('error','New data creation Failed.')
+        }
       }else{
-        await axios.put("http://localhost:4000/ongoing_project/update/"+ onGoingProject.id,formData)
-        .then(res=>{console.log(res)})
-        .catch(e=>{console.log(e)})
+        const response = await putApi('ongoing_project/update/'+ onGoingProject.id,formData)
+        if(response?.status === "Failed"){
+          openPopup('error','Network Error! Try again later.')
+        }else if(response?.status_code === 200)
+         {
+          openPopup('info','Data successfully updated.')
+        }else if(response?.status_code === 400)
+        {
+          openPopup('error','Data updation Failed.')
+        }
       }
-    }  
-    // dispatch(resetOnGoingProject())
+    handleCancelProject();
     getOnGoingProjects();
-  }
+    closePopup();
+  }}
 
   const handleEditProject = (item) => ()  =>{
+    if (typeof window !== 'undefined') {
+      window.scrollTo(0, 0);
+    }
     setEdit(true)
     dispatch(updateOnGoingProject({...onGoingProject,
       "description":item.description,
@@ -107,23 +144,24 @@ const handleAddProject = async() =>{
   }
 
   const handleRemoveProject = (item) => async() =>{
-    await axios
-        .post("http://localhost:4000/ongoing_project/delete/"+item.id)
-        .then((res) => {
-          console.log(res);
-          getOnGoingProjects();
-        })
-        .catch((e) => {
-          console.log(e);
-        });
-  }
-  
+    const response = await postApi('ongoing_project/delete/'+ item.id)
+        if(response?.status === "Failed"){
+          openPopup('error','Network Error! Try again later.')
+        }else if(response?.status_code === 200)
+         {
+          openPopup('info','Data successfully deleted.')
+        }else if(response?.status_code === 400)
+        {
+          openPopup('error','Data deletion Failed.')
+        }
+        getOnGoingProjects();
+        closePopup()
+    } 
   
   const handleCancelProject = async() =>{
     dispatch(resetOnGoingProject())
     setEdit(false)
   }
-
 
   const truncateText = (text, limit) => {
     const words = text.split(' ');
@@ -238,7 +276,7 @@ const handleAddProject = async() =>{
         <h5
           className="Display-heading"
         >
-          ADDED PROJECT DETAILS
+          ADDED EGE ON-GOING RESEARCH PROJECTS DETAILS
         </h5>
         <div className="Form-DisplayContainer">
           {projectList.map((item,index) => (
@@ -256,7 +294,7 @@ const handleAddProject = async() =>{
                         style={{
                          
                         }}
-                        src={`http://localhost:4000/${item.image}`}
+                        src={`${baseUrl}${item.image}`}
                       />
                     </Col>
                     <Col

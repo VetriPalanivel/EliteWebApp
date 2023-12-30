@@ -17,7 +17,8 @@ import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
 import "rsuite/dist/rsuite.min.css";
 import "../../../styles/Admin/DashboardItems.css";
-import { resetCourse, updateCourse } from "../../../redux/userReducer";
+import { resetCourse, updateCourse , updateOpenPopup, updatePopupData} from "../../../redux/userReducer";
+import { baseUrl, getApi, postApi, putApi } from "../../../Services/service";
 
 export default function Courses() {
   const course = useSelector((state) => state.Elite.course);
@@ -33,8 +34,13 @@ export default function Courses() {
   }, []);
 
   const getCourses = async () => {
-    const response = await axios.get("http://localhost:4000/course/get");
-    setCourseList(response.data);
+    const response =await getApi('course/get');
+    if(response?.status === "Failed"){
+      openPopup('error','Network Error! Try again later.')
+    }else{
+      setCourseList(response?.data);
+    }
+    closePopup()
   };
 
   const SelectOption = [
@@ -47,6 +53,21 @@ export default function Courses() {
       value: "Physical",
     },
   ];
+
+  const openPopup = (type,message) =>{
+    dispatch(updateOpenPopup(true));
+    dispatch(updatePopupData({
+      type:type,
+      message:message,
+    }))
+  }
+
+  const closePopup = () =>{
+    setTimeout(()=>{
+      dispatch(updateOpenPopup(false));
+      dispatch(updatePopupData(""));
+    },3500)}
+
   const handleFormTitle = (event) => {
     dispatch(updateCourse({ ...course, title: event }));
   };
@@ -132,30 +153,37 @@ export default function Courses() {
 
     if (validateForm) {
       if(!edit){
-        await axios
-        .post("http://localhost:4000/course/create", formData)
-        .then((res) => {
-          console.log(res);
-        })
-        .catch((e) => {
-          console.log(e);
-        });
+        const response = await postApi('course/create',formData);
+        if(response?.status === "Failed"){
+          openPopup('error','Network Error! Try again later.')
+        }else if(response?.status_code === 200)
+         {
+          openPopup('success','New data successfully created.')
+        }else if(response?.status_code === 400)
+        {
+          openPopup('error','New data creation Failed.')
+        }
       }else{
-        await axios
-        .put("http://localhost:4000/course/update/"+course.id, formData)
-        .then((res) => {
-          console.log(res);
-        })
-        .catch((e) => {
-          console.log(e);
-        });
+        const response = await putApi('course/update/'+ course.id,formData)
+        if(response?.status === "Failed"){
+          openPopup('error','Network Error! Try again later.')
+        }else if(response?.status_code === 200)
+         {
+          openPopup('info','Data successfully updated.')
+        }else if(response?.status_code === 400)
+        {
+          openPopup('error','Data updation Failed.')
+        }
       }
-      
-      // dispatch(resetCourse())
+      handleCancelProject();
+      closePopup();
       getCourses();
     }
   };
   const handleEditProject = (item) => ()  =>{
+    if (typeof window !== 'undefined') {
+      window.scrollTo(0, 0);
+    }
     setEdit(true)
     dispatch(updateCourse({...course,
       "description":item.description,
@@ -174,15 +202,18 @@ export default function Courses() {
   }
 
   const handleRemoveProject = (item) => async() =>{
-    await axios
-        .post("http://localhost:4000/course/delete/"+item.id)
-        .then((res) => {
-          console.log(res);
-          getCourses();
-        })
-        .catch((e) => {
-          console.log(e);
-        });
+        const response = await postApi('course/delete/'+ item.id)
+        if(response?.status === "Failed"){
+          openPopup('error','Network Error! Try again later.')
+        }else if(response?.status_code === 200)
+         {
+          openPopup('info','Data successfully deleted.')
+        }else if(response?.status_code === 400)
+        {
+          openPopup('error','Data deletion Failed.')
+        }
+        getCourses();
+        closePopup()
   }
 
   const handleCancelProject = async () => {
@@ -423,7 +454,7 @@ export default function Courses() {
       </div>
 
       <div className="Display-FormDetails">
-        <h5 className="Display-heading">ADDED PROJECT DETAILS</h5>
+        <h5 className="Display-heading">ADDED EGE COURSES DETAILS</h5>
         <div className="Form-DisplayContainer">
           {courseList.map((item) => (
             <Card className="Form-DisplayCard">
@@ -436,7 +467,7 @@ export default function Courses() {
                         variant="square"
                         className="Form-DisplayCard-img"
                         style={{}}
-                        src={`http://localhost:4000/${item.image}`}
+                        src={`${baseUrl}${item.image}`}
                       />
                     </Col>
                     <Col

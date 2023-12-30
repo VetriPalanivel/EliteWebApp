@@ -7,6 +7,7 @@ import { Uploader } from "rsuite";
 import { Button, ButtonToolbar } from "rsuite";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { Tooltip, Whisper } from 'rsuite';
+import ArrowRightIcon from '@mui/icons-material/ArrowRight';
 import CloudUploadIcon from "@mui/icons-material/Upload";
 import CardActions from "@mui/material/CardActions";
 import BorderColorIcon from '@mui/icons-material/BorderColor';
@@ -17,7 +18,8 @@ import axios from "axios";
 import course from "../../../asserts/course.png";
 import "rsuite/dist/rsuite.min.css";
 import "../../../styles/Admin/DashboardItems.css";
-import { resetCommitte, updateCommitte } from "../../../redux/userReducer";
+import { resetCommitte, updateCommitte, updateOpenPopup, updatePopupData} from "../../../redux/userReducer";
+import { baseUrl, getApi, postApi, putApi } from "../../../Services/service";
 
 export default function Committe() {
   const committe = useSelector ((state) => state.Elite.committe)
@@ -32,10 +34,27 @@ export default function Committe() {
     }},[])
   
     const getCommitte = async()=>{
-      const response =await axios.get("http://localhost:4000/committe/get");
-      setCommitteList(response.data)
+      const response =await getApi('committe/get');
+      if(response?.status === "Failed"){
+        openPopup('error','Network Error! Try again later.')
+      }else{
+        setCommitteList(response?.data);
+      }
+      closePopup()
     }
-
+    const openPopup = (type,message) =>{
+      dispatch(updateOpenPopup(true));
+      dispatch(updatePopupData({
+        type:type,
+        message:message,
+      }))
+    }
+  
+    const closePopup = () =>{
+      setTimeout(()=>{
+        dispatch(updateOpenPopup(false));
+        dispatch(updatePopupData(""));
+      },3500)}
   
   const handleFormName = (event) =>{
     dispatch(updateCommitte({...committe,"name" : event}));
@@ -66,32 +85,52 @@ export default function Committe() {
     
     if(validateForm){
       if(!edit){
-        await axios.post("http://localhost:4000/committe/create",formData)
-        .then(res=>{console.log(res)})
-        .catch(e=>{console.log(e)})
+        const response = await postApi('committe/create',formData);
+        if(response?.status === "Failed"){
+          openPopup('error','Network Error! Try again later.')
+        }else if(response?.status_code === 200)
+         {
+          openPopup('success','New data successfully created.')
+        }else if(response?.status_code === 400)
+        {
+          openPopup('error','New data creation Failed.')
+        }
       }else{
-        await axios.put("http://localhost:4000/committe/update/"+committe.id,formData)
-        .then(res=>{console.log(res)})
-        .catch(e=>{console.log(e)})
+        const response = await putApi('committe/update/'+ committe.id,formData)
+        if(response?.status === "Failed"){
+          openPopup('error','Network Error! Try again later.')
+        }else if(response?.status_code === 200)
+         {
+          openPopup('info','Data successfully updated.')
+        }else if(response?.status_code === 400)
+        {
+          openPopup('error','Data updation Failed.')
+        }
       }
-      
-      // dispatch(resetCommitte())
-      getCommitte()
+      handleCancelProject();
+      closePopup();
+      getCommitte();
     }  
   }
   const handleRemoveProject = (item) => async() =>{
-    await axios
-        .post("http://localhost:4000/committe/delete/"+item.id)
-        .then((res) => {
-          console.log(res);
-          getCommitte()
-        })
-        .catch((e) => {
-          console.log(e);
-        });
+        const response = await postApi('committe/delete/'+ item.id)
+        if(response?.status === "Failed"){
+          openPopup('error','Network Error! Try again later.')
+        }else if(response?.status_code === 200)
+         {
+          openPopup('info','Data successfully deleted.')
+        }else if(response?.status_code === 400)
+        {
+          openPopup('error','Data deletion Failed.')
+        }
+        getCommitte()
+        closePopup()
   }
 
   const handleEditProject = (item) => ()  =>{
+    if (typeof window !== 'undefined') {
+      window.scrollTo(0, 0);
+    }
     setEdit(true)
     dispatch(updateCommitte({...committe,
       "organization":item.organization,
@@ -220,53 +259,52 @@ export default function Committe() {
         <h5
           className="Display-heading"
         >
-          ADDED PROJECT DETAILS
+          ADDED SCIENTIFIC COMMITTEE DETAILS
         </h5>
+        <Grid>
         <div className="Form-DisplayContainer">
           {committeList.map((item) => (
+             <Col xs={24} sm={24} md={8} lg={8} xl={8} key={item} >
             <Card
-              className="Form-DisplayCard"
+              className="Form-DisplayCard-Teammember"
             >
               <CardContent>
-                <Grid>
-                  <Row >
-                    <Col xs={24} sm={24} md={4} lg={4} xl={4}>
                       <Avatar
                         alt=""
                         variant="square"
-                        className="Form-DisplayCard-img"
-                        style={{
-                         
+                        className="Form-DisplayCard-Tmember-img"
+                          style={{
+                            margin:"0 auto",
+                            borderRadius:"10px",
+                            marginBottom:"20px"
                         }}
-                        src={`http://localhost:4000/${item.image}`}
+                        src={`${baseUrl}${item.image}`}
                       />
-                    </Col>
-                    <Col
-                      xs={24} sm={24} md={18} lg={18} xl={18}
-                      className="Display-content"
-                    >
                       <div>
-                        <h6 className="Display-content-heading" >
+                        <h6 className="Display-content-heading-member" >
                         {item.name}
                         </h6>
-                        <p className="Display-content-text">
-                        {truncateText(item.organization, 60)}
+                        <p className="Display-content-text-member">
+                        {item.role}
                         </p>
-                        <CardActions
-                          style={{ display: "flex", justifyContent: "end" }}
+                        <h6 className="Display-content-heading-Cmember" >
+                        {item.organization}
+                        </h6>
+                        {/* <CardActions
+                          style={{ display: "flex", justifyContent: "center" }}
                         >
                           <Button
-                          className="Display-content-view"
                             variant="text"
-                            href="#text-buttons"
+                            // href="#text-buttons"
+                            color="yellow"
+                            appearance="primary"
+                            endIcon={<ArrowRightIcon />}
                           >
-                            Click here to view more
+                            Read More
                           </Button>
-                        </CardActions>
+                        </CardActions> */}
                       </div>
-                    </Col>
-                    <Col xs={24} sm={24} md={2} lg={2} xl={2}>
-                    <div className="Display-content-edit">
+                    <div className="Display-content-edit-member">
                       <Whisper  placement="top" speaker={<Tooltip> Delete!</Tooltip>}>
                         <Button
                           variant="outlined"
@@ -287,13 +325,12 @@ export default function Committe() {
                         />
                         </Whisper>
                       </div>
-                    </Col>
-                  </Row>
-                </Grid>
               </CardContent>
             </Card>
-          ))}
+            </Col>
+          ))}  
         </div>
+        </Grid>
       </div>
       </div>   
   );

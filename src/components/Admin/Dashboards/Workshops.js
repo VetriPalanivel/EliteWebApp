@@ -17,7 +17,8 @@ import course from "../../../asserts/course.png";
 import { useDispatch, useSelector } from "react-redux";
 import "rsuite/dist/rsuite.min.css";
 import "../../../styles/Admin/DashboardItems.css";
-import { resetWorkshop, updateWorkshop } from "../../../redux/userReducer";
+import { resetWorkshop, updateWorkshop , updateOpenPopup, updatePopupData} from "../../../redux/userReducer";
+import { baseUrl, getApi, postApi, putApi } from "../../../Services/service";
 
 export default function Workshops() {
   const workshop = useSelector ((state) => state.Elite.workshop)
@@ -32,9 +33,15 @@ export default function Workshops() {
     }},[])
   
     const getWorkshops = async()=>{
-      const response =await axios.get("http://localhost:4000/workshop/get");
-      setWorkShopList(response.data)
+      const response =await getApi('workshop/get');
+      if(response?.status === "Failed"){
+        openPopup('error','Network Error! Try again later.')
+      }else{
+        setWorkShopList(response?.data);
+      }
+      closePopup()
     }
+
   const SelectOption = [
     {
       label: "Online",
@@ -45,6 +52,20 @@ export default function Workshops() {
       value: "Physical",
     }
   ];
+
+  const openPopup = (type,message) =>{
+  dispatch(updateOpenPopup(true));
+      dispatch(updatePopupData({
+        type:type,
+        message:message,
+      }))
+    }
+  
+    const closePopup = () =>{
+      setTimeout(()=>{
+        dispatch(updateOpenPopup(false));
+        dispatch(updatePopupData(""));
+      },3500)}
 
   const handleFormTitle = (event) =>{
     dispatch(updateWorkshop({...workshop,"title" : event}));
@@ -105,32 +126,53 @@ export default function Workshops() {
     
     if(validateForm){
       if(!edit){
-        await axios.post("http://localhost:4000/workshop/create",formData)
-        .then(res=>{console.log(res)})
-        .catch(e=>{console.log(e)})
+        const response = await postApi('workshop/create',formData);
+        if(response?.status === "Failed"){
+          openPopup('error','Network Error! Try again later.')
+        }else if(response?.status_code === 200)
+         {
+          openPopup('success','New data successfully created.')
+        }else if(response?.status_code === 400)
+        {
+          openPopup('error','New data creation Failed.')
+        }
       }
       else{
-        await axios.put("http://localhost:4000/workshop/update/"+ workshop.id,formData)
-        .then(res=>{console.log(res)})
-        .catch(e=>{console.log(e)})
+        const response = await putApi('workshop/update/'+ workshop.id,formData)
+        if(response?.status === "Failed"){
+          openPopup('error','Network Error! Try again later.')
+        }else if(response?.status_code === 200)
+         {
+          openPopup('info','Data successfully updated.')
+        }else if(response?.status_code === 400)
+        {
+          openPopup('error','Data updation Failed.')
+        }
       }
      
       getWorkshops();
-      // dispatch(resetWorkshop())
+      handleCancelProject();
+      closePopup();
     }  
   }
   const handleRemoveProject = (item) => async() =>{
-    await axios
-        .post("http://localhost:4000/workshop/delete/"+item.id)
-        .then((res) => {
-          console.log(res);
-          getWorkshops();
-        })
-        .catch((e) => {
-          console.log(e);
-        });
+        const response = await postApi('workshop/delete/'+ item.id)
+        if(response?.status === "Failed"){
+          openPopup('error','Network Error! Try again later.')
+        }else if(response?.status_code === 200)
+         {
+          openPopup('info','Data successfully deleted.')
+        }else if(response?.status_code === 400)
+        {
+          openPopup('error','Data deletion Failed.')
+        }
+        getWorkshops();
+        closePopup()
   }
   const handleEditProject = (item) => ()  =>{
+    if (typeof window !== 'undefined') {
+      window.scrollTo(0, 0);
+    }
     setEdit(true)
     dispatch(updateWorkshop({...workshop,
       "description":item.description,
@@ -344,7 +386,7 @@ export default function Workshops() {
         <h5
           className="Display-heading"
         >
-          ADDED PROJECT DETAILS
+          ADDED WORKSHOPS DETAILS
         </h5>
         <div className="Form-DisplayContainer">
           {workShopList.map((item) => (
@@ -362,7 +404,7 @@ export default function Workshops() {
                         style={{
                          
                         }}
-                        src={`http://localhost:4000/${item.image}`}
+                        src={`${baseUrl}${item.image}`}
                       />
                     </Col>
                     <Col

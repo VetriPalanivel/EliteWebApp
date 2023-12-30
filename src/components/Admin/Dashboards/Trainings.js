@@ -17,7 +17,8 @@ import { useDispatch, useSelector } from "react-redux";
 import course from "../../../asserts/course.png";
 import "rsuite/dist/rsuite.min.css";
 import "../../../styles/Admin/DashboardItems.css";
-import { resetTraining, updateTraining } from "../../../redux/userReducer";
+import { resetTraining, updateTraining , updateOpenPopup, updatePopupData} from "../../../redux/userReducer";
+import { baseUrl, getApi, postApi, putApi } from "../../../Services/service";
 
 export default function Trainings() {
   const training = useSelector((state) => state.Elite.training);
@@ -33,9 +34,28 @@ export default function Trainings() {
   }, []);
 
   const getTrainings = async () => {
-    const response = await axios.get("http://localhost:4000/training/get");
-    setTrainingList(response.data);
+    const response =await getApi('training/get');
+    if(response?.status === "Failed"){
+      openPopup('error','Network Error! Try again later.')
+    }else{
+      setTrainingList(response?.data);
+    }
+    closePopup()
   };
+
+  const openPopup = (type,message) =>{
+    dispatch(updateOpenPopup(true));
+    dispatch(updatePopupData({
+      type:type,
+      message:message,
+    }))
+  }
+
+  const closePopup = () =>{
+    setTimeout(()=>{
+      dispatch(updateOpenPopup(false));
+      dispatch(updatePopupData(""));
+    },3500)}
 
   const SelectOption = [
     {
@@ -123,43 +143,54 @@ export default function Trainings() {
 
     if (validateForm) {
       if(!edit){
-        await axios
-        .post("http://localhost:4000/training/create", formData)
-        .then((res) => {
-          console.log(res);
-        })
-        .catch((e) => {
-          console.log(e);
-        });
+        const response = await postApi('training/create',formData);
+        if(response?.status === "Failed"){
+          openPopup('error','Network Error! Try again later.')
+        }else if(response?.status_code === 200)
+         {
+          openPopup('success','New data successfully created.')
+        }else if(response?.status_code === 400)
+        {
+          openPopup('error','New data creation Failed.')
+        }
       }else{
-        await axios
-        .put("http://localhost:4000/training/update/"+ training.id, formData)
-        .then((res) => {
-          console.log(res);
-        })
-        .catch((e) => {
-          console.log(e);
-        });
+        const response = await putApi('training/update/'+ training.id,formData)
+        if(response?.status === "Failed"){
+          openPopup('error','Network Error! Try again later.')
+        }else if(response?.status_code === 200)
+         {
+          openPopup('info','Data successfully updated.')
+        }else if(response?.status_code === 400)
+        {
+          openPopup('error','Data updation Failed.')
+        }
       }
       
       getTrainings();
-      // dispatch(resetTraining())
+      handleCancelProject();
+      closePopup();
     }
   };
 
   const handleRemoveProject = (item) => async() =>{
-    await axios
-        .post("http://localhost:4000/training/delete/"+item.id)
-        .then((res) => {
-          console.log(res);
-          getTrainings();
-        })
-        .catch((e) => {
-          console.log(e);
-        });
+        const response = await postApi('training/delete/'+ item.id)
+        if(response?.status === "Failed"){
+          openPopup('error','Network Error! Try again later.')
+        }else if(response?.status_code === 200)
+         {
+          openPopup('info','Data successfully deleted.')
+        }else if(response?.status_code === 400)
+        {
+          openPopup('error','Data deletion Failed.')
+        }
+        getTrainings();
+        closePopup()
   }
 
   const handleEditProject = (item) => ()  =>{
+    if (typeof window !== 'undefined') {
+      window.scrollTo(0, 0);
+    }
     setEdit(true)
     dispatch(updateTraining({...training,
       "description":item.description,
@@ -381,7 +412,7 @@ export default function Trainings() {
       </div>
 
       <div className="Display-FormDetails">
-        <h5 className="Display-heading">ADDED PROJECT DETAILS</h5>
+        <h5 className="Display-heading">ADDED TRAINING FOR TRAINERS DETAILS</h5>
         <div className="Form-DisplayContainer">
           {trainingList.map((item) => (
             <Card className="Form-DisplayCard">
@@ -394,7 +425,7 @@ export default function Trainings() {
                         variant="square"
                         className="Form-DisplayCard-img"
                         style={{}}
-                        src={`http://localhost:4000/${item.image}`}
+                        src={`${baseUrl}${item.image}`}
                       />
                     </Col>
                     <Col

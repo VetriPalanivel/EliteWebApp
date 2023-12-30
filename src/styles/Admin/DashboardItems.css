@@ -14,6 +14,15 @@
    align-items: center;
    margin-top: 20px;
 }
+
+.ViewProfile-container{
+   align-items: center;
+   padding-top: 50px;
+   height: 100vh;
+   background-image: url("../../asserts/ViewProfile.jpg");
+   background-size: cover;
+   background-position: center;
+}
 .Form-div,.Display-FormDetails{
  margin-bottom: 20px;
  padding:10px;
@@ -40,6 +49,14 @@
    font-weight: bold;
    border:2px outset #6d6afc;
 }
+
+
+.Form-container-profile{
+   border-radius: 8px;
+   padding: 10px;
+   width:100% !important;
+   font-weight: bold;
+}
 .Form-DisplayContainer{
    border-radius: 8px;
    background-color:white;
@@ -61,6 +78,32 @@
    transition: box-shadow 0.3s ease-in-out;
    margin: 20px;
 }
+.Form-DisplayCard-member{
+   border-radius: 8px;
+   transition: box-shadow 0.3s ease-in-out;
+   margin: 20px;
+   background-image: url("../../asserts/team-back.jpg");
+   background-size: cover;
+   background-position: center;
+   max-width:300px;
+   max-height: 420px;
+}
+.Form-DisplayCard-Teammember{
+   border-radius: 8px;
+   transition: box-shadow 0.3s ease-in-out;
+   margin: 20px;
+   /* background-image: url("../../asserts/team-back.jpg"); */
+   background-size: cover;
+   background-position: center;
+   max-width:300px;
+   max-height: 440px;
+}
+.Form-DisplayCard-member:hover {
+   box-shadow: 0 10px 16px rgba(0, 0, 0, 0.4);
+ }
+ .Form-DisplayCard-Teammember:hover {
+   box-shadow: 0 10px 16px rgba(0, 0, 0, 0.4);
+ }
 
 .Form-DisplayCard:hover {
   box-shadow: 0 10px 16px rgba(0, 0, 0, 0.4);
@@ -70,6 +113,26 @@
    width: 150px !important;
    padding: 5px !important;
 }
+.Form-DisplayCard-member-img{
+   height: 200px !important;
+   width: 170px !important;
+   padding: 5px !important;
+   border:1px solid skyblue;
+   border-radius: 20px;
+}
+.Form-DisplayCard-Tmember-img{
+   height: 170px !important;
+   width: 170px !important;
+   padding: 5px !important;
+   border:1px dashed gray;
+   border-radius: 20px;
+}
+.Form-DisplayCard-Amember-img{
+   height: 150px !important;
+   width: 230px !important;
+   border:1px dashed gray;
+   border-radius: 20px;
+}
 .Display-content{
    text-align: left;
 }
@@ -77,12 +140,40 @@
    font-size: 16px;
   color: #00008B;
 }
+.Display-content-heading-member{
+   font-size: 16px;
+   color: #00008B;
+   text-align: center;
+   margin-bottom: 5px;
+}
+.Display-content-heading-Cmember{
+   font-size: 13px;
+   color: orange;
+   text-align: center;
+   margin-bottom: 5px;
+}
 .Display-content-text{
    margin-top: 5px;
    font-size: 15px;
    color: rgb(133, 133, 133);
    font-weight: 100;
    min-height: 100px !important;
+}
+.Display-content-text-member{
+   margin-top: 5px;
+   font-size: 15px;
+   text-align: center;
+   color: rgb(12, 14, 37);
+   font-weight: 700;
+}
+.Display-content-text-A{
+   margin-top: 5px;
+   font-size: 15px;
+   padding-left: 15px;
+   text-align: left;
+   color: rgb(133, 133, 133);
+   font-weight: 100;
+   min-height: 130px !important;
 }
 .Display-content-view{
    /* padding-top: 95px !important; */
@@ -100,6 +191,11 @@
 .Display-content-edit{
    margin-top: 40px !important;
    display: block !important;
+}
+.Display-content-edit-member{
+   margin-top: 10px !important;
+   display: flex !important;
+   justify-content: center !important;
 }
 #delete,#edit{
    margin-bottom: 10px !important;
@@ -122,6 +218,7 @@
    }
    .Display-heading,.Form-heading{
       text-align: center;
+      margin-bottom: 10px;
    }
    .Display-content-text{
       margin-top: 10px;
@@ -133,6 +230,7 @@
    .Display-content-edit{
       margin-top: 0px !important;
       display: flex !important;
+
    }
    .Form-DisplayContainer{
       border-radius: 8px;
@@ -147,4 +245,11 @@
       transition: box-shadow 0.3s ease-in-out;
       margin: 20px 0px;
    }
+   .Form-DisplayCard-Teammember,.Form-DisplayCard-member{
+      border-radius: 8px;
+      background: #faf9f5 !important;
+      transition: box-shadow 0.3s ease-in-out;
+      margin: 20px auto;
+   }
+
 }

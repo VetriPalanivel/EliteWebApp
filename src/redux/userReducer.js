@@ -136,6 +136,18 @@ const Sponsors = {
   description:"",
   type:""
 }
+const Register = {
+  username:"",
+  email:"",
+  password:"",
+  confirmPassword:""
+}
+
+const Login = {
+  email:"",
+  password:""
+}
+
 
 const initialState = {
   user:[],
@@ -158,6 +170,10 @@ const initialState = {
   sponsors:Sponsors,
   openPopup: false,
   popupData:"",
+  register:Register,
+  login:Login,
+  authenticate:false,
+  user:""
 };
 
 export const EliteWebsite = createSlice({
@@ -296,6 +312,22 @@ export const EliteWebsite = createSlice({
       state.sponsors = Sponsors;
       return state;
     },
+    updateRegister:(state,action) =>{
+      state.register = action.payload;
+      return state;
+    },
+    resetRegister:(state)=>{
+      state.register = Register;
+      return state;
+    },
+    updateLogin:(state,action) =>{
+      state.login = action.payload;
+      return state;
+    },
+    resetLogin:(state)=>{
+      state.login = Login;
+      return state;
+    },
     updatePopupData:(state,action)=>{
       state.popupData = action.payload;
       return state;
@@ -303,12 +335,20 @@ export const EliteWebsite = createSlice({
     updateOpenPopup:(state,action)=>{
       state.openPopup = action.payload;
       return state;
-    } 
+    } ,
+    updateAuthenticate:(state,action)=>{
+      state.authenticate = action.payload;
+      return state;
+    },
+    updateUser:(state,action) =>{
+      state.user = action.payload;
+      return state;
+    },
   },
 });
 
 // Action creators are generated for each case reducer function
-export const {updateOpenPopup,updatePopupData,updateSponsors,resetSponsors,updateTeamMember,resetTeamMember,updateAmbassador,resetAmbassador,updateCommitte,resetCommitte,updateNews,resetNews,updateRole,resetRole,updateCourse,resetCourse,updateClub,resetClub,resetCompetetion,resetExhibition,resetWorkshop,updateCompetetion,updateExhibition,updateWorkshop,updateTraining,resetTraining,updateInovationProject,resetInovationProject,updateAssistantJob,resetAssistantJob, addUser,updateDasboardStatus,updateSelectedTitle,resetOnGoingProject,updateOnGoingProject } =
+export const {updateUser,updateAuthenticate,updateLogin,resetLogin,updateRegister,resetRegister,updateOpenPopup,updatePopupData,updateSponsors,resetSponsors,updateTeamMember,resetTeamMember,updateAmbassador,resetAmbassador,updateCommitte,resetCommitte,updateNews,resetNews,updateRole,resetRole,updateCourse,resetCourse,updateClub,resetClub,resetCompetetion,resetExhibition,resetWorkshop,updateCompetetion,updateExhibition,updateWorkshop,updateTraining,resetTraining,updateInovationProject,resetInovationProject,updateAssistantJob,resetAssistantJob, addUser,updateDasboardStatus,updateSelectedTitle,resetOnGoingProject,updateOnGoingProject } =
 EliteWebsite.actions;
 
 export default EliteWebsite.reducer;

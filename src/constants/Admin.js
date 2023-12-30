@@ -40,7 +40,8 @@ export const AdminDashboard = [
         alt:"On-Going Research Projects",
         badgeCount:"30",
         badgeType:"primary",
-        icon:BiotechIcon
+        icon:BiotechIcon,
+        table:"elite.ongoing_project",
     },
     {   id:"3",
         name:"Research Assistant Job",
@@ -48,7 +49,8 @@ export const AdminDashboard = [
         alt:"Research Assistant Job",
         badgeCount:"30",
         badgeType:"error",
-        icon:WorkHistoryIcon
+        icon:WorkHistoryIcon,
+        table:"elite.research_assistantjob",
     },
     {
         id:"4",
@@ -57,7 +59,8 @@ export const AdminDashboard = [
         alt:"EGE Inovation Projects",
         badgeCount:"30",
         badgeType:"primary",
-        icon:MemoryIcon
+        icon:MemoryIcon,
+        table:"elite.inovation_project"
     },
     {
         id:"5",
@@ -66,7 +69,8 @@ export const AdminDashboard = [
         alt:"Training for Trainers",
         badgeCount:"30",
         badgeType:"primary",
-        icon:WbIncandescentIcon
+        icon:WbIncandescentIcon,
+        table:"elite.training"
     },
     {
         id:"6",
@@ -75,7 +79,8 @@ export const AdminDashboard = [
         alt:"Workshops",
         badgeCount:"30",
         badgeType:"primary",
-        icon:EngineeringIcon
+        icon:EngineeringIcon,
+        table:"elite.workshop"
     },
     {
         id:"7",
@@ -84,7 +89,8 @@ export const AdminDashboard = [
         alt:"Competetions",
         badgeCount:"30",
         badgeType:"success",
-        icon:CardMembershipIcon 
+        icon:CardMembershipIcon,
+        table:"elite.competetion"
     },
     {
         id:"8",
@@ -93,7 +99,8 @@ export const AdminDashboard = [
         alt:"Exhibition",
         badgeCount:"30",
         badgeType:"primary",
-        icon:ExplicitIcon
+        icon:ExplicitIcon,
+        table:"elite.exhibition"
     },
     {
         id:"9",
@@ -102,7 +109,8 @@ export const AdminDashboard = [
         alt:"EGE Clubs and Societies",
         badgeCount:"30",
         badgeType:"primary",
-        icon:Diversity3Icon
+        icon:Diversity3Icon,
+        table:"elite.clubs_societies"
     },
     {
         id:"10",
@@ -111,7 +119,8 @@ export const AdminDashboard = [
         alt:"EGE Courses",
         badgeCount:"30",
         badgeType:"primary",
-        icon:ContentPasteGoIcon
+        icon:ContentPasteGoIcon,
+        table:"elite.course"
     },
     {
         id:"11",
@@ -120,7 +129,8 @@ export const AdminDashboard = [
         alt:"Scientific Committe",
         badgeCount:"30",
         badgeType:"primary",
-        icon:PsychologyIcon
+        icon:PsychologyIcon,
+        table:"elite.committe"
     },
     {
         id:"12",
@@ -129,7 +139,8 @@ export const AdminDashboard = [
         alt:"EGE Ambassador",
         badgeCount:"30",
         badgeType:"primary",
-        icon:PublicIcon
+        icon:PublicIcon,
+        table:"elite.ambassador"
     },
     {
         id:"13",
@@ -138,7 +149,8 @@ export const AdminDashboard = [
         alt:"EGE Team Member",
         badgeCount:"30",
         badgeType:"primary",
-        icon:Diversity2Icon
+        icon:Diversity2Icon,
+        table:"elite.team_member"
     },
     {
         id:"14",
@@ -147,7 +159,8 @@ export const AdminDashboard = [
         alt:"EGE Available Roles",
         badgeCount:"30",
         badgeType:"primary",
-        icon:PersonSearchIcon
+        icon:PersonSearchIcon,
+        table:"elite.roles"
     },
     {
         id:"15",
@@ -156,7 +169,8 @@ export const AdminDashboard = [
         alt:"EGE Sponsors/Collaborators",
         badgeCount:"30",
         badgeType:"primary",
-        icon:Groups3Icon
+        icon:Groups3Icon,
+        table:"elite.sponsors"
     },
     {
         id:"16",
@@ -165,7 +179,8 @@ export const AdminDashboard = [
         alt:"Add News",
         badgeCount:"30",
         badgeType:"error",
-        icon:NewspaperIcon
+        icon:NewspaperIcon,
+        table:"elite.news"
     },
     {
         id:"17",

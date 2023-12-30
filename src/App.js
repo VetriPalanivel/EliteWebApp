@@ -12,8 +12,9 @@ function App() {
   return (
     <HashRouter >
     {/* <AdminHeader/> */}
-      <MainRoutes />
       {openPopup && <Popup />}
+      <MainRoutes />
+  
     </HashRouter>
   );
 }
