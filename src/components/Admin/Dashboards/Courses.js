@@ -1,20 +1,15 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState,useRef } from "react";
 import { Input, Grid, Row, Col } from "rsuite";
 import { SelectPicker } from "rsuite";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
-import { Uploader } from "rsuite";
 import { Button, ButtonToolbar } from "rsuite";
 import { Tooltip, Whisper } from "rsuite";
 import DeleteIcon from "@mui/icons-material/Delete";
-import CloudUploadIcon from "@mui/icons-material/Upload";
 import CardActions from "@mui/material/CardActions";
-import EditIcon from "@mui/icons-material/Edit";
 import BorderColorIcon from "@mui/icons-material/BorderColor";
 import { Avatar } from "@mui/material";
-import course from "../../../asserts/course.png";
 import { useDispatch, useSelector } from "react-redux";
-import axios from "axios";
 import "rsuite/dist/rsuite.min.css";
 import "../../../styles/Admin/DashboardItems.css";
 import { resetCourse, updateCourse , updateOpenPopup, updatePopupData} from "../../../redux/userReducer";
@@ -32,6 +27,11 @@ export default function Courses() {
       getCourses();
     }
   }, []);
+
+  const inputRef = useRef(null);
+  const resetFileInput = () => {
+    inputRef.current.value = null;
+  };
 
   const getCourses = async () => {
     const response =await getApi('course/get');
@@ -177,6 +177,7 @@ export default function Courses() {
       }
       handleCancelProject();
       closePopup();
+      resetFileInput()
       getCourses();
     }
   };
@@ -218,6 +219,7 @@ export default function Courses() {
 
   const handleCancelProject = async () => {
     dispatch(resetCourse());
+    resetFileInput();
     setEdit(false)
   };
 
@@ -285,6 +287,7 @@ export default function Courses() {
                     padding: "5px",
                     color: "rgb(133, 133, 133)",
                   }}
+                  ref={inputRef}
                   required
                   onChange={handleFormImage}
                 />
@@ -454,7 +457,7 @@ export default function Courses() {
       </div>
 
       <div className="Display-FormDetails">
-        <h5 className="Display-heading">ADDED EGE COURSES DETAILS</h5>
+        <h5 className="Display-heading">ADDED EGE COURSE DETAIL</h5>
         <div className="Form-DisplayContainer">
           {courseList.map((item) => (
             <Card className="Form-DisplayCard">

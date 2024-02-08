@@ -1,21 +1,15 @@
-import React,{useEffect, useState} from "react";
+import React,{useEffect, useState,useRef} from "react";
 import { Input, Grid, Row, Col } from "rsuite";
-import { SelectPicker } from "rsuite";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
-import { Uploader } from "rsuite";
 import { Button, ButtonToolbar } from "rsuite";
 import { Tooltip, Whisper } from 'rsuite';
 import DeleteIcon from "@mui/icons-material/Delete";
-import CloudUploadIcon from "@mui/icons-material/Upload";
 import CardActions from "@mui/material/CardActions";
-import EditIcon from "@mui/icons-material/Edit";
 import BorderColorIcon from '@mui/icons-material/BorderColor';
 import { Avatar } from "@mui/material";
 import ArrowRightIcon from '@mui/icons-material/ArrowRight';
 import { useDispatch, useSelector } from "react-redux";
-import axios from "axios";
-import course from "../../../asserts/course.png";
 import "rsuite/dist/rsuite.min.css";
 import "../../../styles/Admin/DashboardItems.css";
 import { resetTeamMember, updateTeamMember , updateOpenPopup, updatePopupData} from "../../../redux/userReducer";
@@ -32,6 +26,11 @@ export default function TeamMember() {
       window.scrollTo(0, 0);
       getTeamMembers()
     }},[])
+
+    const inputRef = useRef(null);
+  const resetFileInput = () => {
+    inputRef.current.value = null;
+  };
   
     const getTeamMembers = async()=>{
       const response =await getApi('team_member/get');
@@ -111,6 +110,7 @@ export default function TeamMember() {
       }
       handleCancelProject();
       closePopup();
+      resetFileInput()
        getTeamMembers()
     }  
   }
@@ -147,6 +147,7 @@ export default function TeamMember() {
 
   const handleCancelProject = async() =>{
     dispatch(resetTeamMember())
+    resetFileInput()
     setEdit(false)
   }
 
@@ -194,6 +195,7 @@ export default function TeamMember() {
                   type="file"
                   style={{background:"white",height:"35px",borderRadius:"6px",padding:"5px",color:"rgb(133, 133, 133)"}}
                   required
+                  ref={inputRef}
                   onChange={handleFormImage}
                 />
                   {(edit && editImage === teamMember.image) ? <p className="Form-textArea" style={{padding:"5px",color:"rgb(133, 133, 133)"}}>{teamMember.image}</p>:""}
@@ -261,7 +263,7 @@ export default function TeamMember() {
         <h5
           className="Display-heading"
         >
-          ADDED EGE TEAM MEMBER DETAILS
+          ADDED EGE TEAM MEMBER DETAIL
         </h5>
         <Grid>
         <div className="Form-DisplayContainer">
@@ -276,7 +278,7 @@ export default function TeamMember() {
                         className="Form-DisplayCard-Tmember-img"
                           style={{
                             margin:"0 auto",
-                            borderRadius:"10px",
+                            borderRadius:"5px",
                             marginBottom:"20px"
                         }}
                         src={`${baseUrl}${item.image}`}
@@ -294,7 +296,7 @@ export default function TeamMember() {
                           <Button
                             variant="text"
                             // href="#text-buttons"
-                            color="blue"
+                            color="orange"
                             appearance="primary"
                             endIcon={<ArrowRightIcon />}
                           >

@@ -1,19 +1,14 @@
-import React,{useEffect, useState} from "react";
+import React,{useEffect, useState,useRef} from "react";
 import { Input, Grid, Row, Col } from "rsuite";
 import { SelectPicker } from "rsuite";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
-import { Uploader } from "rsuite";
-import axios from "axios";
 import { Button, ButtonToolbar } from "rsuite";
 import { Tooltip, Whisper } from "rsuite";
 import DeleteIcon from "@mui/icons-material/Delete";
 import BorderColorIcon from "@mui/icons-material/BorderColor";
-import CloudUploadIcon from "@mui/icons-material/Upload";
 import CardActions from "@mui/material/CardActions";
-import EditIcon from "@mui/icons-material/Edit";
 import { Avatar } from "@mui/material";
-import course from "../../../asserts/course.png";
 import { useDispatch, useSelector } from "react-redux";
 import "rsuite/dist/rsuite.min.css";
 import "../../../styles/Admin/DashboardItems.css";
@@ -31,6 +26,11 @@ export default function Workshops() {
       window.scrollTo(0, 0);
       getWorkshops()
     }},[])
+
+    const inputRef = useRef(null);
+  const resetFileInput = () => {
+    inputRef.current.value = null;
+  };
   
     const getWorkshops = async()=>{
       const response =await getApi('workshop/get');
@@ -191,6 +191,7 @@ export default function Workshops() {
 
   const handleCancelProject = async() =>{
     dispatch(resetWorkshop())
+    resetFileInput()
     setEdit(false)
   }
 
@@ -237,6 +238,7 @@ export default function Workshops() {
                   type="file"
                   style={{background:"white",height:"35px",borderRadius:"6px",padding:"5px",color:"rgb(133, 133, 133)"}}
                   required
+                  ref={inputRef}
                   onChange={handleFormImage}
                 />
                  {(edit && editImage === workshop.image) ? <p className="Form-textArea" style={{padding:"5px",color:"rgb(133, 133, 133)"}}>{workshop.image}</p>:""}
@@ -386,7 +388,7 @@ export default function Workshops() {
         <h5
           className="Display-heading"
         >
-          ADDED WORKSHOPS DETAILS
+          ADDED WORKSHOPS DETAIL
         </h5>
         <div className="Form-DisplayContainer">
           {workShopList.map((item) => (

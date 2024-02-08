@@ -96,7 +96,7 @@ export default function Login() {
                 required
               />
             </InputGroup>
-            <p style={{color:"red",display:"flex",justifyContent:"left"}}>{message}</p>
+            <p style={{color:"red",display:"flex",justifyContent:"left",padding:"2px 0px 0px 30px"}}>{message}</p>
           </Row>
           <Row style={{marginBottom:"25px"}}>
             <InputGroup inside>

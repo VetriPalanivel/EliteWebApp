@@ -7,9 +7,6 @@ import { Avatar } from "@mui/material";
 import { Input, InputGroup } from "rsuite";
 import validator from "validator";
 import AvatarIcon from "@rsuite/icons/legacy/Avatar";
-import EyeIcon from "@rsuite/icons/legacy/Eye";
-import EyeSlashIcon from "@rsuite/icons/legacy/EyeSlash";
-import SearchIcon from "@rsuite/icons/Search";
 import KeyIcon from "@mui/icons-material/Key";
 import KeyOffIcon from "@mui/icons-material/KeyOff";
 import { useDispatch, useSelector } from "react-redux";
@@ -130,7 +127,7 @@ export default function Register() {
                 required
               />
             </InputGroup>
-            <p style={{color:"red",display:"flex",justifyContent:"left"}}>{message}</p>
+            <p style={{color:"red",display:"flex",justifyContent:"left",padding:"2px 0px 0px 30px"}}>{message}</p>
           </Row>
           <Row style={{ marginBottom: "15px" }}>
             <InputGroup inside>

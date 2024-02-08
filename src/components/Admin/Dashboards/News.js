@@ -1,20 +1,14 @@
-import React,{useEffect, useState} from "react";
+import React,{useEffect, useState,useRef} from "react";
 import { Input, Grid, Row, Col } from "rsuite";
-import { SelectPicker } from "rsuite";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
-import { Uploader } from "rsuite";
 import { Button, ButtonToolbar } from "rsuite";
 import { Tooltip, Whisper } from 'rsuite';
 import DeleteIcon from "@mui/icons-material/Delete";
 import BorderColorIcon from '@mui/icons-material/BorderColor';
-import CloudUploadIcon from "@mui/icons-material/Upload";
 import CardActions from "@mui/material/CardActions";
-import EditIcon from "@mui/icons-material/Edit";
 import { Avatar } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
-import axios from "axios";
-import course from "../../../asserts/course.png";
 import "rsuite/dist/rsuite.min.css";
 import "../../../styles/Admin/DashboardItems.css";
 import { resetNews, updateNews , updateOpenPopup, updatePopupData} from "../../../redux/userReducer";
@@ -31,6 +25,11 @@ export default function News() {
       window.scrollTo(0, 0);
       getNews()
     }},[])
+
+    const inputRef = useRef(null);
+  const resetFileInput = () => {
+    inputRef.current.value = null;
+  };
   
     const getNews = async()=>{
       const response =await getApi('news/get');
@@ -111,6 +110,7 @@ export default function News() {
       }
       handleCancelProject();
       closePopup();
+      resetFileInput()
       getNews()
     }  
   }
@@ -146,6 +146,7 @@ export default function News() {
 
   const handleCancelProject = async() =>{
     dispatch(resetNews())
+    resetFileInput()
     setEdit(false)
   }
 
@@ -192,6 +193,7 @@ export default function News() {
                   type="file"
                   style={{background:"white",height:"35px",borderRadius:"6px",padding:"5px",color:"rgb(133, 133, 133)"}}
                   required
+                  ref={inputRef}
                   onChange={handleFormImage}
                 />
                  {(edit && editImage === news.image) ? <p className="Form-textArea" style={{padding:"5px",color:"rgb(133, 133, 133)"}}>{news.image}</p>:""}
@@ -260,7 +262,7 @@ export default function News() {
         <h5
           className="Display-heading"
         >
-          ADDED EGE NEWS DETAILS
+          ADDED EGE NEWS DETAIL
         </h5>
         <div className="Form-DisplayContainer">
           {newsList.map((item) => (

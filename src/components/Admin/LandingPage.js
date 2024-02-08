@@ -6,14 +6,11 @@ import CssBaseline from "@mui/material/CssBaseline";
 import Divider from "@mui/material/Divider";
 import Drawer from "@mui/material/Drawer";
 import IconButton from "@mui/material/IconButton";
-import InboxIcon from "@mui/icons-material/MoveToInbox";
 import List from "@mui/material/List";
 import { Icon } from '@rsuite/icons';
 import ListItem from "@mui/material/ListItem";
 import ListItemButton from "@mui/material/ListItemButton";
 import ListItemIcon from "@mui/material/ListItemIcon";
-import ListItemText from "@mui/material/ListItemText";
-import MailIcon from "@mui/icons-material/Mail";
 import MenuIcon from "@mui/icons-material/Menu";
 import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
@@ -60,7 +57,7 @@ function LandingPage(props) {
   const [mobileOpen, setMobileOpen] = React.useState(false);
   const [anchorElUser, setAnchorElUser] = React.useState(null);
   const [activeItem,setActiveItem] = useState("Dashboard");
-  const settings = ["Profile", "Logout"];
+  const settings = ["View Profile", "Logout"];
 
   useEffect(()=>{
     console.log(activeItem)
@@ -165,7 +162,7 @@ function LandingPage(props) {
               <Box sx={{ flexGrow: 1, display: { sm: "flex",md: "flex",ld: "flex" } }}>
                 
               </Box>
-              <Tooltip title="Open settings">
+              <Tooltip >
                 <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
                   <Avatar
                     alt="Profile"
@@ -245,7 +242,7 @@ function LandingPage(props) {
     p: 3,
     width: { sm: `calc(100% - ${drawerWidth}px)` },
   }}
-  style={{padding: activeItem === "ViewProfile" ? "0px":"24px"}}
+  style={{padding: activeItem === "ViewProfile" ? "0px":"0px"}}
 >
      
         <Toolbar />

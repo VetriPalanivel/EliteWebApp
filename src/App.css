@@ -204,6 +204,13 @@ form span {
   justify-content: center;
 }
 
+.rs-navbar-default .rs-navbar-item:hover, .rs-navbar-default .rs-dropdown .rs-dropdown-toggle:hover, .rs-navbar-default .rs-dropdown.rs-dropdown-open .rs-dropdown-toggle {
+  background-color:none !important;
+  background-color: none !important;
+  color: #575757;
+  color: var(--rs-navbar-default-hover-text);
+}
+
 
 
 .Register-Form{

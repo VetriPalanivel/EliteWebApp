@@ -1,27 +1,15 @@
-import React,{useEffect, useState} from "react";
+import React,{useEffect, useState,useRef} from "react";
 import { Input, Grid, Row, Col } from "rsuite";
 import { InputGroup } from 'rsuite';
-import { SelectPicker } from "rsuite";
-import Card from "@mui/material/Card";
-import CardContent from "@mui/material/CardContent";
-import { Uploader } from "rsuite";
 import { Button, ButtonToolbar } from "rsuite";
 import KeyIcon from '@mui/icons-material/Key';
-import { Tooltip, Whisper } from 'rsuite';
-import DeleteIcon from "@mui/icons-material/Delete";
-import CloudUploadIcon from "@mui/icons-material/Upload";
-import CardActions from "@mui/material/CardActions";
-import EditIcon from "@mui/icons-material/Edit";
 import { Avatar } from "@mui/material";
-import BorderColorIcon from '@mui/icons-material/BorderColor';
 import { useDispatch, useSelector } from "react-redux";
-import axios from "axios";
 import validator from "validator";
-import course from "../../../asserts/course.png";
 import DriveFileRenameOutlineIcon from '@mui/icons-material/DriveFileRenameOutline';
 import "rsuite/dist/rsuite.min.css";
 import "../../../styles/Admin/DashboardItems.css";
-import { resetClub, updateClub , updateOpenPopup, updatePopupData, updateUser} from "../../../redux/userReducer";
+import {  updateOpenPopup, updatePopupData, updateUser} from "../../../redux/userReducer";
 import { baseUrl, getApi, postApi, putApi } from "../../../Services/service";
 
 
@@ -35,6 +23,11 @@ export default function ViewProfile() {
     if (typeof window !== 'undefined') {
       window.scrollTo(0, 0);
     }},[])
+
+    const inputRef = useRef(null);
+  const resetFileInput = () => {
+    inputRef.current.value = null;
+  };
 
     useEffect(()=>{
         if(User.email === ""){
@@ -101,6 +94,7 @@ export default function ViewProfile() {
         {
           openPopup('error','Profile updation Failed.')
         }
+        resetFileInput();
       closePopup();
   }
 
@@ -113,7 +107,7 @@ export default function ViewProfile() {
  
   return (
     <div className="ViewProfile-container">
-      <div className="Form-div" >
+      <div className="Form-div_ViewProfile" >
         {/* <h5 className="Form-heading" style={{margin:"0 auto"}}>User Profile</h5> */}
         <Avatar
                         alt=""
@@ -140,6 +134,7 @@ export default function ViewProfile() {
                   name="name"
                   value={User.name}
                   onChange={handleFormName}
+                  ref={inputRef}
                   required
                 />
                 <InputGroup.Addon> <DriveFileRenameOutlineIcon  style={{color:"blue"}} fontSize="md" /></InputGroup.Addon>
@@ -219,7 +214,7 @@ export default function ViewProfile() {
                   required
                   onChange={handleFormImage}
                 />
-                {(editImage === User.image) ? <p className="Form-textArea" style={{padding:"5px",color:"rgb(133, 133, 133)"}}>{User.image}</p>:""}
+                {/* {(editImage === User.image) ? <p className="Form-textArea" style={{padding:"5px",color:"rgb(133, 133, 133)"}}>{User.image}</p>:""} */}
                 </div>
               </Col>
             </Row>

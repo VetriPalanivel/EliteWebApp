@@ -1,20 +1,15 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState ,useRef} from "react";
 import { Input, Grid, Row, Col } from "rsuite";
 import { SelectPicker } from "rsuite";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
-import axios from "axios";
-import { Uploader } from "rsuite";
 import { Button, ButtonToolbar } from "rsuite";
 import { Tooltip, Whisper } from "rsuite";
 import DeleteIcon from "@mui/icons-material/Delete";
 import BorderColorIcon from "@mui/icons-material/BorderColor";
-import CloudUploadIcon from "@mui/icons-material/Upload";
 import CardActions from "@mui/material/CardActions";
-import EditIcon from "@mui/icons-material/Edit";
 import { Avatar } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
-import course from "../../../asserts/course.png";
 import "rsuite/dist/rsuite.min.css";
 import "../../../styles/Admin/DashboardItems.css";
 import { resetTraining, updateTraining , updateOpenPopup, updatePopupData} from "../../../redux/userReducer";
@@ -32,6 +27,11 @@ export default function Trainings() {
       getTrainings();
     }
   }, []);
+
+  const inputRef = useRef(null);
+  const resetFileInput = () => {
+    inputRef.current.value = null;
+  };
 
   const getTrainings = async () => {
     const response =await getApi('training/get');
@@ -208,6 +208,7 @@ export default function Trainings() {
 
   const handleCancelProject = async () => {
     dispatch(resetTraining());
+    resetFileInput()
     setEdit(false)
   };
 
@@ -260,6 +261,7 @@ export default function Trainings() {
                     color: "rgb(133, 133, 133)",
                   }}
                   required
+                  ref={inputRef}
                   onChange={handleFormImage}
                 />
                  {(edit && editImage === training.image) ? <p className="Form-textArea" style={{padding:"5px",color:"rgb(133, 133, 133)"}}>{training.image}</p>:""}
@@ -412,7 +414,7 @@ export default function Trainings() {
       </div>
 
       <div className="Display-FormDetails">
-        <h5 className="Display-heading">ADDED TRAINING FOR TRAINERS DETAILS</h5>
+        <h5 className="Display-heading">ADDED TRAINING FOR TRAINERS DETAIL</h5>
         <div className="Form-DisplayContainer">
           {trainingList.map((item) => (
             <Card className="Form-DisplayCard">

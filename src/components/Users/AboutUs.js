@@ -24,7 +24,7 @@ function AboutUs() {
                Elite Global Excellence is a dynamic and forward-thinking research and innovation organization that specializes in fortering collaboration, innovation and knowledge dissmeination across various academics and professional domains. We offer an array of services designed to empowe researchers, scholars, students and professionals to excel in their respective fields of interest. EGE aims is to create a world-wide global platform for the exchange of ideas, insights and advancements through the combination of research and innovation collaborations, conferences, projects, research grants, fundings, sponsorships, scholarships, completions, webinars, workshops, seminars and partnerships with esteemed higher educational institutes universities and industries.
             </p>
             </div>
-          </Col>  
+          </Col>
         </Row>
       </Grid>
     </div>

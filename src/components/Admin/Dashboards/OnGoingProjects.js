@@ -1,19 +1,14 @@
-import React, { useState,useEffect } from "react";
+import React, { useState,useEffect,useRef } from "react";
 import { Input, Grid, Row, Col } from "rsuite";
 import { SelectPicker } from "rsuite";
 import Card from "@mui/material/Card";
-import axios from "axios";
 import CardContent from "@mui/material/CardContent";
-import { Uploader } from "rsuite";
 import { Button, ButtonToolbar } from "rsuite";
 import { Tooltip, Whisper } from 'rsuite';
 import DeleteIcon from "@mui/icons-material/Delete";
-import CloudUploadIcon from "@mui/icons-material/Upload";
 import CardActions from "@mui/material/CardActions";
-import EditIcon from "@mui/icons-material/Edit";
 import BorderColorIcon from '@mui/icons-material/BorderColor';
 import { Avatar } from "@mui/material";
-import course from "../../../asserts/course.png";
 import "rsuite/dist/rsuite.min.css";
 import "../../../styles/Admin/DashboardItems.css";
 import { useDispatch, useSelector } from "react-redux";
@@ -21,7 +16,7 @@ import { resetOnGoingProject, updateOnGoingProject, updateOpenPopup, updatePopup
 import { baseUrl, getApi, postApi, putApi } from "../../../Services/service";
 
 export default function OnGoingProjects() {
-
+  const inputRef = useRef(null);
   const onGoingProject = useSelector ((state) => state.Elite.onGoingProject)
   const [projectList,setProjectList] = useState([])
   const dispatch = useDispatch();
@@ -125,6 +120,7 @@ const handleAddProject = async() =>{
       }
     handleCancelProject();
     getOnGoingProjects();
+    resetFileInput()
     closePopup();
   }}
 
@@ -160,8 +156,13 @@ const handleAddProject = async() =>{
   
   const handleCancelProject = async() =>{
     dispatch(resetOnGoingProject())
+    resetFileInput()
     setEdit(false)
   }
+
+  const resetFileInput = () => {
+    inputRef.current.value = null;
+  };
 
   const truncateText = (text, limit) => {
     const words = text.split(' ');
@@ -207,6 +208,7 @@ const handleAddProject = async() =>{
                   style={{background:"white",height:"35px",borderRadius:"6px",padding:"5px",color:"rgb(133, 133, 133)"}}
                   required
                   display="none"
+                  ref={inputRef}
                   onChange={handleFormImage}
                 />
                  {(edit && editImage === onGoingProject.image) ? <p className="Form-textArea" style={{padding:"5px",color:"rgb(133, 133, 133)"}}>{onGoingProject.image}</p>:""}
@@ -276,7 +278,7 @@ const handleAddProject = async() =>{
         <h5
           className="Display-heading"
         >
-          ADDED EGE ON-GOING RESEARCH PROJECTS DETAILS
+          ADDED EGE ON-GOING RESEARCH PROJECT DETAIL
         </h5>
         <div className="Form-DisplayContainer">
           {projectList.map((item,index) => (

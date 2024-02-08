@@ -1,20 +1,14 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState,useRef } from "react";
 import { Input, Grid, Row, Col } from "rsuite";
-import { SelectPicker } from "rsuite";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
-import { Uploader } from "rsuite";
 import { Button, ButtonToolbar } from "rsuite";
 import { Tooltip, Whisper } from "rsuite";
 import DeleteIcon from "@mui/icons-material/Delete";
-import CloudUploadIcon from "@mui/icons-material/Upload";
 import CardActions from "@mui/material/CardActions";
 import BorderColorIcon from "@mui/icons-material/BorderColor";
-import EditIcon from "@mui/icons-material/Edit";
 import { Avatar } from "@mui/material";
-import course from "../../../asserts/course.png";
 import { useDispatch, useSelector } from "react-redux";
-import axios from "axios";
 import "rsuite/dist/rsuite.min.css";
 import "../../../styles/Admin/DashboardItems.css";
 import { resetRole, updateRole , updateOpenPopup, updatePopupData} from "../../../redux/userReducer";
@@ -32,6 +26,11 @@ export default function Roles() {
       getRoles();
     }
   }, []);
+
+  const inputRef = useRef(null);
+  const resetFileInput = () => {
+    inputRef.current.value = null;
+  };
 
   const getRoles = async () => {
     const response =await getApi('roles/get');
@@ -144,6 +143,7 @@ export default function Roles() {
       }
       handleCancelProject();
       closePopup();
+      resetFileInput()
       getRoles();
     }
   };
@@ -182,6 +182,7 @@ export default function Roles() {
 
   const handleCancelProject = async () => {
     dispatch(resetRole());
+    resetFileInput()
     setEdit(false)
   };
 
@@ -234,6 +235,7 @@ export default function Roles() {
                     color: "rgb(133, 133, 133)",
                   }}
                   required
+                  ref={inputRef}
                   onChange={handleFormImage}
                 />
                  {(edit && editImage === role.image) ? <p className="Form-textArea" style={{padding:"5px",color:"rgb(133, 133, 133)"}}>{role.image}</p>:""}
@@ -358,7 +360,7 @@ export default function Roles() {
       </div>
 
       <div className="Display-FormDetails">
-        <h5 className="Display-heading">ADDED EGE AVAILABLE ROLES DETAILS</h5>
+        <h5 className="Display-heading">ADDED EGE AVAILABLE ROLE DETAIL</h5>
         <div className="Form-DisplayContainer">
           {roleList.map((item) => (
             <Card className="Form-DisplayCard">

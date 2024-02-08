@@ -2,7 +2,7 @@
 
 .Dashboard-container {
     margin-top: 20px;
-    width: 100%;
+    width: 90%;
     padding: 0px;
     background: "";
   }
@@ -12,7 +12,7 @@
     color:#00008B;
     font-weight: 600;
     text-align: left;
-    margin-left: 80px !important;
+    margin-left: 30px !important;
     margin-bottom: 10px;
   }
   .Dashboard-List{
@@ -26,7 +26,7 @@
     margin: 0 -10px; /* Adjust margin to match padding */
     display: flex;
     flex-wrap: wrap;
-    justify-content: center !important;
+    justify-content: left !important;
   }
   
   
@@ -63,6 +63,12 @@
     .Dashboard-container {
      margin-top: 10px;
      margin-bottom: 0px;
+    }
+    .Dashboard-row {
+      margin: 0 -10px; /* Adjust margin to match padding */
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center !important;
     }
   }
   

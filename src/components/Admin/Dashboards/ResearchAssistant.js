@@ -1,18 +1,13 @@
-import React,{useEffect,useState} from "react";
+import React,{useEffect,useState,useRef} from "react";
 import { Input, Grid, Row, Col } from "rsuite";
-import { SelectPicker } from "rsuite";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
-import axios from 'axios'
-import { Uploader } from "rsuite";
 import { Button, ButtonToolbar } from "rsuite";
 import { Tooltip, Whisper } from 'rsuite';
 import DeleteIcon from "@mui/icons-material/Delete";
-import CloudUploadIcon from "@mui/icons-material/Upload";
 import CardActions from "@mui/material/CardActions";
 import BorderColorIcon from '@mui/icons-material/BorderColor';
 import { Avatar } from "@mui/material";
-import course from "../../../asserts/course.png";
 import "rsuite/dist/rsuite.min.css";
 import "../../../styles/Admin/DashboardItems.css";
 import { useDispatch, useSelector } from "react-redux";
@@ -31,6 +26,11 @@ export default function ResearchAssistant() {
     }
     getResearchAssistantJobs()
   },[])
+
+  const inputRef = useRef(null);
+  const resetFileInput = () => {
+    inputRef.current.value = null;
+  };
 
   const getResearchAssistantJobs = async()=>{
     const response =await getApi('research_assistantjob/get');
@@ -122,6 +122,7 @@ export default function ResearchAssistant() {
       }
       getResearchAssistantJobs();
       handleCancelAssistantJob();
+      resetFileInput()
       closePopup();
     }  
   }
@@ -170,6 +171,7 @@ export default function ResearchAssistant() {
 
   const handleCancelAssistantJob = async() =>{
     dispatch(resetAssistantJob())
+    resetFileInput()
     setEdit(false)
   }
 
@@ -208,6 +210,7 @@ export default function ResearchAssistant() {
                   type="file"
                   style={{background:"white",height:"35px",borderRadius:"6px",padding:"5px",color:"rgb(133, 133, 133)"}}
                   required
+                  ref={inputRef}
                   onChange={handleFormImage}
                 />
                  {(edit && editImage === assistantJob.image) ? <p className="Form-textArea" style={{padding:"5px",color:"rgb(133, 133, 133)"}}>{assistantJob.image}</p>:""}
@@ -325,7 +328,7 @@ export default function ResearchAssistant() {
         <h5
           className="Display-heading"
         >
-          ADDED EGE RESEARCH ASSISTANT JOBS DETAILS
+          ADDED EGE RESEARCH ASSISTANT JOB DETAIL
         </h5>
         <div className="Form-DisplayContainer">
           {assistantJobList.map((item) => (

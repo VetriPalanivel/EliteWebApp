@@ -1,21 +1,16 @@
-import React,{useEffect, useState} from "react";
+import React,{useEffect, useState,useRef} from "react";
 import { Input, Grid, Row, Col } from "rsuite";
 import { SelectPicker } from "rsuite";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
-import { Uploader } from "rsuite";
 import { Button, ButtonToolbar } from "rsuite";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { Tooltip, Whisper } from 'rsuite';
-import CloudUploadIcon from "@mui/icons-material/Upload";
 import BorderColorIcon from '@mui/icons-material/BorderColor';
 import CardActions from "@mui/material/CardActions";
-import EditIcon from "@mui/icons-material/Edit";
 import { Avatar } from "@mui/material";
 import ArrowRightIcon from '@mui/icons-material/ArrowRight';
 import { useDispatch, useSelector } from "react-redux";
-import axios from "axios";
-import course from "../../../asserts/course.png";
 import "rsuite/dist/rsuite.min.css";
 import "../../../styles/Admin/DashboardItems.css";
 import { resetSponsors, updateSponsors , updateOpenPopup, updatePopupData} from "../../../redux/userReducer";
@@ -32,6 +27,11 @@ export default function Sponsors() {
       window.scrollTo(0, 0);
       getSponsors()
     }},[])
+
+    const inputRef = useRef(null);
+  const resetFileInput = () => {
+    inputRef.current.value = null;
+  };
   
     const getSponsors = async()=>{
       const response =await getApi('sponsors/get');
@@ -124,6 +124,7 @@ export default function Sponsors() {
       }
       handleCancelProject();
       closePopup();
+      resetFileInput()
       getSponsors()
     }  
   }
@@ -161,6 +162,7 @@ export default function Sponsors() {
 
   const handleCancelProject = async() =>{
     dispatch(resetSponsors())
+    resetFileInput()
     setEdit(false)
   }
 
@@ -208,6 +210,7 @@ export default function Sponsors() {
                   type="file"
                   style={{background:"white",height:"35px",borderRadius:"6px",padding:"5px",color:"rgb(133, 133, 133)"}}
                   required
+                  ref={inputRef}
                   onChange={handleFormImage}
                 />
                  {(edit && editImage === sponsors.image) ? <p className="Form-textArea" style={{padding:"5px",color:"rgb(133, 133, 133)"}}>{sponsors.image}</p>:""}
@@ -292,7 +295,7 @@ export default function Sponsors() {
         <h5
           className="Display-heading"
         >
-          ADDED EGE SPONSORS/COLLABORATORS DETAILS
+          ADDED EGE SPONSORS/COLLABORATORS DETAIL
         </h5>
         <Grid>
         <div className="Form-DisplayContainer">
@@ -308,7 +311,7 @@ export default function Sponsors() {
                         className="Form-DisplayCard-member-img"
                           style={{
                             margin:"0 auto",
-                            borderRadius:"10px",
+                            borderRadius:"5px",
                             marginBottom:"20px"
                         }}
                         src={`${baseUrl}${item.image}`}
@@ -317,7 +320,7 @@ export default function Sponsors() {
                         <h6 className="Display-content-heading-member" >
                         {item.name}
                         </h6>
-                        <p className="Display-content-text-member">
+                        <p className="Display-content-text-Smember">
                         {item.country}
                         </p>
                         <CardActions
@@ -326,7 +329,7 @@ export default function Sponsors() {
                           <Button
                             variant="text"
                             // href="#text-buttons"
-                            color="orange"
+                            color="blue"
                             appearance="primary"
                             endIcon={<ArrowRightIcon />}
                           >
