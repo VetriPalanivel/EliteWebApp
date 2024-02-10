@@ -34,17 +34,8 @@ function CommonForgeHeader(){
 
 
 
- function CommonSwiper() {
-    const images =[{image:"https://placehold.co/600x400"},
-    {image:"https://placehold.co/600x400"},
-    {image:"https://placehold.co/600x400"},
-    {image:"https://placehold.co/600x400"},
-    {image:"https://placehold.co/600x400"},
-    {image:"https://placehold.co/600x400"},
-    {image:"https://placehold.co/600x400"}
-
-
-];
+ function CommonSwiper({images=[]}) {
+ 
   return (
     <>
       <Swiper
