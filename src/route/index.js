@@ -9,7 +9,7 @@ import Register from '../components/Admin/Register';
 import { useSelector } from 'react-redux';
 import ViewProfile from '../components/Admin/Dashboards/ViewProfile';
 import LandingPageUser from '../components/Users/LandingPageUser';
-
+import TrainingOfTrainers from '../components/TrainingOfTrainers';
 
 function MainRoutes() {
   const Authenticate = useSelector((state) => state.Elite.authenticate)
@@ -28,6 +28,7 @@ function MainRoutes() {
          
           <Route path="*" element={<Navigate to ="admin/login" replace />}/>
           <Route path="viewprofile" element={<ViewProfile />} />
+          <Route path ="trainers" element={<TrainingOfTrainers/>}></Route>
         </Routes>
     </>
   );
