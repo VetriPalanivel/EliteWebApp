@@ -105,9 +105,12 @@ export const NavBarUser = () => {
                <li className="menu-item menu-item-has-children">
                   <a  data-toggle="sub-menu">Trainings<i className="plus"></i></a>
                   <ul className="sub-menu">
-                      <li className="menu-item"><a >Training of Trainer</a></li>
-                      <li className="menu-item"><a >Workshops</a></li>
-                      <li className="menu-item"><a >Competetion</a></li>
+                      <li className="menu-item"><Link to="/trainers" >Training of Trainer</Link></li>
+                      <li className="menu-item">
+                      <Link to="/workshop" >Workshops</Link>
+                    </li>
+                      
+                      <li className="menu-item"><Link to="/competition" >Competetion</Link></li>
                       <li className="menu-item"><a >Exhibition</a></li>
                       <li className="menu-item"><a >EGE Clubs & Society</a></li>
                   </ul>

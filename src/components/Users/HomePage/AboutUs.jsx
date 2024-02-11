@@ -2,7 +2,7 @@ import React, { Fragment } from 'react'
 import './AboutUs.css'
 
 import { Slide, Zoom } from "react-awesome-reveal";
-import Spacer from '../../Common/Spacer';
+import Spacer from '../../Common/Spacer/index';
 
 const AboutUs = () => {
   return (

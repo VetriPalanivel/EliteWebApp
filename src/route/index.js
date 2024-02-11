@@ -12,6 +12,8 @@ import LandingPageUser from '../components/Users/LandingPageUser';
 import TrainingOfTrainers from '../components/TrainingOfTrainers';
 import HomePage from '../components/Users/HomePage';
 import ResearchProjects from '../components/Users/ResearchProjects';
+import WorkShops from '../components/Workshop';
+import Competetion from '../components/Competition';
 
 
 function MainRoutes() {
@@ -33,6 +35,8 @@ function MainRoutes() {
           <Route path="viewprofile" element={<ViewProfile />} />
           <Route path ="trainers" element={<TrainingOfTrainers/>}></Route>
           <Route path="researchProjects" element={<ResearchProjects />} />
+          <Route path ="workshop" element={<WorkShops/>}></Route>
+          <Route path ="competition" element={<Competetion/>}></Route>
         </Routes>
     </>
   );

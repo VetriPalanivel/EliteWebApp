@@ -14,10 +14,11 @@ import {
 import { Image } from "@rsuite/icons";
 import { Grid, TextField, MenuItem } from "@mui/material";
 import React from "react";
-import { List } from "rsuite";
+import { Footer, List } from "rsuite";
 import { FiberManualRecord as BulletIcon } from "@mui/icons-material";
-import FormBackGround from "../../../src/asserts/Form-HeadBg.jpg";
+import FormBackGround from "../../../src/asserts/TrainingBackground.jpg";
 import ForgeYellowBackGround from "../../../src/asserts/Yellow_background.jpg";
+import NavBarUser from "../Users/NavBar";
 
 function TrainingOfTrainers() {
   const [mode, setMode] = React.useState("");
@@ -54,7 +55,10 @@ function TrainingOfTrainers() {
 
   return (
     <Box>
-      <Box sx={{ border: "10px solid red", height: "100px" }}>Header</Box>
+      <Box sx={{mt:"100px"}}>
+      <NavBarUser />
+      </Box>
+      
 
       <Box sx={{backgroundImage:`url(${ForgeYellowBackGround})`}}>
         <CommonForgeHeader />
@@ -184,6 +188,7 @@ function TrainingOfTrainers() {
           </Box>
         </Paper>
       </Box>
+      <Footer />
     </Box>
   );
 }
