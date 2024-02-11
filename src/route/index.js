@@ -11,6 +11,7 @@ import ViewProfile from '../components/Admin/Dashboards/ViewProfile';
 import LandingPageUser from '../components/Users/LandingPageUser';
 import TrainingOfTrainers from '../components/TrainingOfTrainers';
 import HomePage from '../components/Users/HomePage';
+import ResearchProjects from '../components/Users/ResearchProjects';
 
 
 function MainRoutes() {
@@ -31,6 +32,7 @@ function MainRoutes() {
           <Route path="*" element={<Navigate to ="admin/login" replace />}/>
           <Route path="viewprofile" element={<ViewProfile />} />
           <Route path ="trainers" element={<TrainingOfTrainers/>}></Route>
+          <Route path="researchProjects" element={<ResearchProjects />} />
         </Routes>
     </>
   );

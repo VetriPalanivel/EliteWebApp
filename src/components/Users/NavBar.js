@@ -10,6 +10,7 @@ import Avatar from "@mui/material/Avatar";
 import EliteLogo from "../../asserts/Logo.png";
 import CloseIcon from '@mui/icons-material/Close';
 import './Navbar.css'
+import { Link } from 'react-router-dom';
 export const NavBarUser = () => {
   const [isNavOpen, setNavOpen] = useState(false);
 
@@ -68,14 +69,14 @@ export const NavBarUser = () => {
   return (
     <header className={`header ${isNavOpen ? 'open' : ''}`} >
       <div className="header-main" >
-        <div className="logo">
+        <Link className="logo" to='/home'>
           <Avatar
             alt="ElicteLogo"
             className="Elite-logo-user"
             variant="square"
             src={EliteLogo}
           />
-        </div>
+        </Link>
         <div className="open-nav-menu" onClick={toggleNav}>
           <span></span>
         </div>
@@ -95,7 +96,9 @@ export const NavBarUser = () => {
                <li className="menu-item menu-item-has-children">
                   <a  data-toggle="sub-menu">Research & Innovation <i className="plus"></i></a>
                   <ul className="sub-menu">
-                      <li className="menu-item"><a >Research Projects</a></li>
+                        <li className="menu-item">
+                            <Link to="/researchProjects" >Research Projects</Link>
+                        </li>
                       <li className="menu-item"><a >Innovations</a></li>
                   </ul>
                </li>

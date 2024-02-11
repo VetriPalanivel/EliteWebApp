@@ -8,6 +8,7 @@ import UpcomingEvents from './UpcomingEvents'
 
 import PartnerAndCollaborate from './PartnerAndCollaborate'
 import LatestNews from './LatestNews.'
+import WhyEGE from './WhyEGE'
 
 const HomePage = () => {
   return (
@@ -20,6 +21,7 @@ const HomePage = () => {
         <UpcomingEvents/>
         <LatestNews/>
         <PartnerAndCollaborate />
+        <WhyEGE/>
         <Footer />
       </div>
     </Fragment>
