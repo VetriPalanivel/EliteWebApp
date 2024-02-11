@@ -10,6 +10,7 @@ import { useSelector } from 'react-redux';
 import ViewProfile from '../components/Admin/Dashboards/ViewProfile';
 import LandingPageUser from '../components/Users/LandingPageUser';
 import HomePage from '../components/Users/HomePage';
+import ResearchProjects from '../components/Users/ResearchProjects';
 
 
 function MainRoutes() {
@@ -29,6 +30,7 @@ function MainRoutes() {
          
           <Route path="*" element={<Navigate to ="admin/login" replace />}/>
           <Route path="viewprofile" element={<ViewProfile />} />
+          <Route path="researchProjects" element={<ResearchProjects />} />
         </Routes>
     </>
   );

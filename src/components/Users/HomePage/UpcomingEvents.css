@@ -1,6 +1,7 @@
 .upcomingEvents__wrapper {
   padding: 15px 20px;
   background-image: url("https://img.freepik.com/free-vector/elegant-blue-smooth-wave-background-design_1017-33717.jpg?w=740&t=st=1707634398~exp=1707634998~hmac=993932dbc7d4f5867e4bd6524b7a707f2bfa034d9db46f90a010b1dc722ee6f7");
+  background-size: cover;
 }
 .upcomingEvents__headingWrapper {
   display: flex;
