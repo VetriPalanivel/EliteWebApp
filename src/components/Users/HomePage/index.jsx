@@ -5,15 +5,16 @@ import AboutUs from './AboutUs'
 import Spacer from '../../Common/Spacer'
 import SliderBanner from './SliderBanner'
 import UpcomingEvents from './UpcomingEvents'
-import LatestNews from './LatestNews'
+
 import PartnerAndCollaborate from './PartnerAndCollaborate'
+import LatestNews from './LatestNews.'
 
 const HomePage = () => {
   return (
     <Fragment>
       <div>
         <NavBarUser />
-        <Spacer spacing={"70px"}/>
+        <Spacer spacing={"55px"}/>
         <SliderBanner />
         <AboutUs />
         <UpcomingEvents/>

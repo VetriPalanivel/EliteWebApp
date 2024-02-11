@@ -1,0 +1,25 @@
+.aboutUs__wrapper {
+  margin-top: -40px;
+  padding: 15px 20px;
+  background-image: url("https://img.freepik.com/free-vector/abstract-flowing-lines-background-2803_1048-7818.jpg?w=740&t=st=1707634209~exp=1707634809~hmac=55fb373adfb87998e70169bb4d459045882b3baaf93ccc4a2c7191badccd89fd");
+  background-size: cover;
+}
+.aboutUs__headingWrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.aboutUs__heading {
+  /* background-color: #e86f1c; */
+  color: #e86f1c;
+  padding: 6px 40px;
+  border-radius: 50px;
+  font-weight: 500px;
+  font-size: 16px;
+  /* box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px; */
+  text-decoration: underline;
+}
+.aboutUs__info {
+  text-align: center;
+  color: #015093;
+}

@@ -1,5 +1,5 @@
 import React, { Fragment } from 'react'
-import './UpcomingEvents.css'
+import './LatestNews.css'
 import Spacer from '../../Common/Spacer'
 import Carousel from "react-multi-carousel";
 import "react-multi-carousel/lib/styles.css";
@@ -47,7 +47,7 @@ const eventsData = [
   },
 
 ]
-const UpcomingEvents = () => {
+const LatestNews = () => {
   const responsive = {
     superLargeDesktop: {
       // the naming can be any, depends on you.
@@ -68,14 +68,14 @@ const UpcomingEvents = () => {
     }
   };
   return (
-    <div className='upcomingEvents__wrapper'>
-      <div className='upcomingEvents__headingWrapper'>
+    <div className='latestNews__wrapper'>
+      <div className='latestNews__headingWrapper'>
         <Slide>
-          <h5 className='upcomingEvents__heading heading__t1'>Upcoming Events</h5>
+          <h5 className='latestNews__heading heading__t1'>Latest News</h5>
         </Slide>
       </div>
       <Spacer spacing={"4px"} />
-      <div className='upcomingEvents__list'>
+      <div className='latestNews__list'>
 
         <Carousel
           responsive={responsive}
@@ -90,24 +90,19 @@ const UpcomingEvents = () => {
               <Fragment key={ele.id}>
 
                 <Zoom>
-                  <div className={'upcomingEvents__card'}>
-                    <div className={'upcomingEvents__cardImageWrapper'}>
+                  <div className={'latestNews__card'}>
+                    <div className={'latestNews__cardImageWrapper'}>
                       <img
-                        className={'upcomingEvents__cardImage'}
+                        className={'latestNews__cardImage'}
                         src={ele.imgUrl}
                         alt={ele.name}
                         loading="lazy"
                       />
                     </div>
-                    <div className={'upcomingEvents__cardBottomWrapper'}>
-                      <h5 className='upcomingEvents__name'>
-                        {ele.name}
-                      </h5>
-                      <button
-                        className='upcomingEvents__registerBtn'
-                      >
-                        Register Now
-                      </button>
+                    <div className={'latestNews__cardBottomWrapper'}>
+                      <p className='latestNews__info'>
+                     Lorem ipsum dolor, sit amet consectetur adipisicing elit. Quisquam eius nisi, non culpa iure recusandae. Numquam quod delectus accusamus ab nobis! Asperiores ex non magnam id inventore quis maxime nobis.
+                      </p>
                     </div>
                   </div>
                 </Zoom>
@@ -119,8 +114,15 @@ const UpcomingEvents = () => {
 
 
       </div>
+      <div>
+        <button
+          className='latestNews__moreBtn'
+        >
+        {` More News / Articles >>`}
+        </button>
+      </div>
     </div>
   )
 }
 
-export default UpcomingEvents
+export default LatestNews

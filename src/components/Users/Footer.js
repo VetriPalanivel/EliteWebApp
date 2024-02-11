@@ -9,7 +9,7 @@ import { Typography } from '@mui/material';
 
 function Footer() {
   return (
-    <div className="footer-container" style={{ background: '#f5f5f5', padding: '40px', textAlign: 'left', margin: '20px 0' }}>
+    <div className="footer-container" style={{ background: '#f5f5f5', padding: '40px', textAlign: 'left', margin: '0px' }}>
       <Grid fluid className="footer-grid">
         <Row gutter={16}>
           <Col xs={24} md={12}>
