@@ -17,6 +17,7 @@ import React from "react";
 import { List } from "rsuite";
 import { FiberManualRecord as BulletIcon } from "@mui/icons-material";
 import FormBackGround from "../../../src/asserts/Form-HeadBg.jpg";
+import ForgeYellowBackGround from "../../../src/asserts/Yellow_background.jpg";
 
 function TrainingOfTrainers() {
   const [mode, setMode] = React.useState("");
@@ -55,7 +56,7 @@ function TrainingOfTrainers() {
     <Box>
       <Box sx={{ border: "10px solid red", height: "100px" }}>Header</Box>
 
-      <Box>
+      <Box sx={{backgroundImage:`url(${ForgeYellowBackGround})`}}>
         <CommonForgeHeader />
       </Box>
 
