@@ -10,6 +10,8 @@ import { useSelector } from 'react-redux';
 import ViewProfile from '../components/Admin/Dashboards/ViewProfile';
 import LandingPageUser from '../components/Users/LandingPageUser';
 import TrainingOfTrainers from '../components/TrainingOfTrainers';
+import HomePage from '../components/Users/HomePage';
+
 
 function MainRoutes() {
   const Authenticate = useSelector((state) => state.Elite.authenticate)
@@ -19,7 +21,7 @@ function MainRoutes() {
         {Authenticate && <Route path={ADMIN_HOME} element={<LandingPage />} />}
           <Route path="admin/login" element={<Login />} />
           {Authenticate && <Route path="admin/register" element={<Register />} />}
-          <Route path="home" element={<LandingPageUser/>} />
+          <Route path="home" element={<HomePage/>} />
           <Route
             exact
             path="/"
