@@ -1,7 +1,9 @@
 import React, { Fragment } from 'react'
 import './AboutUs.css'
-import Spacer from '../../Common/Spacer'
+
 import { Slide, Zoom } from "react-awesome-reveal";
+import Spacer from '../../Common/Spacer';
+
 const AboutUs = () => {
   return (
     <Fragment>

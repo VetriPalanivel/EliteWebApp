@@ -10,7 +10,7 @@ import {
   CommonForgeHeader,
   CommonSwiper,
   StyledLoadingButton,
-} from "../common/Components";
+} from "../Common/Components";
 import { Image } from "@rsuite/icons";
 import { Grid, TextField, MenuItem } from "@mui/material";
 import React from "react";

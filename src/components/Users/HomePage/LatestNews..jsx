@@ -1,6 +1,6 @@
 import React, { Fragment } from 'react'
 import './LatestNews.css'
-import Spacer from '../../Common/Spacer'
+import Spacer from '../../Common/Spacer';
 import Carousel from "react-multi-carousel";
 import "react-multi-carousel/lib/styles.css";
 import { Slide, Zoom } from "react-awesome-reveal";
