@@ -2,8 +2,21 @@ import React,{useState,useEffect} from 'react';
 import ReactDOM from 'react-dom';
 import { Dropdown } from 'rsuite';
 import "rsuite/dist/rsuite.css";
-
-
+import ArrowDropDownRoundedIcon from '@mui/icons-material/ArrowDropDownRounded';
+import TipsAndUpdatesOutlinedIcon from '@mui/icons-material/TipsAndUpdatesOutlined';
+import ModelTrainingOutlinedIcon from '@mui/icons-material/ModelTrainingOutlined';
+import CastForEducationOutlinedIcon from '@mui/icons-material/CastForEducationOutlined';
+import MilitaryTechOutlinedIcon from '@mui/icons-material/MilitaryTechOutlined';
+import YardOutlinedIcon from '@mui/icons-material/YardOutlined';
+import Diversity2OutlinedIcon from '@mui/icons-material/Diversity2Outlined';
+import Groups3OutlinedIcon from '@mui/icons-material/Groups3Outlined';
+import EngineeringOutlinedIcon from '@mui/icons-material/EngineeringOutlined';
+import PublicOutlinedIcon from '@mui/icons-material/PublicOutlined';
+import FollowTheSignsOutlinedIcon from '@mui/icons-material/FollowTheSignsOutlined';
+import LanOutlinedIcon from '@mui/icons-material/LanOutlined';
+import StreamOutlinedIcon from '@mui/icons-material/StreamOutlined';
+import BiotechIcon from '@mui/icons-material/Biotech';
+import { FaCaretDown } from "react-icons/fa";
 import { Navbar, Nav } from 'rsuite';
 import CogIcon from '@rsuite/icons/legacy/Cog';
 import Avatar from "@mui/material/Avatar";
@@ -87,46 +100,46 @@ export const NavBarUser = () => {
             </div>
             <ul className="menu" >
                <li className="menu-item menu-item-has-children">
-                  <a  data-toggle="sub-menu">Conferences <i className="plus"></i></a>
+                  <a  data-toggle="sub-menu">Conferences <FaCaretDown /></a>
                   <ul className="sub-menu">
-                      <li className="menu-item"><a >EGEMC</a></li>
-                      <li className="menu-item"><a >EGEC</a></li>
+                      <li className="menu-item"><a ><StreamOutlinedIcon sx={{ color: "#02006c" }} fontSize="small" style={{marginRight:"15px"}}/>EGEMC</a></li>
+                      <li className="menu-item"><a ><StreamOutlinedIcon sx={{ color: "#02006c" }} fontSize="small" style={{marginRight:"15px"}}/>EGEC</a></li>
                   </ul>
                </li> 
                <li className="menu-item menu-item-has-children">
-                  <a  data-toggle="sub-menu">Research & Innovation <i className="plus"></i></a>
+                  <a  data-toggle="sub-menu">Research & Innovation <FaCaretDown /></a>
                   <ul className="sub-menu">
                         <li className="menu-item">
-                            <Link to="/researchProjects" >Research Projects</Link>
+                            <Link to="/researchProjects"> <BiotechIcon sx={{ color: "#02006c" }} fontSize="small" style={{marginRight:"15px"}}/>Research Projects</Link>
                         </li>
-                      <li className="menu-item"><a >Innovations</a></li>
+                      <li className="menu-item"><a ><TipsAndUpdatesOutlinedIcon  sx={{ color: "#02006c" }} fontSize="small" style={{marginRight:"15px"}}/>Innovations</a></li>
                   </ul>
                </li>
                <li className="menu-item menu-item-has-children">
-                  <a  data-toggle="sub-menu">Trainings<i className="plus"></i></a>
+                  <a  data-toggle="sub-menu">Trainings <FaCaretDown /></a>
                   <ul className="sub-menu">
-                      <li className="menu-item"><Link to="/trainers" >Training of Trainer</Link></li>
+                      <li className="menu-item"><Link to="/trainers" > <ModelTrainingOutlinedIcon sx={{ color: "#02006c" }} fontSize="small" style={{marginRight:"15px"}}/>Training for Trainer</Link></li>
                       <li className="menu-item">
-                      <Link to="/workshop" >Workshops</Link>
+                      <Link to="/workshop" ><CastForEducationOutlinedIcon sx={{ color: "#02006c" }} fontSize="small" style={{marginRight:"15px"}} />Workshops</Link>
                     </li>
                       
-                      <li className="menu-item"><Link to="/competition" >Competetion</Link></li>
-                      <li className="menu-item"><a >Exhibition</a></li>
-                      <li className="menu-item"><a >EGE Clubs & Society</a></li>
+                      <li className="menu-item"><Link to="/competition" ><MilitaryTechOutlinedIcon sx={{ color: "#02006c" }} fontSize="small" style={{marginRight:"15px"}} />Competetion</Link></li>
+                      <li className="menu-item"><a ><YardOutlinedIcon sx={{ color: "#02006c" }} fontSize="small" style={{marginRight:"15px"}}/>Exhibition</a></li>
+                      <li className="menu-item"><a ><Diversity2OutlinedIcon  sx={{ color: "#02006c" }} fontSize="small" style={{marginRight:"15px"}} />EGE Clubs & Society</a></li>
                   </ul>
                </li>
                <li className="menu-item menu-item-has-children">
-                  <a  data-toggle="sub-menu">Programs<i className="plus"></i></a>
+                  <a  data-toggle="sub-menu">Programs <FaCaretDown /></a>
                   <ul className="sub-menu">
-                      <li className="menu-item"><a >Organization</a></li>
-                      <li className="menu-item"><a >Scientific Committe</a></li>
-                      <li className="menu-item"><a >Ambassador</a></li>
+                      <li className="menu-item"><a ><Groups3OutlinedIcon sx={{ color: "#02006c" }} fontSize="small" style={{marginRight:"15px"}} />Organization</a></li>
+                      <li className="menu-item"><a ><EngineeringOutlinedIcon sx={{ color: "#02006c" }} fontSize="small" style={{marginRight:"15px"}} />Scientific Committe</a></li>
+                      <li className="menu-item"><a ><PublicOutlinedIcon sx={{ color: "#02006c" }} fontSize="small" style={{marginRight:"15px"}} />Ambassador</a></li>
                   </ul>
                </li>
                <li className="menu-item menu-item-has-children">
-                  <a  data-toggle="sub-menu">Career<i className="plus"></i></a>
+                  <a  data-toggle="sub-menu">Career <FaCaretDown /></a>
                   <ul className="sub-menu">
-                      <li className="menu-item"><a >Career Opportunities</a></li>
+                      <li className="menu-item"><a ><FollowTheSignsOutlinedIcon sx={{ color: "#02006c" }} fontSize="small" style={{marginRight:"15px"}}/>Career Opportunities</a></li>
                   </ul>
                </li>
                <li className="menu-item">

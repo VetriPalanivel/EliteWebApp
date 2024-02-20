@@ -1,8 +1,8 @@
 import React, { Fragment } from 'react'
 import './SliderBanner.css'
 import "react-responsive-carousel/lib/styles/carousel.min.css"; // requires a loader
-import { Carousel } from 'react-responsive-carousel';
-
+// import { Carousel } from 'react-responsive-carousel';
+import { Carousel } from 'rsuite';
 const SliderBanner = () => {
 
   const sliderData = [
@@ -29,30 +29,15 @@ const SliderBanner = () => {
 
   ]
   return (
-    <Fragment>
-      <div className='sliderBanner__wrapper'>
-        <Carousel 
-        showArrows={true}
-        autoPlay={true}
-        infiniteLoop={true}
-        >
-          {sliderData?.map((ele) => {
+      <Carousel autoplay className="custom-slider"  shape="bar">
+      {sliderData?.map((ele) => {
             return (
-              <Fragment key={ele.id}>
-                <div className={'sliderBanner__item'}>
-                  <img
-                    className={'sliderBanner__image'}
-                    src={ele.imgUrl}
-                    alt={ele.name}
-                    loading="lazy"
-                  />
-                </div>
-              </Fragment>
-            )
-          })}
-        </Carousel>
-      </div>
-    </Fragment>
+                <img  src={ele.imgUrl}
+              alt={ele.name} />
+              )
+            })}
+   
+  </Carousel>
   )
 }
 
