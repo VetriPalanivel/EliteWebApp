@@ -2,25 +2,33 @@
 
 .Dashboard-container {
     margin-top: 20px;
-    width: 100%;
+    width: 90%;
     padding: 0px;
     background: "";
   }
+  
   .Dashboard-container-title{
     font-size: 18px;
     color:#00008B;
     font-weight: 600;
     text-align: left;
-    margin-left: 80px !important;
+    margin-left: 30px !important;
     margin-bottom: 10px;
   }
-  
+  .Dashboard-List{
+    display: flex !important;
+    flex-wrap: wrap !important;
+    justify-content: center !important;
+    margin : 0 auto !important;
+  }
+
   .Dashboard-row {
     margin: 0 -10px; /* Adjust margin to match padding */
     display: flex;
     flex-wrap: wrap;
-    justify-content: center ;
+    justify-content: left !important;
   }
+  
   
   .Dashboard-item {
     margin: 10px;
@@ -28,7 +36,7 @@
     width: 180px !important; /* 100% / 6 - (2 * margin) */
     display: flex;
     flex-direction: column;
-    justify-content: left;
+    justify-content: left !important;
     align-items: center !important;
     padding: 16px;
     border-radius: 8px;
@@ -55,6 +63,12 @@
     .Dashboard-container {
      margin-top: 10px;
      margin-bottom: 0px;
+    }
+    .Dashboard-row {
+      margin: 0 -10px; /* Adjust margin to match padding */
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center !important;
     }
   }
   

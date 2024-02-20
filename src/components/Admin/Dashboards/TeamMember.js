@@ -1,30 +1,60 @@
-import React,{useEffect} from "react";
+import React,{useEffect, useState,useRef} from "react";
 import { Input, Grid, Row, Col } from "rsuite";
-import { SelectPicker } from "rsuite";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
-import { Uploader } from "rsuite";
 import { Button, ButtonToolbar } from "rsuite";
+import { Tooltip, Whisper } from 'rsuite';
 import DeleteIcon from "@mui/icons-material/Delete";
-import CloudUploadIcon from "@mui/icons-material/Upload";
 import CardActions from "@mui/material/CardActions";
-import EditIcon from "@mui/icons-material/Edit";
+import BorderColorIcon from '@mui/icons-material/BorderColor';
 import { Avatar } from "@mui/material";
+import ArrowRightIcon from '@mui/icons-material/ArrowRight';
 import { useDispatch, useSelector } from "react-redux";
-import axios from "axios";
-import course from "../../../asserts/course.png";
 import "rsuite/dist/rsuite.min.css";
 import "../../../styles/Admin/DashboardItems.css";
-import { resetTeamMember, updateTeamMember } from "../../../redux/userReducer";
+import { resetTeamMember, updateTeamMember , updateOpenPopup, updatePopupData} from "../../../redux/userReducer";
+import { baseUrl, getApi, postApi, putApi } from "../../../Services/service";
 
 export default function TeamMember() {
   const teamMember = useSelector ((state) => state.Elite.teamMember)
   const dispatch = useDispatch();
+  const [teamMemberList,setTeamMemberList] = useState([])
+  const [edit,setEdit] = useState(false)
+  const [editImage,setEditImage] = useState("");
   useEffect(()=>{
     if (typeof window !== 'undefined') {
       window.scrollTo(0, 0);
+      getTeamMembers()
+    }},[])
+
+    const inputRef = useRef(null);
+  const resetFileInput = () => {
+    inputRef.current.value = null;
+  };
+  
+    const getTeamMembers = async()=>{
+      const response =await getApi('team_member/get');
+      if(response?.status === "Failed"){
+        openPopup('error','Network Error! Try again later.')
+      }else{
+        setTeamMemberList(response?.data);
+      }
+      closePopup()
     }
-  },[])
+
+    const openPopup = (type,message) =>{
+      dispatch(updateOpenPopup(true));
+      dispatch(updatePopupData({
+        type:type,
+        message:message,
+      }))
+    }
+  
+    const closePopup = () =>{
+      setTimeout(()=>{
+        dispatch(updateOpenPopup(false));
+        dispatch(updatePopupData(""));
+      },3500)}
   
   const handleFormName = (event) =>{
     dispatch(updateTeamMember({...teamMember,"name" : event}));
@@ -39,10 +69,15 @@ export default function TeamMember() {
     dispatch(updateTeamMember({...teamMember,"role" : event}));
   }
 
-  const validateForm = teamMember.image && teamMember.name && teamMember.organization && teamMember.role
-  const cancelForm = teamMember.image || teamMember.name || teamMember.organization || teamMember.role
+  const validateForm = teamMember.image && teamMember.name && teamMember.description && teamMember.role
+  const cancelForm = teamMember.image || teamMember.name || teamMember.description || teamMember.role
  
-  const handleAddProject = () =>{
+  const handleUpdateValidation = () =>{
+    const tempTeamMember = teamMemberList.filter((item)=>item.id === teamMember?.id)
+    return (tempTeamMember[0]?.name !==teamMember?.name || tempTeamMember[0]?.image !==teamMember?.image || tempTeamMember[0]?.role !==teamMember?.role || tempTeamMember[0]?.description !==teamMember?.description)
+  }
+  const updateValidation = handleUpdateValidation();
+  const handleAddProject = async() =>{
     const formData = new FormData();
     formData.append('image', teamMember.image);
     formData.append('name', teamMember.name);
@@ -50,16 +85,79 @@ export default function TeamMember() {
     formData.append('role', teamMember.role);
     
     if(validateForm){
-      axios.post("http://localhost:4000/TeamMember",formData)
-      .then(res=>{console.log(res)})
-      .catch(e=>{console.log(e)})
-      dispatch(resetTeamMember())
+      if(!edit){
+        const response = await postApi('team_member/create',formData);
+        if(response?.status === "Failed"){
+          openPopup('error','Network Error! Try again later.')
+        }else if(response?.status_code === 200)
+         {
+          openPopup('success','New data successfully created.')
+        }else if(response?.status_code === 400)
+        {
+          openPopup('error','New data creation Failed.')
+        }
+      }else{
+        const response = await putApi('team_member/update/'+ teamMember.id,formData)
+        if(response?.status === "Failed"){
+          openPopup('error','Network Error! Try again later.')
+        }else if(response?.status_code === 200)
+         {
+          openPopup('info','Data successfully updated.')
+        }else if(response?.status_code === 400)
+        {
+          openPopup('error','Data updation Failed.')
+        }
+      }
+      handleCancelProject();
+      closePopup();
+      resetFileInput()
+       getTeamMembers()
     }  
+  }
+
+  const handleRemoveProject = (item) => async() =>{
+        const response = await postApi('team_member/delete/'+ item.id)
+        if(response?.status === "Failed"){
+          openPopup('error','Network Error! Try again later.')
+        }else if(response?.status_code === 200)
+         {
+          openPopup('info','Data successfully deleted.')
+        }else if(response?.status_code === 400)
+        {
+          openPopup('error','Data deletion Failed.')
+        }
+        getTeamMembers()
+        closePopup()
+  }
+
+  const handleEditProject = (item) => ()  =>{
+    if (typeof window !== 'undefined') {
+      window.scrollTo(0, 0);
+    }
+    setEdit(true)
+    dispatch(updateTeamMember({...teamMember,
+      "description":item.description,
+      "image":item.image,
+      "name":item.name,
+      "role":item.role,
+      "id":item.id,
+    }))
+    setEditImage(item.image);
   }
 
   const handleCancelProject = async() =>{
     dispatch(resetTeamMember())
+    resetFileInput()
+    setEdit(false)
   }
+
+  const truncateText = (text, limit) => {
+    const words = text.split(' ');
+    if (words.length > limit) {
+      return words.slice(0, limit).join(' ') + '...';
+    }
+    return text;
+  };
 
   return (
     <div className="researchProjects-container">
@@ -90,14 +188,18 @@ export default function TeamMember() {
                 <label class="Form-label">Image:</label>
               </Col>
               <Col xs={24} sm={24} md={15} lg={15} xl={15} >
+                <div>
                 <input
                   className="Form-imageUpload"
                   name="image"
                   type="file"
                   style={{background:"white",height:"35px",borderRadius:"6px",padding:"5px",color:"rgb(133, 133, 133)"}}
                   required
+                  ref={inputRef}
                   onChange={handleFormImage}
                 />
+                  {(edit && editImage === teamMember.image) ? <p className="Form-textArea" style={{padding:"5px",color:"rgb(133, 133, 133)"}}>{teamMember.image}</p>:""}
+                </div>
               </Col>
             </Row>
 
@@ -142,9 +244,14 @@ export default function TeamMember() {
                   <Button disabled={!cancelForm} color="red" id="cancel" appearance="primary" onClick={handleCancelProject}>
                     Cancel
                   </Button>
+                  { !edit ? 
                   <Button disabled={!validateForm} color="green" id="addnew" appearance="primary" onClick={handleAddProject}>
                     Add New
+                  </Button> :
+                  <Button disabled={!(validateForm && updateValidation)} color="green" id="addnew" appearance="primary" onClick={handleAddProject}>
+                    Update
                   </Button>
+                   }
                 </ButtonToolbar>
               </Col>
             </Row>
@@ -156,79 +263,74 @@ export default function TeamMember() {
         <h5
           className="Display-heading"
         >
-          ADDED PROJECT DETAILS
+          ADDED EGE TEAM MEMBER DETAIL
         </h5>
+        <Grid>
         <div className="Form-DisplayContainer">
-          {[1, 2, 3, 4, 5, 6].map((item) => (
+          {teamMemberList.map((item) => (
+             <Col xs={24} sm={24} md={8} lg={8} xl={8} key={item} >
             <Card
-              className="Form-DisplayCard"
+              className="Form-DisplayCard-Teammember"
             >
               <CardContent>
-                <Grid>
-                  <Row >
-                    <Col xs={24} sm={24} md={4} lg={4} xl={4}>
                       <Avatar
                         alt=""
-                        variant="square"
-                        className="Form-DisplayCard-img"
-                        style={{
-                         
+                        className="Form-DisplayCard-Tmember-img"
+                          style={{
+                            margin:"0 auto",
+                            borderRadius:"5px",
+                            marginBottom:"20px"
                         }}
-                        src={course}
+                        src={`${baseUrl}${item.image}`}
                       />
-                    </Col>
-                    <Col
-                      xs={24} sm={24} md={18} lg={18} xl={18}
-                      className="Display-content"
-                    >
                       <div>
-                        <h6 className="Display-content-heading" >
-                          Adoption of IIOT in manufacturing and Production SME's
-                          Research Grant by Saudi Electronic University
+                        <h6 className="Display-content-heading-member" >
+                        {item.name}
                         </h6>
-                        <p className="Display-content-text">
-                          We use cookies on our website. Cookies are used to
-                          improve the functionality and use of our internet
-                          site, as well as for analytic and advertising
-                          purposes. To learn more about cookies, how we use
-                          them, and how to change your cookie settings, find out
-                          more here. By continuing to use this site without
-                          changing your settings, you consent to our use of
-                          cookies.
+                        <p className="Display-content-text-member">
+                        {item.role}
                         </p>
                         <CardActions
-                          style={{ display: "flex", justifyContent: "end" }}
+                          style={{ display: "flex", justifyContent: "center" }}
                         >
                           <Button
-                          className="Display-content-view"
                             variant="text"
-                            href="#text-buttons"
+                            // href="#text-buttons"
+                            color="orange"
+                            appearance="primary"
+                            endIcon={<ArrowRightIcon />}
                           >
-                            Click here to view more
+                            Read More
                           </Button>
                         </CardActions>
                       </div>
-                    </Col>
-                    <Col xs={24} sm={24} md={2} lg={2} xl={2}>
-                      <div className="Display-content-edit">
+                    <div className="Display-content-edit-member">
+                      <Whisper  placement="top" speaker={<Tooltip> Delete!</Tooltip>}>
                         <Button
                           variant="outlined"
                           id="delete"
+                          style={{color:"red"}}
                           startIcon={<DeleteIcon />}
+                          onClick={handleRemoveProject(item)}
                         />
+                        </Whisper>
+                        <Whisper  placement="top" speaker={<Tooltip> Edit!</Tooltip>}>
                         <Button
                          id="edit"
+                         color="blue"
                           variant="outlined"
-                          startIcon={<EditIcon />}
+                          style={{color:"green"}}
+                          startIcon={<BorderColorIcon />}
+                          onClick={handleEditProject(item)}
                         />
+                        </Whisper>
                       </div>
-                    </Col>
-                  </Row>
-                </Grid>
               </CardContent>
             </Card>
-          ))}
+            </Col>
+          ))}  
         </div>
+        </Grid>
       </div>
       </div>   
   );

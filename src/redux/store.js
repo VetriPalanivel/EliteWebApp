@@ -9,7 +9,7 @@ const persistConfig = {
   storage,
 };
 
-// const persistedReducer = persistReducer(persistConfig, );
+const persistedReducer = persistReducer(persistConfig, UserReducer);
 
 const middleware = [
   ...getDefaultMiddleware({
@@ -19,9 +19,9 @@ const middleware = [
 
 export const store = configureStore({
   reducer: {
-    Elite: UserReducer,
+    Elite: persistedReducer,
   },
   middleware,
 });
 
-// export const persistor = persistStore(store);
+export const persistor = persistStore(store);

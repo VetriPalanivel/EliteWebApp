@@ -1,0 +1,35 @@
+.partnerAndCollaborate__wrapper {
+  padding: 10px 20px;
+  background-image: url("https://img.freepik.com/free-vector/abstract-background-with-blue-wavy-shapes_1035-9706.jpg?w=740&t=st=1707634022~exp=1707634622~hmac=08aef36de9854613cd8d73cf97694bc2e8e824f5c849a7321338845390187395");
+  background-size: cover;
+}
+.partnerAndCollaborate__headingWrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.partnerAndCollaborate__heading {
+  /* background-color: #e86f1c;
+  color: #fff; */
+  padding: 6px 40px;
+  border-radius: 50px;
+  font-weight: 500px;
+  font-size: 16px;
+  /* box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px; */
+  color: #e86f1c;
+  text-decoration: underline;
+}
+.partnerAndCollaborate__bannerWrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 0px 40px;
+}
+.partnerAndCollaborate__banner {
+  object-fit: cover;
+  width: 400px;
+  height: 350px;
+  border-radius: 10px;
+  box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
+}

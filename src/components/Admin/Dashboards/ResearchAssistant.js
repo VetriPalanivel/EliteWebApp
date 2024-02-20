@@ -1,30 +1,59 @@
-import React,{useEffect} from "react";
+import React,{useEffect,useState,useRef} from "react";
 import { Input, Grid, Row, Col } from "rsuite";
-import { SelectPicker } from "rsuite";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
-import axios from 'axios'
-import { Uploader } from "rsuite";
 import { Button, ButtonToolbar } from "rsuite";
+import { Tooltip, Whisper } from 'rsuite';
 import DeleteIcon from "@mui/icons-material/Delete";
-import CloudUploadIcon from "@mui/icons-material/Upload";
 import CardActions from "@mui/material/CardActions";
-import EditIcon from "@mui/icons-material/Edit";
+import BorderColorIcon from '@mui/icons-material/BorderColor';
 import { Avatar } from "@mui/material";
-import course from "../../../asserts/course.png";
 import "rsuite/dist/rsuite.min.css";
 import "../../../styles/Admin/DashboardItems.css";
 import { useDispatch, useSelector } from "react-redux";
-import { resetAssistantJob, updateAssistantJob } from "../../../redux/userReducer";
+import { resetAssistantJob, updateAssistantJob , updateOpenPopup, updatePopupData} from "../../../redux/userReducer";
+import { baseUrl, getApi, postApi, putApi } from "../../../Services/service";
 
 export default function ResearchAssistant() {
   const assistantJob = useSelector((state) => state.Elite.assitantJob)
+  const [assistantJobList,setAssistantJobList] = useState([])
   const dispatch = useDispatch();
+  const [edit,setEdit] = useState(false)
+  const [editImage,setEditImage] = useState("");
   useEffect(()=>{
     if (typeof window !== 'undefined') {
       window.scrollTo(0, 0);
     }
+    getResearchAssistantJobs()
   },[])
+
+  const inputRef = useRef(null);
+  const resetFileInput = () => {
+    inputRef.current.value = null;
+  };
+
+  const getResearchAssistantJobs = async()=>{
+    const response =await getApi('research_assistantjob/get');
+    if(response?.status === "Failed"){
+      openPopup('error','Network Error! Try again later.')
+    }else{
+      setAssistantJobList(response?.data);
+    }
+    closePopup()
+  }
+  const openPopup = (type,message) =>{
+    dispatch(updateOpenPopup(true));
+    dispatch(updatePopupData({
+      type:type,
+      message:message,
+    }))
+  }
+
+  const closePopup = () =>{
+    setTimeout(()=>{
+      dispatch(updateOpenPopup(false));
+      dispatch(updatePopupData(""));
+    },3500)}
 
   const handleFormTitle = (event) =>{
     dispatch(updateAssistantJob({...assistantJob,"title" : event}));
@@ -51,7 +80,12 @@ export default function ResearchAssistant() {
   const validateForm = assistantJob.title && assistantJob.image && assistantJob.description && assistantJob.requirement && assistantJob.benefit && assistantJob.duration && assistantJob.deadline
   const cancelForm = assistantJob.title || assistantJob.image || assistantJob.description || assistantJob.requirement || assistantJob.benefit || assistantJob.duration || assistantJob.deadline
 
-  const handleAddAssistantJob = () =>{
+  const handleUpdateValidation = () =>{
+    const tempResearchAssistant = assistantJobList.filter((item)=>item.id === assistantJob?.id)
+    return (tempResearchAssistant[0]?.title !==assistantJob?.title || tempResearchAssistant[0]?.image !==assistantJob?.image || tempResearchAssistant[0]?.description !==assistantJob?.description || tempResearchAssistant[0]?.requirement !==assistantJob?.requirement || tempResearchAssistant[0]?.benefit !==assistantJob?.benefit || tempResearchAssistant[0]?.duration !==assistantJob?.duration || tempResearchAssistant[0]?.deadline !==assistantJob?.deadline )
+  }
+  const updateValidation = handleUpdateValidation();
+  const handleAddAssistantJob = async() =>{
     const formData = new FormData();
     formData.append('image', assistantJob.image);
     formData.append('title', assistantJob.title);
@@ -62,15 +96,83 @@ export default function ResearchAssistant() {
     formData.append('deadline', assistantJob.deadline);
     
     if(validateForm){
-      axios.post("http://localhost:4000/AssistantJob",formData)
-      .then(res=>{console.log(res)})
-      .catch(e=>{console.log(e)})
-      dispatch(resetAssistantJob())
+      if(!edit){
+      const response = await postApi('research_assistantjob/create',formData);
+      if(response?.status === "Failed"){
+        openPopup('error','Network Error! Try again later.')
+      }else if(response?.status_code === 200)
+       {
+        openPopup('success','New data successfully created.')
+      }else if(response?.status_code === 400)
+      {
+        openPopup('error','New data creation Failed.')
+      }
+      }
+      else{
+      const response = await putApi('research_assistantjob/update/'+ assistantJob.id,formData)
+      if(response?.status === "Failed"){
+        openPopup('error','Network Error! Try again later.')
+      }else if(response?.status_code === 200)
+       {
+        openPopup('info','Data successfully updated.')
+      }else if(response?.status_code === 400)
+      {
+        openPopup('error','Data updation Failed.')
+      }
+      }
+      getResearchAssistantJobs();
+      handleCancelAssistantJob();
+      resetFileInput()
+      closePopup();
     }  
   }
 
+  const handleEditAssistantJob = (item) => ()  =>{
+    if (typeof window !== 'undefined') {
+      window.scrollTo(0, 0);
+    }
+    setEdit(true)
+    dispatch(updateAssistantJob({...assistantJob,
+      "title":item.title,
+      "description":item.description,
+       "image":item.image,
+      "requirement":item.requirement,
+       "benefit":item.benefit,
+       "duration":item.duration,
+       "deadline":item.deadline,
+       "id":item.id,
+    }))
+    setEditImage(item.image);
+  }
+
+  const handleRemoveProject = (item) => async() =>{
+        const response = await postApi('research_assistantjob/delete/'+ item.id)
+        if(response?.status === "Failed"){
+          openPopup('error','Network Error! Try again later.')
+        }else if(response?.status_code === 200)
+         {
+          openPopup('info','Data successfully deleted.')
+        }else if(response?.status_code === 400)
+        {
+          openPopup('error','Data deletion Failed.')
+        }
+        getResearchAssistantJobs()
+        closePopup()
+  }
+  
+
+  const truncateText = (text, limit) => {
+    const words = text.split(' ');
+    if (words.length > limit) {
+      return words.slice(0, limit).join(' ') + '...';
+    }
+    return text;
+  };
+
   const handleCancelAssistantJob = async() =>{
     dispatch(resetAssistantJob())
+    resetFileInput()
+    setEdit(false)
   }
 
   return (
@@ -101,14 +203,18 @@ export default function ResearchAssistant() {
                 <label class="Form-label">Image:</label>
               </Col>
               <Col xs={24} sm={24} md={15} lg={15} xl={15} >
+                <div>
                 <input
                   className="Form-imageUpload"
                   name="image"
                   type="file"
                   style={{background:"white",height:"35px",borderRadius:"6px",padding:"5px",color:"rgb(133, 133, 133)"}}
                   required
+                  ref={inputRef}
                   onChange={handleFormImage}
                 />
+                 {(edit && editImage === assistantJob.image) ? <p className="Form-textArea" style={{padding:"5px",color:"rgb(133, 133, 133)"}}>{assistantJob.image}</p>:""}
+                  </div>
               </Col>
             </Row>
 
@@ -203,9 +309,14 @@ export default function ResearchAssistant() {
                   <Button disabled={!cancelForm} color="red" id="cancel" appearance="primary" onClick={handleCancelAssistantJob}>
                     Cancel
                   </Button>
+                  { !edit ?
                   <Button disabled={!validateForm} color="green" id="addnew" appearance="primary" onClick={handleAddAssistantJob}>
                     Add New
-                  </Button>
+                  </Button> :
+                   <Button disabled={!(validateForm && updateValidation)} color="green" id="addnew" appearance="primary" onClick={handleAddAssistantJob}>
+                   Update
+                 </Button>
+                 }
                 </ButtonToolbar>
               </Col>
             </Row>
@@ -217,10 +328,10 @@ export default function ResearchAssistant() {
         <h5
           className="Display-heading"
         >
-          ADDED PROJECT DETAILS
+          ADDED EGE RESEARCH ASSISTANT JOB DETAIL
         </h5>
         <div className="Form-DisplayContainer">
-          {[1, 2, 3, 4, 5, 6].map((item) => (
+          {assistantJobList.map((item) => (
             <Card
               className="Form-DisplayCard"
             >
@@ -235,7 +346,7 @@ export default function ResearchAssistant() {
                         style={{
                          
                         }}
-                        src={course}
+                        src={`${baseUrl}${item.image}`}
                       />
                     </Col>
                     <Col
@@ -244,18 +355,10 @@ export default function ResearchAssistant() {
                     >
                       <div>
                         <h6 className="Display-content-heading" >
-                          Adoption of IIOT in manufacturing and Production SME's
-                          Research Grant by Saudi Electronic University
+                        {item.title}
                         </h6>
                         <p className="Display-content-text">
-                          We use cookies on our website. Cookies are used to
-                          improve the functionality and use of our internet
-                          site, as well as for analytic and advertising
-                          purposes. To learn more about cookies, how we use
-                          them, and how to change your cookie settings, find out
-                          more here. By continuing to use this site without
-                          changing your settings, you consent to our use of
-                          cookies.
+                        {truncateText(item.description, 60)}
                         </p>
                         <CardActions
                           style={{ display: "flex", justifyContent: "end" }}
@@ -271,17 +374,26 @@ export default function ResearchAssistant() {
                       </div>
                     </Col>
                     <Col xs={24} sm={24} md={2} lg={2} xl={2}>
-                      <div className="Display-content-edit">
+                    <div className="Display-content-edit">
+                      <Whisper  placement="top" speaker={<Tooltip> Delete!</Tooltip>}>
                         <Button
                           variant="outlined"
                           id="delete"
+                          style={{color:"red"}}
                           startIcon={<DeleteIcon />}
+                          onClick={handleRemoveProject(item)}
                         />
+                        </Whisper>
+                        <Whisper  placement="top" speaker={<Tooltip> Edit!</Tooltip>}>
                         <Button
                          id="edit"
+                         color="blue"
                           variant="outlined"
-                          startIcon={<EditIcon />}
+                          style={{color:"green"}}
+                          startIcon={<BorderColorIcon />}
+                          onClick={handleEditAssistantJob(item)}
                         />
+                        </Whisper>
                       </div>
                     </Col>
                   </Row>

@@ -1,4 +1,16 @@
 
+.popup-container {
+  position: fixed;
+  top: 19%;
+  left: 60%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #fff; /* Set the background color */
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.3); /* Optional: Add a box shadow for a better look */
+  z-index: 999; /* Set the z-index to ensure the popup is above other elements */
+}
 
 
 .dashboard-item {
@@ -70,6 +82,18 @@
   
     .about-us-text {
       padding: 20px !important;
+    }
+    .popup-container {
+      position: fixed;
+      top: 20%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background-color: #fff; /* Set the background color */
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.3); /* Optional: Add a box shadow for a better look */
+      z-index: 999; /* Set the z-index to ensure the popup is above other elements */
     }
   }
 
@@ -202,7 +226,6 @@
        /* Adjust height for smaller screens */
     }
   }
-  
   
   .partnership-text {
     text-align: left;

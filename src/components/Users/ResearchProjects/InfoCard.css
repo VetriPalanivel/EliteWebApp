@@ -1,0 +1,17 @@
+.infoCard__wrapper {
+  background-image: url("https://img.freepik.com/free-vector/abstract-flowing-lines-background-2803_1048-7818.jpg?w=740&t=st=1707634209~exp=1707634809~hmac=55fb373adfb87998e70169bb4d459045882b3baaf93ccc4a2c7191badccd89fd");
+  /* background-size: cover; */
+}
+.infoCard__headingWrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.infoCard__info {
+  text-align: center;
+  color: #015093;
+  font-size: 20px;
+  font-weight: 500;
+  padding: 10px 150px;
+}

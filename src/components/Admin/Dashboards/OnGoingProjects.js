@@ -1,33 +1,57 @@
-import React, { useState,useEffect } from "react";
+import React, { useState,useEffect,useRef } from "react";
 import { Input, Grid, Row, Col } from "rsuite";
 import { SelectPicker } from "rsuite";
 import Card from "@mui/material/Card";
-import axios from "axios";
 import CardContent from "@mui/material/CardContent";
-import { Uploader } from "rsuite";
 import { Button, ButtonToolbar } from "rsuite";
+import { Tooltip, Whisper } from 'rsuite';
 import DeleteIcon from "@mui/icons-material/Delete";
-import CloudUploadIcon from "@mui/icons-material/Upload";
 import CardActions from "@mui/material/CardActions";
-import EditIcon from "@mui/icons-material/Edit";
+import BorderColorIcon from '@mui/icons-material/BorderColor';
 import { Avatar } from "@mui/material";
-import course from "../../../asserts/course.png";
 import "rsuite/dist/rsuite.min.css";
 import "../../../styles/Admin/DashboardItems.css";
 import { useDispatch, useSelector } from "react-redux";
-import { resetOnGoingProject, updateOnGoingProject } from "../../../redux/userReducer";
+import { resetOnGoingProject, updateOnGoingProject, updateOpenPopup, updatePopupData } from "../../../redux/userReducer";
+import { baseUrl, getApi, postApi, putApi } from "../../../Services/service";
 
 export default function OnGoingProjects() {
-
+  const inputRef = useRef(null);
   const onGoingProject = useSelector ((state) => state.Elite.onGoingProject)
+  const [projectList,setProjectList] = useState([])
   const dispatch = useDispatch();
+  const [edit,setEdit] = useState(false)
+  const [editImage,setEditImage] = useState("");
   useEffect(()=>{
     if (typeof window !== 'undefined') {
       window.scrollTo(0, 0);
     }
+    getOnGoingProjects();
   },[])
 
-  const [projectList,setProjectList] = useState([])
+  const getOnGoingProjects = async() =>{
+    const response =await getApi('ongoing_project/get');
+    if(response?.status === "Failed"){
+      openPopup('error','Network Error! Try again later.')
+    }else{
+      setProjectList(response?.data);
+    }
+    closePopup();
+  }
+
+  const openPopup = (type,message) =>{
+    dispatch(updateOpenPopup(true));
+    dispatch(updatePopupData({
+      type:type,
+      message:message,
+    }))
+  }
+
+  const closePopup = () =>{
+    setTimeout(()=>{
+      dispatch(updateOpenPopup(false));
+      dispatch(updatePopupData(""));
+    },3500)}
 
   const SelectOption = [
     {
@@ -56,7 +80,14 @@ export default function OnGoingProjects() {
   }
 const validateForm = onGoingProject.image && onGoingProject.title && onGoingProject.status && onGoingProject.description;
 const cancelForm = onGoingProject.image || onGoingProject.title || onGoingProject.status || onGoingProject.description;
-  const handleAddProject = () =>{
+
+const handleUpdateValidation = () =>{
+  const tempOnGoingProject = projectList.filter((item)=>item.id === onGoingProject?.id)
+  return (tempOnGoingProject[0]?.title !==onGoingProject?.title || tempOnGoingProject[0]?.image !==onGoingProject?.image || tempOnGoingProject[0]?.status !==onGoingProject?.status || tempOnGoingProject[0]?.description !==onGoingProject?.description)
+}
+const updateValidation = handleUpdateValidation();
+
+const handleAddProject = async() =>{
     const formData = new FormData();
     formData.append('image', onGoingProject.image);
     formData.append('title', onGoingProject.title);
@@ -64,16 +95,82 @@ const cancelForm = onGoingProject.image || onGoingProject.title || onGoingProjec
     formData.append('status', onGoingProject.status);
     
     if(validateForm){
-      axios.post("http://localhost:4000/post_ongoing_project",formData)
-      .then(res=>{console.log(res)})
-      .catch(e=>{console.log(e)})
-      dispatch(resetOnGoingProject())
-    }  
+      if(!edit){
+        const response = await postApi('ongoing_project/create',formData);
+        if(response?.status === "Failed"){
+          openPopup('error','Network Error! Try again later.')
+        }else if(response?.status_code === 200)
+         {
+          openPopup('success','New data successfully created.')
+        }else if(response?.status_code === 400)
+        {
+          openPopup('error','New data creation Failed.')
+        }
+      }else{
+        const response = await putApi('ongoing_project/update/'+ onGoingProject.id,formData)
+        if(response?.status === "Failed"){
+          openPopup('error','Network Error! Try again later.')
+        }else if(response?.status_code === 200)
+         {
+          openPopup('info','Data successfully updated.')
+        }else if(response?.status_code === 400)
+        {
+          openPopup('error','Data updation Failed.')
+        }
+      }
+    handleCancelProject();
+    getOnGoingProjects();
+    resetFileInput()
+    closePopup();
+  }}
+
+  const handleEditProject = (item) => ()  =>{
+    if (typeof window !== 'undefined') {
+      window.scrollTo(0, 0);
+    }
+    setEdit(true)
+    dispatch(updateOnGoingProject({...onGoingProject,
+      "description":item.description,
+      "image":item.image,
+      "title":item.title,
+      "status":item.status,
+      "id":item.id,
+    }))
+    setEditImage(item.image);
   }
 
+  const handleRemoveProject = (item) => async() =>{
+    const response = await postApi('ongoing_project/delete/'+ item.id)
+        if(response?.status === "Failed"){
+          openPopup('error','Network Error! Try again later.')
+        }else if(response?.status_code === 200)
+         {
+          openPopup('info','Data successfully deleted.')
+        }else if(response?.status_code === 400)
+        {
+          openPopup('error','Data deletion Failed.')
+        }
+        getOnGoingProjects();
+        closePopup()
+    } 
+  
   const handleCancelProject = async() =>{
     dispatch(resetOnGoingProject())
+    resetFileInput()
+    setEdit(false)
   }
+
+  const resetFileInput = () => {
+    inputRef.current.value = null;
+  };
+
+  const truncateText = (text, limit) => {
+    const words = text.split(' ');
+    if (words.length > limit) {
+      return words.slice(0, limit).join(' ') + '...';
+    }
+    return text;
+  };
 
   return (
     <div className="researchProjects-container">
@@ -103,14 +200,19 @@ const cancelForm = onGoingProject.image || onGoingProject.title || onGoingProjec
                 <label class="Form-label">Image:</label>
               </Col>
               <Col xs={24} sm={24} md={15} lg={15} xl={15} >
+                <div>
                 <input
                   className="Form-imageUpload"
                   name="image"
                   type="file"
                   style={{background:"white",height:"35px",borderRadius:"6px",padding:"5px",color:"rgb(133, 133, 133)"}}
                   required
+                  display="none"
+                  ref={inputRef}
                   onChange={handleFormImage}
                 />
+                 {(edit && editImage === onGoingProject.image) ? <p className="Form-textArea" style={{padding:"5px",color:"rgb(133, 133, 133)"}}>{onGoingProject.image}</p>:""}
+                  </div>
               </Col>
             </Row>
 
@@ -157,9 +259,14 @@ const cancelForm = onGoingProject.image || onGoingProject.title || onGoingProjec
                   <Button disabled={!cancelForm} color="red" id="cancel" appearance="primary" onClick={handleCancelProject}>
                     Cancel
                   </Button>
+                  { !edit ? 
                   <Button disabled={!validateForm} color="green" id="addnew" appearance="primary" onClick={handleAddProject}>
                     Add New
+                  </Button> :
+                  <Button disabled={!(validateForm && updateValidation)} color="green" id="addnew" appearance="primary" onClick={handleAddProject}>
+                    Update
                   </Button>
+                   }
                 </ButtonToolbar>
               </Col>
             </Row>
@@ -171,10 +278,10 @@ const cancelForm = onGoingProject.image || onGoingProject.title || onGoingProjec
         <h5
           className="Display-heading"
         >
-          ADDED PROJECT DETAILS
+          ADDED EGE ON-GOING RESEARCH PROJECT DETAIL
         </h5>
         <div className="Form-DisplayContainer">
-          {[1, 2, 3, 4, 5, 6].map((item) => (
+          {projectList.map((item,index) => (
             <Card
               className="Form-DisplayCard"
             >
@@ -189,7 +296,7 @@ const cancelForm = onGoingProject.image || onGoingProject.title || onGoingProjec
                         style={{
                          
                         }}
-                        src={course}
+                        src={`${baseUrl}${item.image}`}
                       />
                     </Col>
                     <Col
@@ -198,18 +305,10 @@ const cancelForm = onGoingProject.image || onGoingProject.title || onGoingProjec
                     >
                       <div>
                         <h6 className="Display-content-heading" >
-                          Adoption of IIOT in manufacturing and Production SME's
-                          Research Grant by Saudi Electronic University
+                          {item.title}
                         </h6>
                         <p className="Display-content-text">
-                          We use cookies on our website. Cookies are used to
-                          improve the functionality and use of our internet
-                          site, as well as for analytic and advertising
-                          purposes. To learn more about cookies, how we use
-                          them, and how to change your cookie settings, find out
-                          more here. By continuing to use this site without
-                          changing your settings, you consent to our use of
-                          cookies.
+                        {truncateText(item.description, 69)}
                         </p>
                         <CardActions
                           style={{ display: "flex", justifyContent: "end" }}
@@ -226,16 +325,25 @@ const cancelForm = onGoingProject.image || onGoingProject.title || onGoingProjec
                     </Col>
                     <Col xs={24} sm={24} md={2} lg={2} xl={2}>
                       <div className="Display-content-edit">
+                      <Whisper  placement="top" speaker={<Tooltip> Delete!</Tooltip>}>
                         <Button
                           variant="outlined"
                           id="delete"
+                          style={{color:"red"}}
                           startIcon={<DeleteIcon />}
+                          onClick={handleRemoveProject(item)}
                         />
+                        </Whisper>
+                        <Whisper  placement="top" speaker={<Tooltip> Edit!</Tooltip>}>
                         <Button
                          id="edit"
+                         color="blue"
                           variant="outlined"
-                          startIcon={<EditIcon />}
+                          style={{color:"green"}}
+                          startIcon={<BorderColorIcon />}
+                          onClick={handleEditProject(item)}
                         />
+                        </Whisper>
                       </div>
                     </Col>
                   </Row>
