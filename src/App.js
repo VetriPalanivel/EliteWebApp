@@ -1,5 +1,5 @@
 import './App.css';
-import './styles/CustomStyle.css'
+// import './styles/CustomStyle.css'
 import LandingPage from './components/Admin/LandingPage';
 import LandingPageUser from './components/Users/LandingPageUser';
 import MainRoutes from './route/index'
