@@ -147,9 +147,14 @@ function NavBarUser(){
                                                     <li><a href="blog.html">Career Opportunities</a></li>
                                                 </ul>
                                             </li>
-                                            <li><a href="contact.html">Sponsorship</a></li>
+                                            <li className="menu-item-has-children"><a href="#">Resources</a>
+                                                <ul className="sub-menu">
+                                                <li><a href="contact.html">Sponsorship</a></li>
                                             <li><a href="contact.html">Latest News</a></li>
                                             <li><a href="contact.html">About</a></li>
+                                                </ul>
+                                            </li>
+                                            
                                         </ul>
                                     </nav><button type="button" className="th-menu-toggle d-block d-lg-none"><i
                                             className="far fa-bars"></i></button>
@@ -168,7 +173,7 @@ function NavBarUser(){
         </div>
     </header>
     
-    <div className="th-hero-wrapper hero-1" id="hero">
+    {/* <div className="th-hero-wrapper hero-1" id="hero">
         <div className="hero-slider-1 th-carousel" data-fade="true" data-slide-show="1" data-md-slide-show="1"
             data-dots="true">
             <div className="th-hero-slide">
@@ -265,7 +270,7 @@ function NavBarUser(){
                         src="assets/img/hero/shape_1_4.png" alt="shape"/></div>
             </div>
         </div>
-    </div>
+    </div> */}
    </>
   )};
 
