@@ -1,4 +1,4 @@
-import React, { useEffect, useState,useRef } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { Input, Grid, Row, Col } from "rsuite";
 import { SelectPicker } from "rsuite";
 import Card from "@mui/material/Card";
@@ -12,14 +12,22 @@ import { Avatar } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
 import "rsuite/dist/rsuite.min.css";
 import "../../../styles/Admin/DashboardItems.css";
-import { resetCourse, updateCourse , updateOpenPopup, updatePopupData} from "../../../redux/userReducer";
+import {
+  resetCourse,
+  updateCourse,
+  updateOpenPopup,
+  updatePopupData,
+} from "../../../redux/userReducer";
 import { baseUrl, getApi, postApi, putApi } from "../../../Services/service";
+import { PopupDelete } from "../PopupDelete";
 
 export default function Courses() {
   const course = useSelector((state) => state.Elite.course);
   const dispatch = useDispatch();
   const [courseList, setCourseList] = useState([]);
   const [edit, setEdit] = useState(false);
+  const [open, setOpen] = useState(false);
+  const [deleteItem, setDeleteItem] = useState("");
   const [editImage, setEditImage] = useState("");
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -34,13 +42,13 @@ export default function Courses() {
   };
 
   const getCourses = async () => {
-    const response =await getApi('course/get');
-    if(response?.status === "Failed"){
-      openPopup('error','Network Error! Try again later.')
-    }else{
+    const response = await getApi("course/get");
+    if (response?.status === "Failed") {
+      openPopup("error", "Network Error! Try again later.");
+    } else {
       setCourseList(response?.data);
     }
-    closePopup()
+    closePopup();
   };
 
   const SelectOption = [
@@ -54,19 +62,22 @@ export default function Courses() {
     },
   ];
 
-  const openPopup = (type,message) =>{
+  const openPopup = (type, message) => {
     dispatch(updateOpenPopup(true));
-    dispatch(updatePopupData({
-      type:type,
-      message:message,
-    }))
-  }
+    dispatch(
+      updatePopupData({
+        type: type,
+        message: message,
+      })
+    );
+  };
 
-  const closePopup = () =>{
-    setTimeout(()=>{
+  const closePopup = () => {
+    setTimeout(() => {
       dispatch(updateOpenPopup(false));
       dispatch(updatePopupData(""));
-    },3500)}
+    }, 3500);
+  };
 
   const handleFormTitle = (event) => {
     dispatch(updateCourse({ ...course, title: event }));
@@ -130,11 +141,11 @@ export default function Courses() {
       tempCourse[0]?.image !== course?.image ||
       tempCourse[0]?.mode !== course?.mode ||
       tempCourse[0]?.description !== course?.description ||
-      tempCourse[0]?.objective !==course?.objective ||
-      tempCourse[0]?.benefit !==course?.benefit ||
-      tempCourse[0]?.duration !==course?.duration ||
-      tempCourse[0]?.structure !==course?.structure ||
-      tempCourse[0]?.link !==course?.link
+      tempCourse[0]?.objective !== course?.objective ||
+      tempCourse[0]?.benefit !== course?.benefit ||
+      tempCourse[0]?.duration !== course?.duration ||
+      tempCourse[0]?.structure !== course?.structure ||
+      tempCourse[0]?.link !== course?.link
     );
   };
   const updateValidation = handleUpdateValidation();
@@ -152,75 +163,78 @@ export default function Courses() {
     formData.append("link", course.link);
 
     if (validateForm) {
-      if(!edit){
-        const response = await postApi('course/create',formData);
-        if(response?.status === "Failed"){
-          openPopup('error','Network Error! Try again later.')
-        }else if(response?.status_code === 200)
-         {
-          openPopup('success','New data successfully created.')
-        }else if(response?.status_code === 400)
-        {
-          openPopup('error','New data creation Failed.')
+      if (!edit) {
+        const response = await postApi("course/create", formData);
+        if (response?.status === "Failed") {
+          openPopup("error", "Network Error! Try again later.");
+        } else if (response?.status_code === 200) {
+          openPopup("success", "New data successfully created.");
+        } else if (response?.status_code === 400) {
+          openPopup("error", "New data creation Failed.");
         }
-      }else{
-        const response = await putApi('course/update/'+ course.id,formData)
-        if(response?.status === "Failed"){
-          openPopup('error','Network Error! Try again later.')
-        }else if(response?.status_code === 200)
-         {
-          openPopup('info','Data successfully updated.')
-        }else if(response?.status_code === 400)
-        {
-          openPopup('error','Data updation Failed.')
+      } else {
+        const response = await putApi("course/update/" + course.id, formData);
+        if (response?.status === "Failed") {
+          openPopup("error", "Network Error! Try again later.");
+        } else if (response?.status_code === 200) {
+          openPopup("info", "Data successfully updated.");
+        } else if (response?.status_code === 400) {
+          openPopup("error", "Data updation Failed.");
         }
       }
       handleCancelProject();
       closePopup();
-      resetFileInput()
+      resetFileInput();
       getCourses();
     }
   };
-  const handleEditProject = (item) => ()  =>{
-    if (typeof window !== 'undefined') {
+  const handleEditProject = (item) => () => {
+    if (typeof window !== "undefined") {
       window.scrollTo(0, 0);
     }
-    setEdit(true)
-    dispatch(updateCourse({...course,
-      "description":item.description,
-      "image":item.image,
-      "title":item.title,
-       "domain":item.domain,
-      "mode":item.mode,
-      "objective":item.objective,
-  "duration":item.duration,
-  "benefit":item.benefit,
-  "structure":item.structure,
-  "link":item.link,
-      "id":item.id,
-    }))
+    setEdit(true);
+    dispatch(
+      updateCourse({
+        ...course,
+        description: item.description,
+        image: item.image,
+        title: item.title,
+        domain: item.domain,
+        mode: item.mode,
+        objective: item.objective,
+        duration: item.duration,
+        benefit: item.benefit,
+        structure: item.structure,
+        link: item.link,
+        id: item.id,
+      })
+    );
     setEditImage(item.image);
-  }
+  };
 
-  const handleRemoveProject = (item) => async() =>{
-        const response = await postApi('course/delete/'+ item.id)
-        if(response?.status === "Failed"){
-          openPopup('error','Network Error! Try again later.')
-        }else if(response?.status_code === 200)
-         {
-          openPopup('info','Data successfully deleted.')
-        }else if(response?.status_code === 400)
-        {
-          openPopup('error','Data deletion Failed.')
-        }
-        getCourses();
-        closePopup()
-  }
+  const ConfirmDelete = (item) => async () => {
+    const response = await postApi("course/delete/" + item.id);
+    if (response?.status === "Failed") {
+      openPopup("error", "Network Error! Try again later.");
+    } else if (response?.status_code === 200) {
+      openPopup("info", "Data successfully deleted.");
+    } else if (response?.status_code === 400) {
+      openPopup("error", "Data deletion Failed.");
+    }
+    getCourses();
+    closePopup();
+    setOpen(false);
+  };
+
+  const handleRemoveProject = (item) => async () => {
+    setOpen(true);
+    setDeleteItem(item);
+  };
 
   const handleCancelProject = async () => {
     dispatch(resetCourse());
     resetFileInput();
-    setEdit(false)
+    setEdit(false);
   };
 
   const truncateText = (text, limit) => {
@@ -276,22 +290,31 @@ export default function Courses() {
               </Col>
               <Col xs={24} sm={24} md={15} lg={15} xl={15}>
                 <div>
-                <input
-                  className="Form-imageUpload"
-                  name="image"
-                  type="file"
-                  style={{
-                    background: "white",
-                    height: "35px",
-                    borderRadius: "6px",
-                    padding: "5px",
-                    color: "rgb(133, 133, 133)",
-                  }}
-                  ref={inputRef}
-                  required
-                  onChange={handleFormImage}
-                />
-                 {(edit && editImage === course.image) ? <p className="Form-textArea" style={{padding:"5px",color:"rgb(133, 133, 133)"}}>{course.image}</p>:""}
+                  <input
+                    className="Form-imageUpload"
+                    name="image"
+                    type="file"
+                    style={{
+                      background: "white",
+                      height: "35px",
+                      borderRadius: "6px",
+                      padding: "5px",
+                      color: "rgb(133, 133, 133)",
+                    }}
+                    ref={inputRef}
+                    required
+                    onChange={handleFormImage}
+                  />
+                  {edit && editImage === course.image ? (
+                    <p
+                      className="Form-textArea"
+                      style={{ padding: "5px", color: "rgb(133, 133, 133)" }}
+                    >
+                      {course.image}
+                    </p>
+                  ) : (
+                    ""
+                  )}
                 </div>
               </Col>
             </Row>
@@ -429,26 +452,27 @@ export default function Courses() {
                   >
                     Cancel
                   </Button>
-                  { !edit ? 
-                  <Button
-                    disabled={!validateForm}
-                    color="green"
-                    id="addnew"
-                    appearance="primary"
-                    onClick={handleAddProject}
-                  >
-                    Add New
-                  </Button> :
-                  <Button
-                  disabled={!(validateForm && updateValidation)}
-                  color="green"
-                  id="addnew"
-                  appearance="primary"
-                  onClick={handleAddProject}
-                >
-                  Update
-                </Button>
-}
+                  {!edit ? (
+                    <Button
+                      disabled={!validateForm}
+                      color="green"
+                      id="addnew"
+                      appearance="primary"
+                      onClick={handleAddProject}
+                    >
+                      Add New
+                    </Button>
+                  ) : (
+                    <Button
+                      disabled={!(validateForm && updateValidation)}
+                      color="green"
+                      id="addnew"
+                      appearance="primary"
+                      onClick={handleAddProject}
+                    >
+                      Update
+                    </Button>
+                  )}
                 </ButtonToolbar>
               </Col>
             </Row>
@@ -502,25 +526,31 @@ export default function Courses() {
                       </div>
                     </Col>
                     <Col xs={24} sm={24} md={2} lg={2} xl={2}>
-                    <div className="Display-content-edit">
-                      <Whisper  placement="top" speaker={<Tooltip> Delete!</Tooltip>}>
-                        <Button
-                          variant="outlined"
-                          id="delete"
-                          style={{color:"red"}}
-                          startIcon={<DeleteIcon />}
-                          onClick={handleRemoveProject(item)}
-                        />
+                      <div className="Display-content-edit">
+                        <Whisper
+                          placement="top"
+                          speaker={<Tooltip> Delete!</Tooltip>}
+                        >
+                          <Button
+                            variant="outlined"
+                            id="delete"
+                            style={{ color: "red" }}
+                            startIcon={<DeleteIcon />}
+                            onClick={handleRemoveProject(item)}
+                          />
                         </Whisper>
-                        <Whisper  placement="top" speaker={<Tooltip> Edit!</Tooltip>}>
-                        <Button
-                         id="edit"
-                         color="blue"
-                          variant="outlined"
-                          style={{color:"green"}}
-                          startIcon={<BorderColorIcon />}
-                          onClick={handleEditProject(item)}
-                        />
+                        <Whisper
+                          placement="top"
+                          speaker={<Tooltip> Edit!</Tooltip>}
+                        >
+                          <Button
+                            id="edit"
+                            color="blue"
+                            variant="outlined"
+                            style={{ color: "green" }}
+                            startIcon={<BorderColorIcon />}
+                            onClick={handleEditProject(item)}
+                          />
                         </Whisper>
                       </div>
                     </Col>
@@ -531,6 +561,14 @@ export default function Courses() {
           ))}
         </div>
       </div>
+      {open && (
+        <PopupDelete
+          item={deleteItem}
+          open={open}
+          ConfirmDelete={ConfirmDelete}
+          setOpen={setOpen}
+        />
+      )}
     </div>
   );
 }

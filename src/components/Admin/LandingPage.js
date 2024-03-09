@@ -1,4 +1,4 @@
-import React,{useState,useEffect} from 'react'
+import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
@@ -7,7 +7,7 @@ import Divider from "@mui/material/Divider";
 import Drawer from "@mui/material/Drawer";
 import IconButton from "@mui/material/IconButton";
 import List from "@mui/material/List";
-import { Icon } from '@rsuite/icons';
+import { Icon } from "@rsuite/icons";
 import ListItem from "@mui/material/ListItem";
 import ListItemButton from "@mui/material/ListItemButton";
 import ListItemIcon from "@mui/material/ListItemIcon";
@@ -23,50 +23,62 @@ import Avatar from "@mui/material/Avatar";
 import Tooltip from "@mui/material/Tooltip";
 import MenuItem from "@mui/material/MenuItem";
 import Menu from "@mui/material/Menu";
-import {useDispatch,useSelector} from 'react-redux'
-import {updateAuthenticate, updateDasboardStatus, updateSelectedTitle, updateUser} from "./../../redux/userReducer";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  updateAuthenticate,
+  updateDasboardStatus,
+  updateSelectedTitle,
+  updateUser,
+} from "./../../redux/userReducer";
 import { AdminDashboard } from "./../../constants/Admin";
-import '../.././styles/Admin/AdminHeader.css'
-import Dashboard from './Dashboard'
-import OnGoingProjects from './Dashboards/OnGoingProjects';
-import ResearchAssistant from './Dashboards/ResearchAssistant';
-import InovationProjects from './Dashboards/InovationProjects';
-import Trainings from './Dashboards/Trainings';
-import Workshops from './Dashboards/Workshops';
-import Competetion from './Dashboards/Competetion';
-import Exhibition from './Dashboards/Exhibition';
-import Clubs from './Dashboards/Clubs';
-import Courses from './Dashboards/Courses';
-import Roles from './Dashboards/Roles';
-import News from './Dashboards/News';
-import Committe from './Dashboards/Committe';
-import Ambassador from './Dashboards/Ambassador';
-import TeamMember from './Dashboards/TeamMember';
-import Sponsors from './Dashboards/Sponsors';
-import { baseUrl } from '../../Services/service';
-import ViewProfile from './Dashboards/ViewProfile';
+import "../.././styles/Admin/AdminHeader.css";
+import Dashboard from "./Dashboard";
+import OnGoingProjects from "./Dashboards/OnGoingProjects";
+import ResearchAssistant from "./Dashboards/ResearchAssistant";
+import InovationProjects from "./Dashboards/InovationProjects";
+import Trainings from "./Dashboards/Trainings";
+import Workshops from "./Dashboards/Workshops";
+import Competetion from "./Dashboards/Competetion";
+import Exhibition from "./Dashboards/Exhibition";
+import Clubs from "./Dashboards/Clubs";
+import Courses from "./Dashboards/Courses";
+import Roles from "./Dashboards/Roles";
+import News from "./Dashboards/News";
+import Committe from "./Dashboards/Committe";
+import Ambassador from "./Dashboards/Ambassador";
+import TeamMember from "./Dashboards/TeamMember";
+import Sponsors from "./Dashboards/Sponsors";
+import { baseUrl } from "../../Services/service";
+import ViewProfile from "./Dashboards/ViewProfile";
+import { ViewUsers } from "./Dashboards/ViewUsers";
 const drawerWidth = 280;
 
 function LandingPage(props) {
   const { window } = props;
-  const dispatch = useDispatch()
+  const dispatch = useDispatch();
   const navigate = useNavigate();
-  const SelectedTitle = useSelector((state)=> state.Elite.selectedTitle)
-  const DashboardStatus = useSelector ((state) => state.Elite.dashboardStatus)
-  const User = useSelector ((state) => state.Elite.user)
+  const SelectedTitle = useSelector((state) => state.Elite.selectedTitle);
+  const DashboardStatus = useSelector((state) => state.Elite.dashboardStatus);
+  const User = useSelector((state) => state.Elite.user);
   const [mobileOpen, setMobileOpen] = React.useState(false);
   const [anchorElUser, setAnchorElUser] = React.useState(null);
-  const [activeItem,setActiveItem] = useState("Dashboard");
-  const settings = ["View Profile", "Logout"];
+  const [activeItem, setActiveItem] = useState("Dashboard");
+  const [settings, setSettings] = useState(["View Profile", "Logout"]);
 
-  useEffect(()=>{
-    console.log(activeItem)
-    setActiveItem(SelectedTitle.title)
-  },[SelectedTitle])
+  useEffect(() => {
+    console.log(activeItem);
+    setActiveItem(SelectedTitle.title);
+  }, [SelectedTitle]);
 
-  useEffect(()=>{
-    dispatch(updateDasboardStatus(true))
-  },[])
+  useEffect(() => {
+    if (User.role == "Admin") {
+      setSettings(["View Profile", "View Users", "Logout"]);
+    }
+  }, [User]);
+
+  useEffect(() => {
+    dispatch(updateDasboardStatus(true));
+  }, []);
 
   const container =
     window !== undefined ? () => window().document.body : undefined;
@@ -75,39 +87,44 @@ function LandingPage(props) {
     setAnchorElUser(event.currentTarget);
   };
   const handleCloseUserMenu = (event) => {
-    if(event.target.innerHTML === "Logout"){
-      dispatch(updateUser(""))
-      dispatch(updateAuthenticate(false))
-      navigate("login")
-    }else{
-      const sampleSeletedTitle={
-        title:"ViewProfile"
-    }
-    dispatch(updateDasboardStatus(false))
-    dispatch(updateSelectedTitle(sampleSeletedTitle))
+    if (event.target.innerHTML === "Logout") {
+      dispatch(updateUser(""));
+      dispatch(updateAuthenticate(false));
+      navigate("login");
+    } else if (event.target.innerHTML === "View Profile") {
+      const sampleSeletedTitle = {
+        title: "ViewProfile",
+      };
+      dispatch(updateDasboardStatus(false));
+      dispatch(updateSelectedTitle(sampleSeletedTitle));
+    } else {
+      const sampleSeletedTitle = {
+        title: "ViewUsers",
+      };
+      dispatch(updateDasboardStatus(false));
+      dispatch(updateSelectedTitle(sampleSeletedTitle));
     }
     setAnchorElUser(null);
   };
   const handleHomePage = () => {
-    dispatch(updateDasboardStatus(true))
+    dispatch(updateDasboardStatus(true));
   };
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
   };
 
-  const handleDashboard = (item) => () =>{
-    setActiveItem(item.name)
-    const sampleSeletedTitle={
-        id:item.id,
-        title:item.name
+  const handleDashboard = (item) => () => {
+    setActiveItem(item.name);
+    const sampleSeletedTitle = {
+      id: item.id,
+      title: item.name,
+    };
+    dispatch(updateSelectedTitle(sampleSeletedTitle));
+    if (mobileOpen) {
+      setMobileOpen(!mobileOpen);
     }
-    dispatch(updateSelectedTitle(sampleSeletedTitle))
-    if(mobileOpen){
-     setMobileOpen(!mobileOpen);
-    }
-    
-  }
+  };
 
   const drawer = (
     <div>
@@ -115,12 +132,30 @@ function LandingPage(props) {
       <Divider />
       <List className="SideNav-list">
         {AdminDashboard.map((item, index) => (
-          <ListItem key={item.id} disablePadding >
-            <ListItemButton onClick={handleDashboard(item)} className={`${activeItem === item.name ?"SideNav-button-active" : "SideNav-button"}`}>
+          <ListItem key={item.id} disablePadding>
+            <ListItemButton
+              onClick={handleDashboard(item)}
+              className={`${
+                activeItem === item.name
+                  ? "SideNav-button-active"
+                  : "SideNav-button"
+              }`}
+            >
               <ListItemIcon>
-                 <Icon  as={item.icon} style={{color: activeItem === item.name ?"#00008B":""}} />
+                <Icon
+                  as={item.icon}
+                  style={{ color: activeItem === item.name ? "#00008B" : "" }}
+                />
               </ListItemIcon>
-              <Typography className={`${activeItem === item.name ?"SideNav-text-active" : "SideNav-text"}`} >{item.name} </Typography>
+              <Typography
+                className={`${
+                  activeItem === item.name
+                    ? "SideNav-text-active"
+                    : "SideNav-text"
+                }`}
+              >
+                {item.name}{" "}
+              </Typography>
             </ListItemButton>
           </ListItem>
         ))}
@@ -133,23 +168,23 @@ function LandingPage(props) {
       <CssBaseline />
       <AppBar
         position="fixed"
-        className='admin-header'
+        className="admin-header"
         sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}
       >
         <Toolbar>
-          {!DashboardStatus && 
-          <IconButton
-            color="inherit"
-            aria-label="open drawer"
-            edge="start"
-            style={{background:"#00008B"}}
-            onClick={handleDrawerToggle}
-            sx={{ mr: 2, display: { sm: "none" } }}
-          >
-            <MenuIcon />
-          </IconButton>
-          }
-          
+          {!DashboardStatus && (
+            <IconButton
+              color="inherit"
+              aria-label="open drawer"
+              edge="start"
+              style={{ background: "#00008B" }}
+              onClick={handleDrawerToggle}
+              sx={{ mr: 2, display: { sm: "none" } }}
+            >
+              <MenuIcon />
+            </IconButton>
+          )}
+
           <Container maxWidth="xl">
             <Toolbar disableGutters>
               <Avatar
@@ -159,15 +194,20 @@ function LandingPage(props) {
                 src={EliteLogo}
                 onClick={handleHomePage}
               />
-              <Box sx={{ flexGrow: 1, display: { sm: "flex",md: "flex",ld: "flex" } }}>
-                
-              </Box>
-              <Tooltip >
+              <Box
+                sx={{
+                  flexGrow: 1,
+                  display: { sm: "flex", md: "flex", ld: "flex" },
+                }}
+              ></Box>
+              <Tooltip>
                 <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
                   <Avatar
                     alt="Profile"
                     className="Admin-profile"
-                    src={(User.image !=null) ? `${baseUrl}${User.image}`: Profile}
+                    src={
+                      User.image != null ? `${baseUrl}${User.image}` : Profile
+                    }
                   />
                 </IconButton>
               </Tooltip>
@@ -194,76 +234,88 @@ function LandingPage(props) {
         </Toolbar>
       </AppBar>
 
-{
-  !DashboardStatus &&  <Box
-  component="nav"
-  sx={{ width: { sm: drawerWidth }, flexShrink: { sm: 0 } }}
-  aria-label="mailbox folders"
->
-  {/* The implementation can be swapped with js to avoid SEO duplication of links. */}
-  <Drawer
-    container={container}
-    variant="temporary"
-    open={mobileOpen}
-    onClose={handleDrawerToggle}
-    ModalProps={{
-      keepMounted: true, // Better open performance on mobile.
-    }}
-    sx={{
-      display: { xs: "block", sm: "none" },
-      "& .MuiDrawer-paper": {
-        boxSizing: "border-box",
-        width: drawerWidth,
-      },
-    }}
-  >
-    {drawer}
-  </Drawer>
-  <Drawer
-    variant="permanent"
-    sx={{
-      display: { xs: "none", sm: "block" },
-      "& .MuiDrawer-paper": {
-        boxSizing: "border-box",
-        width: drawerWidth,
-      },
-    }}
-    open
-  >
-    {drawer}
-  </Drawer>
-</Box>
-
-}
-<Box
-  component="main"
-  sx={{
-    flexGrow: 1,
-    p: 3,
-    width: { sm: `calc(100% - ${drawerWidth}px)` },
-  }}
-  style={{padding: activeItem === "ViewProfile" ? "0px":"0px"}}
->
-     
+      {!DashboardStatus && (
+        <Box
+          component="nav"
+          sx={{ width: { sm: drawerWidth }, flexShrink: { sm: 0 } }}
+          aria-label="mailbox folders"
+        >
+          {/* The implementation can be swapped with js to avoid SEO duplication of links. */}
+          <Drawer
+            container={container}
+            variant="temporary"
+            open={mobileOpen}
+            onClose={handleDrawerToggle}
+            ModalProps={{
+              keepMounted: true, // Better open performance on mobile.
+            }}
+            sx={{
+              display: { xs: "block", sm: "none" },
+              "& .MuiDrawer-paper": {
+                boxSizing: "border-box",
+                width: drawerWidth,
+              },
+            }}
+          >
+            {drawer}
+          </Drawer>
+          <Drawer
+            variant="permanent"
+            sx={{
+              display: { xs: "none", sm: "block" },
+              "& .MuiDrawer-paper": {
+                boxSizing: "border-box",
+                width: drawerWidth,
+              },
+            }}
+            open
+          >
+            {drawer}
+          </Drawer>
+        </Box>
+      )}
+      <Box
+        component="main"
+        sx={{
+          flexGrow: 1,
+          p: 3,
+          width: { sm: `calc(100% - ${drawerWidth}px)` },
+        }}
+        style={{ padding: activeItem === "ViewProfile" ? "0px" : "0px" }}
+      >
         <Toolbar />
         {DashboardStatus && <Dashboard />}
-        {(!DashboardStatus && activeItem === "On-Going Research Projects") && <OnGoingProjects />}
-        {(!DashboardStatus && activeItem === "Research Assistant Job") && <ResearchAssistant />}
-        {(!DashboardStatus && activeItem === "EGE Inovation Projects") && <InovationProjects />}
-        {(!DashboardStatus && activeItem === "Training for Trainers") && <Trainings />}
-        {(!DashboardStatus && activeItem === "Workshops") && <Workshops />}
-        {(!DashboardStatus && activeItem === "Competetions") && <Competetion />}
-        {(!DashboardStatus && activeItem === "Exhibition") && <Exhibition />}
-        {(!DashboardStatus && activeItem === "EGE Clubs and Societies") && <Clubs/>}
-        {(!DashboardStatus && activeItem === "EGE Courses") && <Courses/>}
-        {(!DashboardStatus && activeItem === "EGE Available Roles") && <Roles/>}
-        {(!DashboardStatus && activeItem === "Add News") && <News/>}
-        {(!DashboardStatus && activeItem === "Scientific Committe") && <Committe/>}
-        {(!DashboardStatus && activeItem === "EGE Ambassador") && <Ambassador/>}
-        {(!DashboardStatus && activeItem === "EGE Team Member") && <TeamMember/>}
-        {(!DashboardStatus && activeItem === "EGE Sponsors/Collaborators") && <Sponsors/>}
-        {(!DashboardStatus && activeItem === "ViewProfile") && <ViewProfile/>}
-      
+        {!DashboardStatus && activeItem === "On-Going Research Projects" && (
+          <OnGoingProjects />
+        )}
+        {!DashboardStatus && activeItem === "Research Assistant Job" && (
+          <ResearchAssistant />
+        )}
+        {!DashboardStatus && activeItem === "EGE Inovation Projects" && (
+          <InovationProjects />
+        )}
+        {!DashboardStatus && activeItem === "Training for Trainers" && (
+          <Trainings />
+        )}
+        {!DashboardStatus && activeItem === "Workshops" && <Workshops />}
+        {!DashboardStatus && activeItem === "Competetions" && <Competetion />}
+        {!DashboardStatus && activeItem === "Exhibition" && <Exhibition />}
+        {!DashboardStatus && activeItem === "EGE Clubs and Societies" && (
+          <Clubs />
+        )}
+        {!DashboardStatus && activeItem === "EGE Courses" && <Courses />}
+        {!DashboardStatus && activeItem === "EGE Available Roles" && <Roles />}
+        {!DashboardStatus && activeItem === "Add News" && <News />}
+        {!DashboardStatus && activeItem === "Scientific Committe" && (
+          <Committe />
+        )}
+        {!DashboardStatus && activeItem === "EGE Ambassador" && <Ambassador />}
+        {!DashboardStatus && activeItem === "EGE Team Member" && <TeamMember />}
+        {!DashboardStatus && activeItem === "EGE Sponsors/Collaborators" && (
+          <Sponsors />
+        )}
+        {!DashboardStatus && activeItem === "ViewProfile" && <ViewProfile />}
+        {!DashboardStatus && activeItem === "ViewUsers" && <ViewUsers />}
       </Box>
     </Box>
   );

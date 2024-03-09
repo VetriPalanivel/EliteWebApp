@@ -1,4 +1,4 @@
-import React, { useEffect, useState,useRef } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { Input, Grid, Row, Col } from "rsuite";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
@@ -17,12 +17,26 @@ import {
   updatePopupData,
 } from "../../../redux/userReducer";
 import { baseUrl, getApi, postApi, putApi } from "../../../Services/service";
+import { PopupDelete } from "../PopupDelete";
 
 export default function Committe() {
   const committe = useSelector((state) => state.Elite.committe);
   const dispatch = useDispatch();
   const [committeList, setCommitteList] = useState([]);
+  const [firstName, setFirstName] = useState("");
+  const titleList = [
+    "Ms",
+    "Mrs",
+    "Miss",
+    "Mr",
+    "Dr",
+    "Sir",
+    "Prof",
+    "Assistant Prof",
+  ];
   const [edit, setEdit] = useState(false);
+  const [open, setOpen] = useState(false);
+  const [deleteItem, setDeleteItem] = useState("");
   const [editImage, setEditImage] = useState("");
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -93,7 +107,7 @@ export default function Committe() {
   const handleAddProject = async () => {
     const formData = new FormData();
     formData.append("image", committe.image);
-    formData.append("name", committe.name);
+    formData.append("name", firstName + ". " + committe.name);
     formData.append("organization", committe.organization);
     formData.append("role", committe.role);
 
@@ -122,11 +136,11 @@ export default function Committe() {
       }
       handleCancelProject();
       closePopup();
-      resetFileInput()
+      resetFileInput();
       getCommitte();
     }
   };
-  const handleRemoveProject = (item) => async () => {
+  const ConfirmDelete = (item) => async () => {
     const response = await postApi("committe/delete/" + item.id);
     if (response?.status === "Failed") {
       openPopup("error", "Network Error! Try again later.");
@@ -137,6 +151,12 @@ export default function Committe() {
     }
     getCommitte();
     closePopup();
+    setOpen(false);
+  };
+
+  const handleRemoveProject = (item) => async () => {
+    setOpen(true);
+    setDeleteItem(item);
   };
 
   const handleEditProject = (item) => () => {
@@ -144,12 +164,16 @@ export default function Committe() {
       window.scrollTo(0, 0);
     }
     setEdit(true);
+    const NamePreTextPattern = new RegExp(
+      `^(${titleList.join("|")})\\.\\s`,
+      "i"
+    );
     dispatch(
       updateCommitte({
         ...committe,
         organization: item.organization,
         image: item.image,
-        name: item.name,
+        name: item.name.replace(NamePreTextPattern, ""),
         role: item.role,
         id: item.id,
       })
@@ -160,7 +184,7 @@ export default function Committe() {
   const handleCancelProject = async () => {
     dispatch(resetCommitte());
     setEdit(false);
-    resetFileInput()
+    resetFileInput();
   };
 
   const truncateText = (text, limit) => {
@@ -182,15 +206,29 @@ export default function Committe() {
                 <label class="Form-label">Name:</label>
               </Col>
               <Col xs={24} sm={24} md={15} lg={15} xl={15}>
-                <Input
-                  className="Form-input"
-                  size="md"
-                  placeholder="Enter name"
-                  name="name"
-                  value={committe.name}
-                  onChange={handleFormName}
-                  required
-                />
+                <div style={{ display: "flex" }}>
+                  <select
+                    className="Pre-Nametext"
+                    onChange={(e) => {
+                      setFirstName(e.target.value);
+                    }}
+                  >
+                    {titleList.map((title, index) => (
+                      <option key={index} value={title}>
+                        {title}
+                      </option>
+                    ))}
+                  </select>
+                  <Input
+                    className="Form-input"
+                    size="md"
+                    placeholder="Enter name"
+                    name="name"
+                    value={committe.name}
+                    onChange={handleFormName}
+                    required
+                  />
+                </div>
               </Col>
             </Row>
 
@@ -327,7 +365,9 @@ export default function Committe() {
                       <h6 className="Display-content-heading-member">
                         {item.name}
                       </h6>
-                      <p className="Display-content-text-Smember">{item.role}</p>
+                      <p className="Display-content-text-Smember">
+                        {item.role}
+                      </p>
                       <h6 className="Display-content-heading-Cmember">
                         {item.organization}
                       </h6>
@@ -379,6 +419,14 @@ export default function Committe() {
           </div>
         </Grid>
       </div>
+      {open && (
+        <PopupDelete
+          item={deleteItem}
+          open={open}
+          ConfirmDelete={ConfirmDelete}
+          setOpen={setOpen}
+        />
+      )}
     </div>
   );
 }

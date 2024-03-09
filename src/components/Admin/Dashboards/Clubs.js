@@ -1,4 +1,4 @@
-import React, { useEffect, useState,useRef } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { Input, Grid, Row, Col } from "rsuite";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
@@ -18,12 +18,15 @@ import {
   updatePopupData,
 } from "../../../redux/userReducer";
 import { baseUrl, getApi, postApi, putApi } from "../../../Services/service";
+import { PopupDelete } from "../PopupDelete";
 
 export default function Clubs() {
   const club = useSelector((state) => state.Elite.club);
   const dispatch = useDispatch();
   const [clubList, setClubList] = useState([]);
   const [edit, setEdit] = useState(false);
+  const [open, setOpen] = useState(false);
+  const [deleteItem, setDeleteItem] = useState("");
   const [editImage, setEditImage] = useState("");
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -125,11 +128,11 @@ export default function Clubs() {
       }
       handleCancelProject();
       closePopup();
-      resetFileInput()
+      resetFileInput();
       getClubs();
     }
   };
-  const handleRemoveProject = (item) => async () => {
+  const ConfirmDelete = (item) => async () => {
     const response = await postApi("clubs_societies/delete/" + item.id);
     if (response?.status === "Failed") {
       openPopup("error", "Network Error! Try again later.");
@@ -140,6 +143,12 @@ export default function Clubs() {
     }
     getClubs();
     closePopup();
+    setOpen(false);
+  };
+
+  const handleRemoveProject = (item) => async () => {
+    setOpen(true);
+    setDeleteItem(item);
   };
 
   const handleEditProject = (item) => () => {
@@ -162,7 +171,7 @@ export default function Clubs() {
 
   const handleCancelProject = async () => {
     dispatch(resetClub());
-    resetFileInput()
+    resetFileInput();
     setEdit(false);
   };
 
@@ -333,7 +342,7 @@ export default function Clubs() {
                       xl={18}
                       className="Display-content"
                     >
-                      <div >
+                      <div>
                         <h6 className="Display-content-heading">
                           {item.title}
                         </h6>
@@ -389,6 +398,14 @@ export default function Clubs() {
           ))}
         </div>
       </div>
+      {open && (
+        <PopupDelete
+          item={deleteItem}
+          open={open}
+          ConfirmDelete={ConfirmDelete}
+          setOpen={setOpen}
+        />
+      )}
     </div>
   );
 }

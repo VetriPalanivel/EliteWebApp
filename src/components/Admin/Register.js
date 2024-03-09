@@ -1,6 +1,7 @@
-import React, { useState,useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Grid, Row, Col } from "rsuite";
+import { SelectPicker } from "rsuite";
 import { Button, ButtonToolbar } from "rsuite";
 import eliteOffice from "../../asserts/OfficeWall.jpg";
 import { Avatar } from "@mui/material";
@@ -10,9 +11,24 @@ import AvatarIcon from "@rsuite/icons/legacy/Avatar";
 import KeyIcon from "@mui/icons-material/Key";
 import KeyOffIcon from "@mui/icons-material/KeyOff";
 import { useDispatch, useSelector } from "react-redux";
-import { resetRegister, updateAuthenticate, updateRegister } from "../../redux/userReducer";
+import {
+  resetRegister,
+  updateAuthenticate,
+  updateRegister,
+} from "../../redux/userReducer";
 import { ADMIN_HOME } from "../../constants/route";
 import { postApi } from "../../Services/service";
+
+const SelectOption = [
+  {
+    label: "Admin",
+    value: "Admin",
+  },
+  {
+    label: "User",
+    value: "User",
+  },
+];
 
 export default function Register() {
   const [visible, setVisible] = useState(false);
@@ -65,25 +81,27 @@ export default function Register() {
   };
 
   const handleRegister = async () => {
-    if(register.confirmPassword === register.password){
-      const response = await postApi(
-        "admin/register",register);
+    if (register.confirmPassword === register.password) {
+      const response = await postApi("admin/register", register);
       console.log(response.data);
       if (response.status_code === 200) {
         dispatch(updateAuthenticate(true));
         Navigate(ADMIN_HOME);
         dispatch(resetRegister());
       }
-      if(response.status_code === 400){
-        setPasswordValidation("User alredy exhist, Please Login")
+      if (response.status_code === 400) {
+        setPasswordValidation("User alredy exhist, Please Login");
       }
+    } else {
+      setPasswordValidation("Password not match!");
     }
-    else{
-      setPasswordValidation("Password not match!")
-    }
-   
   };
 
+  const handleFormSelect = (event) => {
+    console.log(event);
+    dispatch(updateRegister({ ...register, role: event.target.value }));
+  };
+  console.log(register.role);
   return (
     <div className="Register" style={{ display: "flex" }}>
       <div className="Register-r1">
@@ -95,7 +113,7 @@ export default function Register() {
         />
       </div>
       <div className="Register-Form">
-        <h4>Register Now</h4>
+        <h4>Add New User</h4>
         <Grid className="Form-field-login">
           <Row style={{ marginBottom: "15px" }}>
             <InputGroup inside>
@@ -127,7 +145,34 @@ export default function Register() {
                 required
               />
             </InputGroup>
-            <p style={{color:"red",display:"flex",justifyContent:"left",padding:"2px 0px 0px 30px"}}>{message}</p>
+            <p
+              style={{
+                color: "red",
+                display: "flex",
+                justifyContent: "left",
+                padding: "2px 0px 0px 30px",
+              }}
+            >
+              {message}
+            </p>
+          </Row>
+          <Row style={{ marginBottom: "15px" }}>
+            <InputGroup inside>
+              <InputGroup.Addon>Role</InputGroup.Addon>
+              <select
+                className="Form-input-login register-select"
+                size="sm"
+                name="role"
+                style={{ width: "80%", border: "none" }}
+                value={register.role}
+                placeholder="Select"
+                onChange={handleFormSelect}
+                required
+              >
+                <option value="Admin">Admin</option>
+                <option value="User">User</option>
+              </select>
+            </InputGroup>
           </Row>
           <Row style={{ marginBottom: "15px" }}>
             <InputGroup inside>
@@ -164,7 +209,9 @@ export default function Register() {
                 required
               />
             </InputGroup>
-            <p style={{marginTop:"10px", color: "orange" }}>{passwordValidation}</p>
+            <p style={{ marginTop: "10px", color: "orange" }}>
+              {passwordValidation}
+            </p>
           </Row>
           <Row style={{ marginBottom: "20px" }}>
             <ButtonToolbar className="Register-button">
@@ -177,7 +224,7 @@ export default function Register() {
                 disabled={!validation}
                 onClick={handleRegister}
               >
-                Register
+                Submit
               </Button>
             </ButtonToolbar>
           </Row>

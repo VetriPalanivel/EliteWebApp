@@ -1,4 +1,4 @@
-import React, { useEffect, useState,useRef } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { Input, Grid, Row, Col } from "rsuite";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
@@ -11,14 +11,22 @@ import { Avatar } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
 import "rsuite/dist/rsuite.min.css";
 import "../../../styles/Admin/DashboardItems.css";
-import { resetRole, updateRole , updateOpenPopup, updatePopupData} from "../../../redux/userReducer";
+import {
+  resetRole,
+  updateRole,
+  updateOpenPopup,
+  updatePopupData,
+} from "../../../redux/userReducer";
 import { baseUrl, getApi, postApi, putApi } from "../../../Services/service";
+import { PopupDelete } from "../PopupDelete";
 
 export default function Roles() {
   const role = useSelector((state) => state.Elite.role);
   const dispatch = useDispatch();
   const [roleList, setRoleList] = useState([]);
   const [edit, setEdit] = useState(false);
+  const [open, setOpen] = useState(false);
+  const [deleteItem, setDeleteItem] = useState("");
   const [editImage, setEditImage] = useState("");
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -33,28 +41,31 @@ export default function Roles() {
   };
 
   const getRoles = async () => {
-    const response =await getApi('roles/get');
-    if(response?.status === "Failed"){
-      openPopup('error','Network Error! Try again later.')
-    }else{
+    const response = await getApi("roles/get");
+    if (response?.status === "Failed") {
+      openPopup("error", "Network Error! Try again later.");
+    } else {
       setRoleList(response?.data);
     }
-    closePopup()
+    closePopup();
   };
 
-  const openPopup = (type,message) =>{
+  const openPopup = (type, message) => {
     dispatch(updateOpenPopup(true));
-    dispatch(updatePopupData({
-      type:type,
-      message:message,
-    }))
-  }
+    dispatch(
+      updatePopupData({
+        type: type,
+        message: message,
+      })
+    );
+  };
 
-  const closePopup = () =>{
-    setTimeout(()=>{
+  const closePopup = () => {
+    setTimeout(() => {
       dispatch(updateOpenPopup(false));
       dispatch(updatePopupData(""));
-    },3500)}
+    }, 3500);
+  };
 
   const handleFormTitle = (event) => {
     dispatch(updateRole({ ...role, title: event }));
@@ -118,72 +129,75 @@ export default function Roles() {
     formData.append("responsibility", role.responsibility);
 
     if (validateForm) {
-      if(!edit){
-        const response = await postApi('roles/create',formData);
-        if(response?.status === "Failed"){
-          openPopup('error','Network Error! Try again later.')
-        }else if(response?.status_code === 200)
-         {
-          openPopup('success','New data successfully created.')
-        }else if(response?.status_code === 400)
-        {
-          openPopup('error','New data creation Failed.')
+      if (!edit) {
+        const response = await postApi("roles/create", formData);
+        if (response?.status === "Failed") {
+          openPopup("error", "Network Error! Try again later.");
+        } else if (response?.status_code === 200) {
+          openPopup("success", "New data successfully created.");
+        } else if (response?.status_code === 400) {
+          openPopup("error", "New data creation Failed.");
         }
-      }else{
-        const response = await putApi('roles/update/'+ role.id,formData)
-        if(response?.status === "Failed"){
-          openPopup('error','Network Error! Try again later.')
-        }else if(response?.status_code === 200)
-         {
-          openPopup('info','Data successfully updated.')
-        }else if(response?.status_code === 400)
-        {
-          openPopup('error','Data updation Failed.')
+      } else {
+        const response = await putApi("roles/update/" + role.id, formData);
+        if (response?.status === "Failed") {
+          openPopup("error", "Network Error! Try again later.");
+        } else if (response?.status_code === 200) {
+          openPopup("info", "Data successfully updated.");
+        } else if (response?.status_code === 400) {
+          openPopup("error", "Data updation Failed.");
         }
       }
       handleCancelProject();
       closePopup();
-      resetFileInput()
+      resetFileInput();
       getRoles();
     }
   };
-  const handleRemoveProject = (item) => async() =>{
-        const response = await postApi('roles/delete/'+ item.id)
-        if(response?.status === "Failed"){
-          openPopup('error','Network Error! Try again later.')
-        }else if(response?.status_code === 200)
-         {
-          openPopup('info','Data successfully deleted.')
-        }else if(response?.status_code === 400)
-        {
-          openPopup('error','Data deletion Failed.')
-        }
-        getRoles();
-        closePopup()
-  }
+  const ConfirmDelete = (item) => async () => {
+    const response = await postApi("roles/delete/" + item.id);
+    if (response?.status === "Failed") {
+      openPopup("error", "Network Error! Try again later.");
+    } else if (response?.status_code === 200) {
+      openPopup("info", "Data successfully deleted.");
+    } else if (response?.status_code === 400) {
+      openPopup("error", "Data deletion Failed.");
+    }
+    getRoles();
+    closePopup();
+    setOpen(false);
+  };
 
-  const handleEditProject = (item) => ()  =>{
-    if (typeof window !== 'undefined') {
+  const handleRemoveProject = (item) => async () => {
+    setOpen(true);
+    setDeleteItem(item);
+  };
+
+  const handleEditProject = (item) => () => {
+    if (typeof window !== "undefined") {
       window.scrollTo(0, 0);
     }
-    setEdit(true)
-    dispatch(updateRole({...role,
-      "description":item.description,
-      "image":item.image,
-      "title":item.title,
-      "type":item.type,
-      "location":item.location,
-      "benefit":item.benefit,
-      "responsibility":item.responsibility,
-      "id":item.id,
-    }))
+    setEdit(true);
+    dispatch(
+      updateRole({
+        ...role,
+        description: item.description,
+        image: item.image,
+        title: item.title,
+        type: item.type,
+        location: item.location,
+        benefit: item.benefit,
+        responsibility: item.responsibility,
+        id: item.id,
+      })
+    );
     setEditImage(item.image);
-  }
+  };
 
   const handleCancelProject = async () => {
     dispatch(resetRole());
-    resetFileInput()
-    setEdit(false)
+    resetFileInput();
+    setEdit(false);
   };
 
   const truncateText = (text, limit) => {
@@ -223,22 +237,31 @@ export default function Roles() {
               </Col>
               <Col xs={24} sm={24} md={15} lg={15} xl={15}>
                 <div>
-                <input
-                  className="Form-imageUpload"
-                  name="image"
-                  type="file"
-                  style={{
-                    background: "white",
-                    height: "35px",
-                    borderRadius: "6px",
-                    padding: "5px",
-                    color: "rgb(133, 133, 133)",
-                  }}
-                  required
-                  ref={inputRef}
-                  onChange={handleFormImage}
-                />
-                 {(edit && editImage === role.image) ? <p className="Form-textArea" style={{padding:"5px",color:"rgb(133, 133, 133)"}}>{role.image}</p>:""}
+                  <input
+                    className="Form-imageUpload"
+                    name="image"
+                    type="file"
+                    style={{
+                      background: "white",
+                      height: "35px",
+                      borderRadius: "6px",
+                      padding: "5px",
+                      color: "rgb(133, 133, 133)",
+                    }}
+                    required
+                    ref={inputRef}
+                    onChange={handleFormImage}
+                  />
+                  {edit && editImage === role.image ? (
+                    <p
+                      className="Form-textArea"
+                      style={{ padding: "5px", color: "rgb(133, 133, 133)" }}
+                    >
+                      {role.image}
+                    </p>
+                  ) : (
+                    ""
+                  )}
                 </div>
               </Col>
             </Row>
@@ -344,14 +367,27 @@ export default function Roles() {
                   >
                     Cancel
                   </Button>
-                  { !edit ? 
-                  <Button disabled={!validateForm} color="green" id="addnew" appearance="primary" onClick={handleAddProject}>
-                    Add New
-                  </Button> :
-                  <Button disabled={!(validateForm && updateValidation)} color="green" id="addnew" appearance="primary" onClick={handleAddProject}>
-                    Update
-                  </Button>
-                   }
+                  {!edit ? (
+                    <Button
+                      disabled={!validateForm}
+                      color="green"
+                      id="addnew"
+                      appearance="primary"
+                      onClick={handleAddProject}
+                    >
+                      Add New
+                    </Button>
+                  ) : (
+                    <Button
+                      disabled={!(validateForm && updateValidation)}
+                      color="green"
+                      id="addnew"
+                      appearance="primary"
+                      onClick={handleAddProject}
+                    >
+                      Update
+                    </Button>
+                  )}
                 </ButtonToolbar>
               </Col>
             </Row>
@@ -405,25 +441,31 @@ export default function Roles() {
                       </div>
                     </Col>
                     <Col xs={24} sm={24} md={2} lg={2} xl={2}>
-                    <div className="Display-content-edit">
-                      <Whisper  placement="top" speaker={<Tooltip> Delete!</Tooltip>}>
-                        <Button
-                          variant="outlined"
-                          id="delete"
-                          style={{color:"red"}}
-                          startIcon={<DeleteIcon />}
-                          onClick={handleRemoveProject(item)}
-                        />
+                      <div className="Display-content-edit">
+                        <Whisper
+                          placement="top"
+                          speaker={<Tooltip> Delete!</Tooltip>}
+                        >
+                          <Button
+                            variant="outlined"
+                            id="delete"
+                            style={{ color: "red" }}
+                            startIcon={<DeleteIcon />}
+                            onClick={handleRemoveProject(item)}
+                          />
                         </Whisper>
-                        <Whisper  placement="top" speaker={<Tooltip> Edit!</Tooltip>}>
-                        <Button
-                         id="edit"
-                         color="blue"
-                          variant="outlined"
-                          style={{color:"green"}}
-                          startIcon={<BorderColorIcon />}
-                          onClick={handleEditProject(item)}
-                        />
+                        <Whisper
+                          placement="top"
+                          speaker={<Tooltip> Edit!</Tooltip>}
+                        >
+                          <Button
+                            id="edit"
+                            color="blue"
+                            variant="outlined"
+                            style={{ color: "green" }}
+                            startIcon={<BorderColorIcon />}
+                            onClick={handleEditProject(item)}
+                          />
                         </Whisper>
                       </div>
                     </Col>
@@ -434,6 +476,14 @@ export default function Roles() {
           ))}
         </div>
       </div>
+      {open && (
+        <PopupDelete
+          item={deleteItem}
+          open={open}
+          ConfirmDelete={ConfirmDelete}
+          setOpen={setOpen}
+        />
+      )}
     </div>
   );
 }

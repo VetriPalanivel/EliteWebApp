@@ -1,0 +1,116 @@
+.app {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 20px;
+    height: 100vh;
+    /* font: inherit; */
+    background-color: #eeeff5;
+    letter-spacing: 1px;
+    
+  }
+  
+  .OtherSignIn {
+    display: flex;
+    justify-content: space-between;
+    text-align: center;
+  
+  }
+  
+  .Nav-bar_bottom{
+    font-family: sans-serif;
+    background-color: #333;
+    position: fixed;
+    bottom: 0;
+    padding: 5px 10px;
+    color: #f2f2f2;
+    width: 100%;
+    font-size: 13px;
+    border-radius: 2px;
+  }
+  
+  .OtherSignInButtons {
+    padding: 5px 5px;
+      background-color: white;
+      border-color: #007cb0;
+      font-size: 14px;
+      font-weight: 400;
+      touch-action: manipulation;
+      cursor: pointer;
+      font-family: inherit;
+      width: 50%;
+      border-width: 1px;
+     
+      /* position: relative; */
+      /* box-sizing: border-box; */
+      margin-top: 20px;
+      margin-right : 10px;
+      margin:10px auto;
+      color: #5c5e60;
+      white-space: nowrap;
+     /* text-align: center; */
+     display: inline-block;
+  }
+  
+  .register-select{
+    background: white !important;
+    border:none !important;
+    margin-left: 0px !important;
+  }
+
+  .register-select :hover,.register-select :active{
+    background: white !important;
+    border:none !important;
+  }
+  .OtherSignInButtons:hover {
+    /* background: #007cb0; */
+    color: rgb(163, 4, 4);
+    border-color: rgb(163, 4, 4); ;
+  }
+  
+  hr {
+      width: 100%;
+      margin-bottom: 20px;
+      margin-top: 20px;
+      height: 2px;
+      background-color: #d8dbdd;
+      border: none;
+  }
+  .button-container {
+    display: flex;
+    justify-content: center;
+  }
+  
+  .loginForm {
+    background-color: white;
+    padding: 20px 100px 100px 100px;
+    margin-top: none;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.1), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+  }
+  
+  .list-container {
+    display: flex;
+  }
+
+  .errMessage{
+    color:red;
+    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+  }
+  
+  
+  .title {
+    font-size: 25px;
+    margin-bottom: 20px;
+    background-color: white;
+    padding: 10px 200px;
+  }
+  
+  .input-container {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin: 10px;
+  text-align: left;
+  color: #5c5e60
+  }

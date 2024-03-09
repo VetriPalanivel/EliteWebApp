@@ -1,4 +1,4 @@
-import React, { useEffect, useState,useRef } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { Input, Grid, Row, Col } from "rsuite";
 import { SelectPicker } from "rsuite";
 import Card from "@mui/material/Card";
@@ -18,6 +18,7 @@ import {
   updatePopupData,
 } from "../../../redux/userReducer";
 import { baseUrl, getApi, postApi, putApi } from "../../../Services/service";
+import { PopupDelete } from "../PopupDelete";
 
 export default function Ambassador() {
   const inputRef = useRef(null);
@@ -26,7 +27,21 @@ export default function Ambassador() {
   let Country = require("country-state-city").Country;
   const [ambassadorList, setAmbassadorList] = useState([]);
   const [edit, setEdit] = useState(false);
+  const [firstName, setFirstName] = useState("");
+  const titleList = [
+    "Ms",
+    "Mrs",
+    "Miss",
+    "Mr",
+    "Dr",
+    "Sir",
+    "Prof",
+    "Assistant Prof",
+  ];
+
   const [editImage, setEditImage] = useState("");
+  const [open, setOpen] = useState(false);
+  const [deleteItem, setDeleteItem] = useState("");
   const [countryList, setCountryList] = useState([]);
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -112,7 +127,7 @@ export default function Ambassador() {
   const handleAddProject = async () => {
     const formData = new FormData();
     formData.append("image", ambassador.image);
-    formData.append("name", ambassador.name);
+    formData.append("name", firstName + ". " + ambassador.name);
     formData.append("description", ambassador.description);
     formData.append("country", ambassador.country);
     formData.append("flag", ambassador.flag);
@@ -142,12 +157,12 @@ export default function Ambassador() {
       }
       handleCancelProject();
       getAmbassadors();
-      resetFileInput()
+      resetFileInput();
       closePopup();
     }
   };
 
-  const handleRemoveProject = (item) => async () => {
+  const ConfirmDelete = (item) => async () => {
     const response = await postApi("ambassador/delete/" + item.id);
     if (response?.status === "Failed") {
       openPopup("error", "Network Error! Try again later.");
@@ -158,10 +173,21 @@ export default function Ambassador() {
     }
     getAmbassadors();
     closePopup();
+    setOpen(false);
+  };
+
+  const handleRemoveProject = (item) => async () => {
+    setOpen(true);
+    setDeleteItem(item);
   };
 
   const handleEditProject = (item) => () => {
     setEdit(true);
+    const NamePreTextPattern = new RegExp(
+      `^(${titleList.join("|")})\\.\\s`,
+      "i"
+    );
+
     if (typeof window !== "undefined") {
       window.scrollTo(0, 0);
     }
@@ -170,7 +196,7 @@ export default function Ambassador() {
         ...ambassador,
         description: item.description,
         image: item.image,
-        name: item.name,
+        name: item.name.replace(NamePreTextPattern, ""),
         country: item.country,
         flag: item.flag,
         id: item.id,
@@ -181,7 +207,7 @@ export default function Ambassador() {
 
   const handleCancelProject = async () => {
     dispatch(resetAmbassador());
-    resetFileInput()
+    resetFileInput();
     setEdit(false);
   };
   const resetFileInput = () => {
@@ -207,15 +233,29 @@ export default function Ambassador() {
                 <label class="Form-label">Name:</label>
               </Col>
               <Col xs={24} sm={24} md={15} lg={15} xl={15}>
-                <Input
-                  className="Form-input"
-                  size="md"
-                  placeholder="Enter name"
-                  name="name"
-                  value={ambassador.name}
-                  onChange={handleFormName}
-                  required
-                />
+                <div style={{ display: "flex" }}>
+                  <select
+                    className="Pre-Nametext"
+                    onChange={(e) => {
+                      setFirstName(e.target.value);
+                    }}
+                  >
+                    {titleList.map((title, index) => (
+                      <option key={index} value={title}>
+                        {title}
+                      </option>
+                    ))}
+                  </select>
+                  <Input
+                    className="Form-input"
+                    size="md"
+                    placeholder="Enter name"
+                    name="name"
+                    value={ambassador.name}
+                    onChange={handleFormName}
+                    required
+                  />
+                </div>
               </Col>
             </Row>
 
@@ -428,6 +468,14 @@ export default function Ambassador() {
           </div>
         </Grid>
       </div>
+      {open && (
+        <PopupDelete
+          item={deleteItem}
+          open={open}
+          ConfirmDelete={ConfirmDelete}
+          setOpen={setOpen}
+        />
+      )}
     </div>
   );
 }

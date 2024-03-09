@@ -1,10 +1,12 @@
-import React, { useEffect, useState ,useRef} from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { Input, Grid, Row, Col } from "rsuite";
 import { SelectPicker } from "rsuite";
+import { DatePicker, Stack } from "rsuite";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
 import { Button, ButtonToolbar } from "rsuite";
 import { Tooltip, Whisper } from "rsuite";
+
 import DeleteIcon from "@mui/icons-material/Delete";
 import BorderColorIcon from "@mui/icons-material/BorderColor";
 import CardActions from "@mui/material/CardActions";
@@ -12,15 +14,35 @@ import { Avatar } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
 import "rsuite/dist/rsuite.min.css";
 import "../../../styles/Admin/DashboardItems.css";
-import { resetTraining, updateTraining , updateOpenPopup, updatePopupData} from "../../../redux/userReducer";
+import {
+  resetTraining,
+  updateTraining,
+  updateOpenPopup,
+  updatePopupData,
+} from "../../../redux/userReducer";
 import { baseUrl, getApi, postApi, putApi } from "../../../Services/service";
+import { PopupDelete } from "../PopupDelete";
 
 export default function Trainings() {
   const training = useSelector((state) => state.Elite.training);
   const dispatch = useDispatch();
   const [trainingList, setTrainingList] = useState([]);
+  const [firstName, setFirstName] = useState("");
   const [edit, setEdit] = useState(false);
   const [editImage, setEditImage] = useState("");
+  const [open, setOpen] = useState(false);
+  const [deleteItem, setDeleteItem] = useState("");
+
+  const titleList = [
+    "Ms",
+    "Mrs",
+    "Miss",
+    "Mr",
+    "Dr",
+    "Sir",
+    "Prof",
+    "Assistant Prof",
+  ];
   useEffect(() => {
     if (typeof window !== "undefined") {
       window.scrollTo(0, 0);
@@ -34,28 +56,31 @@ export default function Trainings() {
   };
 
   const getTrainings = async () => {
-    const response =await getApi('training/get');
-    if(response?.status === "Failed"){
-      openPopup('error','Network Error! Try again later.')
-    }else{
+    const response = await getApi("training/get");
+    if (response?.status === "Failed") {
+      openPopup("error", "Network Error! Try again later.");
+    } else {
       setTrainingList(response?.data);
     }
-    closePopup()
+    closePopup();
   };
 
-  const openPopup = (type,message) =>{
+  const openPopup = (type, message) => {
     dispatch(updateOpenPopup(true));
-    dispatch(updatePopupData({
-      type:type,
-      message:message,
-    }))
-  }
+    dispatch(
+      updatePopupData({
+        type: type,
+        message: message,
+      })
+    );
+  };
 
-  const closePopup = () =>{
-    setTimeout(()=>{
+  const closePopup = () => {
+    setTimeout(() => {
       dispatch(updateOpenPopup(false));
       dispatch(updatePopupData(""));
-    },3500)}
+    }, 3500);
+  };
 
   const SelectOption = [
     {
@@ -70,6 +95,9 @@ export default function Trainings() {
 
   const handleFormTitle = (event) => {
     dispatch(updateTraining({ ...training, title: event }));
+  };
+  const handleFormTrainer = (event) => {
+    dispatch(updateTraining({ ...training, trainer: event }));
   };
   const handleFormDescription = (event) => {
     dispatch(updateTraining({ ...training, description: event }));
@@ -91,23 +119,32 @@ export default function Trainings() {
     dispatch(updateTraining({ ...training, image: e.target.files[0] }));
   };
   const handleFormSelect = (event) => {
-    dispatch(updateTraining({ ...training, mode: event }));
+    dispatch(updateTraining({ ...training, mode: event, venue: "" }));
+  };
+
+  const handleFormDate = (event) => {
+    dispatch(updateTraining({ ...training, date: event }));
   };
 
   const validateForm =
     training.image &&
     training.title &&
+    firstName &&
+    training.trainer &&
+    training.date &&
     training.description &&
     training.mode &&
     training.objective &&
-    training.venue &&
     training.fee &&
     training.link;
+
   const cancelForm =
     training.image ||
     training.title ||
+    training.trainer ||
     training.description ||
     training.mode ||
+    training.date ||
     training.objective ||
     training.venue ||
     training.fee ||
@@ -119,6 +156,8 @@ export default function Trainings() {
     );
     return (
       tempTraining[0]?.title !== training?.title ||
+      tempTraining[0]?.trainer !== training?.trainer ||
+      tempTraining[0]?.date !== training?.date ||
       tempTraining[0]?.image !== training?.image ||
       tempTraining[0]?.mode !== training?.mode ||
       tempTraining[0]?.description !== training?.description ||
@@ -134,6 +173,8 @@ export default function Trainings() {
     const formData = new FormData();
     formData.append("image", training.image);
     formData.append("title", training.title);
+    formData.append("trainer", firstName + ". " + training.trainer);
+    formData.append("date", training.date);
     formData.append("description", training.description);
     formData.append("mode", training.mode);
     formData.append("objective", training.objective);
@@ -142,74 +183,86 @@ export default function Trainings() {
     formData.append("link", training.link);
 
     if (validateForm) {
-      if(!edit){
-        const response = await postApi('training/create',formData);
-        if(response?.status === "Failed"){
-          openPopup('error','Network Error! Try again later.')
-        }else if(response?.status_code === 200)
-         {
-          openPopup('success','New data successfully created.')
-        }else if(response?.status_code === 400)
-        {
-          openPopup('error','New data creation Failed.')
+      if (!edit) {
+        const response = await postApi("training/create", formData);
+        if (response?.status === "Failed") {
+          openPopup("error", "Network Error! Try again later.");
+        } else if (response?.status_code === 200) {
+          openPopup("success", "New data successfully created.");
+        } else if (response?.status_code === 400) {
+          openPopup("error", "New data creation Failed.");
         }
-      }else{
-        const response = await putApi('training/update/'+ training.id,formData)
-        if(response?.status === "Failed"){
-          openPopup('error','Network Error! Try again later.')
-        }else if(response?.status_code === 200)
-         {
-          openPopup('info','Data successfully updated.')
-        }else if(response?.status_code === 400)
-        {
-          openPopup('error','Data updation Failed.')
+      } else {
+        const response = await putApi(
+          "training/update/" + training.id,
+          formData
+        );
+        if (response?.status === "Failed") {
+          openPopup("error", "Network Error! Try again later.");
+        } else if (response?.status_code === 200) {
+          openPopup("info", "Data successfully updated.");
+        } else if (response?.status_code === 400) {
+          openPopup("error", "Data updation Failed.");
         }
       }
-      
+
       getTrainings();
       handleCancelProject();
       closePopup();
     }
   };
 
-  const handleRemoveProject = (item) => async() =>{
-        const response = await postApi('training/delete/'+ item.id)
-        if(response?.status === "Failed"){
-          openPopup('error','Network Error! Try again later.')
-        }else if(response?.status_code === 200)
-         {
-          openPopup('info','Data successfully deleted.')
-        }else if(response?.status_code === 400)
-        {
-          openPopup('error','Data deletion Failed.')
-        }
-        getTrainings();
-        closePopup()
-  }
+  const ConfirmDelete = (item) => async () => {
+    const response = await postApi("training/delete/" + item.id);
+    if (response?.status === "Failed") {
+      openPopup("error", "Network Error! Try again later.");
+    } else if (response?.status_code === 200) {
+      openPopup("info", "Data successfully deleted.");
+    } else if (response?.status_code === 400) {
+      openPopup("error", "Data deletion Failed.");
+    }
+    getTrainings();
+    closePopup();
+    setOpen(false);
+  };
 
-  const handleEditProject = (item) => ()  =>{
-    if (typeof window !== 'undefined') {
+  const handleRemoveProject = (item) => async () => {
+    setOpen(true);
+    setDeleteItem(item);
+  };
+
+  const handleEditProject = (item) => () => {
+    if (typeof window !== "undefined") {
       window.scrollTo(0, 0);
     }
-    setEdit(true)
-    dispatch(updateTraining({...training,
-      "description":item.description,
-      "image":item.image,
-      "title":item.title,
-      "mode":item.mode,
-  "objective":item.objective,
-  "venue":item.venue,
-  "fee":item.fee,
-  "link":item.link,
-      "id":item.id,
-    }))
+    setEdit(true);
+    const NamePreTextPattern = new RegExp(
+      `^(${titleList.join("|")})\\.\\s`,
+      "i"
+    );
+    dispatch(
+      updateTraining({
+        ...training,
+        description: item.description,
+        image: item.image,
+        trainer: item.trainer.replace(NamePreTextPattern, ""),
+        date: item.date,
+        title: item.title,
+        mode: item.mode,
+        objective: item.objective,
+        venue: item.venue,
+        fee: item.fee,
+        link: item.link,
+        id: item.id,
+      })
+    );
     setEditImage(item.image);
-  }
+  };
 
   const handleCancelProject = async () => {
     dispatch(resetTraining());
-    resetFileInput()
-    setEdit(false)
+    resetFileInput();
+    setEdit(false);
   };
 
   const truncateText = (text, limit) => {
@@ -245,26 +298,67 @@ export default function Trainings() {
 
             <Row style={{ marginBottom: "10px" }}>
               <Col xs={24} sm={24} md={5} lg={5} xl={5}>
+                <label class="Form-label">Trainer Name:</label>
+              </Col>
+              <Col xs={24} sm={24} md={15} lg={15} xl={15}>
+                <div style={{ display: "flex" }}>
+                  <select
+                    className="Pre-Nametext"
+                    onChange={(e) => {
+                      setFirstName(e.target.value);
+                    }}
+                  >
+                    {titleList.map((title, index) => (
+                      <option key={index} value={title}>
+                        {title}
+                      </option>
+                    ))}
+                  </select>
+
+                  <Input
+                    className="Form-input"
+                    size="md"
+                    placeholder="Enter Trainer Name"
+                    name="title"
+                    value={training.trainer}
+                    onChange={handleFormTrainer}
+                    required
+                  />
+                </div>
+              </Col>
+            </Row>
+
+            <Row style={{ marginBottom: "10px" }}>
+              <Col xs={24} sm={24} md={5} lg={5} xl={5}>
                 <label class="Form-label">Image:</label>
               </Col>
               <Col xs={24} sm={24} md={15} lg={15} xl={15}>
-              <div>
-                <input
-                  className="Form-imageUpload"
-                  name="image"
-                  type="file"
-                  style={{
-                    background: "white",
-                    height: "35px",
-                    borderRadius: "6px",
-                    padding: "5px",
-                    color: "rgb(133, 133, 133)",
-                  }}
-                  required
-                  ref={inputRef}
-                  onChange={handleFormImage}
-                />
-                 {(edit && editImage === training.image) ? <p className="Form-textArea" style={{padding:"5px",color:"rgb(133, 133, 133)"}}>{training.image}</p>:""}
+                <div>
+                  <input
+                    className="Form-imageUpload"
+                    name="image"
+                    type="file"
+                    style={{
+                      background: "white",
+                      height: "35px",
+                      borderRadius: "6px",
+                      padding: "5px",
+                      color: "rgb(133, 133, 133)",
+                    }}
+                    required
+                    ref={inputRef}
+                    onChange={handleFormImage}
+                  />
+                  {edit && editImage === training.image ? (
+                    <p
+                      className="Form-textArea"
+                      style={{ padding: "5px", color: "rgb(133, 133, 133)" }}
+                    >
+                      {training.image}
+                    </p>
+                  ) : (
+                    ""
+                  )}
                 </div>
               </Col>
             </Row>
@@ -303,24 +397,6 @@ export default function Trainings() {
                 />
               </Col>
             </Row>
-
-            <Row style={{ marginBottom: "10px" }}>
-              <Col xs={24} sm={24} md={5} lg={5} xl={5}>
-                <label class="Form-label">Venue:</label>
-              </Col>
-              <Col xs={24} sm={24} md={15} lg={15} xl={15}>
-                <Input
-                  className="Form-input"
-                  size="md"
-                  placeholder="Enter venue"
-                  name="venue"
-                  value={training.venue}
-                  onChange={handleFormVenue}
-                  required
-                />
-              </Col>
-            </Row>
-
             <Row style={{ marginBottom: "10px" }}>
               <Col xs={24} sm={24} md={5} lg={5} xl={5}>
                 <label class="Form-label">Mode:</label>
@@ -334,6 +410,42 @@ export default function Trainings() {
                   name="mode"
                   value={training.mode}
                   onChange={handleFormSelect}
+                  required
+                />
+              </Col>
+            </Row>
+            {training.mode != "Online" && (
+              <Row style={{ marginBottom: "10px" }}>
+                <Col xs={24} sm={24} md={5} lg={5} xl={5}>
+                  <label class="Form-label">Venue:</label>
+                </Col>
+                <Col xs={24} sm={24} md={15} lg={15} xl={15}>
+                  <Input
+                    className="Form-input"
+                    size="md"
+                    placeholder="Enter venue"
+                    name="venue"
+                    value={training.venue}
+                    onChange={handleFormVenue}
+                    required
+                  />
+                </Col>
+              </Row>
+            )}
+
+            <Row style={{ marginBottom: "10px" }}>
+              <Col xs={24} sm={24} md={5} lg={5} xl={5}>
+                <label class="Form-label">Date:</label>
+              </Col>
+              <Col xs={24} sm={24} md={15} lg={15} xl={15}>
+                <DatePicker
+                  format="MM/dd/yyyy HH:mm"
+                  className="Form-input"
+                  size="md"
+                  placeholder="select the date"
+                  name="venue"
+                  showMeridian
+                  onChange={handleFormDate}
                   required
                 />
               </Col>
@@ -386,26 +498,27 @@ export default function Trainings() {
                   >
                     Cancel
                   </Button>
-                  { !edit ? 
-                  <Button
-                    disabled={!validateForm}
-                    color="green"
-                    id="addnew"
-                    appearance="primary"
-                    onClick={handleAddProject}
-                  >
-                    Add New
-                  </Button> :
-                  <Button
-                  disabled={!(validateForm && updateValidation)}
-                  color="green"
-                  id="addnew"
-                  appearance="primary"
-                  onClick={handleAddProject}
-                >
-                  Update
-                </Button>
-}
+                  {!edit ? (
+                    <Button
+                      disabled={!validateForm}
+                      color="green"
+                      id="addnew"
+                      appearance="primary"
+                      onClick={handleAddProject}
+                    >
+                      Add New
+                    </Button>
+                  ) : (
+                    <Button
+                      disabled={!(validateForm && updateValidation)}
+                      color="green"
+                      id="addnew"
+                      appearance="primary"
+                      onClick={handleAddProject}
+                    >
+                      Update
+                    </Button>
+                  )}
                 </ButtonToolbar>
               </Col>
             </Row>
@@ -459,25 +572,31 @@ export default function Trainings() {
                       </div>
                     </Col>
                     <Col xs={24} sm={24} md={2} lg={2} xl={2}>
-                       <div className="Display-content-edit">
-                      <Whisper  placement="top" speaker={<Tooltip> Delete!</Tooltip>}>
-                        <Button
-                          variant="outlined"
-                          id="delete"
-                          style={{color:"red"}}
-                          startIcon={<DeleteIcon />}
-                          onClick={handleRemoveProject(item)}
-                        />
+                      <div className="Display-content-edit">
+                        <Whisper
+                          placement="top"
+                          speaker={<Tooltip> Delete!</Tooltip>}
+                        >
+                          <Button
+                            variant="outlined"
+                            id="delete"
+                            style={{ color: "red" }}
+                            startIcon={<DeleteIcon />}
+                            onClick={handleRemoveProject(item)}
+                          />
                         </Whisper>
-                        <Whisper  placement="top" speaker={<Tooltip> Edit!</Tooltip>}>
-                        <Button
-                         id="edit"
-                         color="blue"
-                          variant="outlined"
-                          style={{color:"green"}}
-                          startIcon={<BorderColorIcon />}
-                          onClick={handleEditProject(item)}
-                        />
+                        <Whisper
+                          placement="top"
+                          speaker={<Tooltip> Edit!</Tooltip>}
+                        >
+                          <Button
+                            id="edit"
+                            color="blue"
+                            variant="outlined"
+                            style={{ color: "green" }}
+                            startIcon={<BorderColorIcon />}
+                            onClick={handleEditProject(item)}
+                          />
                         </Whisper>
                       </div>
                     </Col>
@@ -488,6 +607,14 @@ export default function Trainings() {
           ))}
         </div>
       </div>
+      {open && (
+        <PopupDelete
+          item={deleteItem}
+          open={open}
+          ConfirmDelete={ConfirmDelete}
+          setOpen={setOpen}
+        />
+      )}
     </div>
   );
 }

@@ -1,4 +1,4 @@
-import React, { useState,useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { Grid, Row, Col, Button } from "rsuite";
 import Card from "@mui/material/Card";
 import Typography from "@mui/material/Typography";
@@ -10,24 +10,23 @@ import {
   updateDasboardStatus,
   updateSelectedTitle,
 } from "../../redux/userReducer";
-import './../../styles/Admin/Dashboard.css'
+import "./../../styles/Admin/Dashboard.css";
 import { getApi } from "../../Services/service";
 
-
 const Dashboard = () => {
-  const [dashboardList,setDashboardList] = useState(AdminDashboard)
+  const [dashboardList, setDashboardList] = useState(AdminDashboard);
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  useEffect(()=>{
-    if (typeof window !== 'undefined') {
+  useEffect(() => {
+    if (typeof window !== "undefined") {
       window.scrollTo(0, 0);
     }
     getDashBoardItem();
-  },[])
+  }, []);
 
   const getDashBoardItem = async () => {
     try {
-      const response = await getApi('dashboard/get');
+      const response = await getApi("dashboard/get");
       if (response.status_code === 200) {
         const updatedDashboard = AdminDashboard.map((dashboardItem) => {
           if (Array.isArray(response.data.data)) {
@@ -40,20 +39,18 @@ const Dashboard = () => {
                 badgeCount: matchingResponseItem.row_count,
               };
             }
-          } 
+          }
           return dashboardItem;
         });
-  
+
         setDashboardList(updatedDashboard);
       }
     } catch (error) {
-      console.error('Error fetching dashboard data:', error);
+      console.error("Error fetching dashboard data:", error);
     }
   };
-  
-  console.log(dashboardList)
- 
-  
+
+  console.log(dashboardList);
 
   const handleDashboard = (item) => () => {
     const DashboardStatus = {
@@ -65,32 +62,50 @@ const Dashboard = () => {
   };
 
   return (
-    <Grid
-      fluid
-      className="Dashboard-container"
-      style={{paddingTop:"30px"}}
-    >
+    <Grid fluid className="Dashboard-container" style={{ paddingTop: "30px" }}>
       <p className="Dashboard-container-title">Dashboard</p>
       <Row gutter={5} className="Dashboard-row">
         {dashboardList.map((item, index) => (
-          <Col key={index} xs={24} sm={24} md={12} lg={6} xl={6} className="Dashboard-item" >
-            <div key={index} onClick={handleDashboard(item)} className="Dashboard-List">
-                <Card sx={{ width: 160 }} className="Dashboard-card">
-                  <Avatar
-                    alt={item.alt}
-                    variant="square"
+          <Col
+            key={index}
+            xs={24}
+            sm={24}
+            md={12}
+            lg={6}
+            xl={6}
+            className="Dashboard-item"
+          >
+            <div
+              key={index}
+              onClick={handleDashboard(item)}
+              className="Dashboard-List"
+            >
+              <Card sx={{ width: 160 }} className="Dashboard-card">
+                <Avatar
+                  alt={item.alt}
+                  variant="square"
                   className="Dashboard-avator"
-                    src={item.img}
-                  />
-                 <p style={{color:"white",fontWeight:"700",margin:"0px",background:"#F94C10",textAlign:"center"}}>{item.badgeCount}</p>
-                </Card>
+                  src={item.img}
+                />
+                <p
+                  style={{
+                    color: "white",
+                    fontWeight: "700",
+                    margin: "0px",
+                    background: "#F94C10",
+                    textAlign: "center",
+                  }}
+                >
+                  {item.badgeCount}
+                </p>
+              </Card>
               <Typography
                 sx={{
                   fontSize: 14,
                   fontWeight: 600,
                   paddingTop: "8px",
                   height: "40px",
-                  textAlign:"center",
+                  textAlign: "center",
                 }}
                 gutterBottom
                 color="#2A333E"
