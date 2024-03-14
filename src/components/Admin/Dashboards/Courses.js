@@ -29,6 +29,7 @@ export default function Courses() {
   const [open, setOpen] = useState(false);
   const [deleteItem, setDeleteItem] = useState("");
   const [editImage, setEditImage] = useState("");
+  const [editPdf, setEditPdf] = useState("");
   useEffect(() => {
     if (typeof window !== "undefined") {
       window.scrollTo(0, 0);
@@ -39,6 +40,11 @@ export default function Courses() {
   const inputRef = useRef(null);
   const resetFileInput = () => {
     inputRef.current.value = null;
+  };
+
+  const inputFileRef = useRef(null);
+  const resetFileInputPdf = () => {
+    inputFileRef.current.value = null;
   };
 
   const getCourses = async () => {
@@ -101,7 +107,7 @@ export default function Courses() {
     dispatch(updateCourse({ ...course, benefit: event }));
   };
   const handleFormStructure = (event) => {
-    dispatch(updateCourse({ ...course, structure: event }));
+    dispatch(updateCourse({ ...course, structure: event.target.files[0] }));
   };
 
   const handleFormImage = async (e) => {
@@ -185,6 +191,7 @@ export default function Courses() {
       handleCancelProject();
       closePopup();
       resetFileInput();
+      resetFileInputPdf();
       getCourses();
     }
   };
@@ -210,6 +217,7 @@ export default function Courses() {
       })
     );
     setEditImage(item.image);
+    setEditPdf(item.structure);
   };
 
   const ConfirmDelete = (item) => async () => {
@@ -234,6 +242,7 @@ export default function Courses() {
   const handleCancelProject = async () => {
     dispatch(resetCourse());
     resetFileInput();
+    resetFileInputPdf();
     setEdit(false);
   };
 
@@ -410,15 +419,33 @@ export default function Courses() {
                 <label class="Form-label">Course Structure:</label>
               </Col>
               <Col xs={24} sm={24} md={15} lg={15} xl={15}>
-                <Input
-                  className="Form-input"
-                  size="md"
-                  placeholder="Enter course structure"
-                  name="structure"
-                  value={course.structure}
-                  onChange={handleFormStructure}
-                  required
-                />
+                <div>
+                 <input
+                    className="Form-imageUpload"
+                    placeholder="Enter course structure"
+                    name="structure"
+                    type="file"
+                    style={{
+                      background: "white",
+                      height: "35px",
+                      borderRadius: "6px",
+                      padding: "5px",
+                      color: "rgb(133, 133, 133)",
+                    }}
+                    ref={inputFileRef}
+                    required
+                    onChange={handleFormStructure}
+                  />
+                  {edit && editPdf === course.structure ? (
+                    <p
+                      className="Form-textArea"
+                      style={{ padding: "5px", color: "rgb(133, 133, 133)" }}
+                    > <a href={`${baseUrl}${course.structure}`} target="_blank" rel="noopener noreferrer">{course.structure}</a>   
+                    </p>
+                  ) : (
+                    ""
+                  )}
+                </div>
               </Col>
             </Row>
 
